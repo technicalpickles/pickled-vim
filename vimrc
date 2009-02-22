@@ -127,16 +127,18 @@ augroup END
 " align hashrockets
   vmap <leader>t<C-l> :Align =><CR>
 
-" bind \d to toggle file browser
-" requires NERDTree
-map <silent> <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>
-let NERDTreeQuitOnOpen=1
-"nmap <silent> <CR> NERDTreeMapActivateNode
+" NERDTree configuration
+  " bind \d to toggle & refresh file browser
+  map <silent> <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>R
+  " quit NERDTree after openning a file
+  let NERDTreeQuitOnOpen=1
+  " map enter to activating a node
+  let NERDTreeMapActivateNode='<CR>'
 
 " binds leader-t to textmate-style fuzzy finder
   map <silent> <leader>t :FuzzyFinderTextMate<CR>
   let g:fuzzy_matching_limit=60
-  let g:fuzzy_ignore = "*.png;*.PNG;*.JPG;*.jpg;*.GIF;*.gif;vendor/**;coverage/**;tmp/**"
+  let g:fuzzy_ignore = "*.png;*.PNG;*.JPG;*.jpg;*.GIF;*.gif;vendor/**;coverage/**;tmp/**;rdoc/**"
   let g:fuzzy_ceiling=20000
 
 
