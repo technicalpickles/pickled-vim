@@ -1,0 +1,8 @@
+def show
+  @<+model+> = <+Model+>.find(params[:id])
+
+  respond_to do |wants|
+    wants.html # show.html.erb
+    wants.xml  { render :xml => @<+model+> }
+  end
+end

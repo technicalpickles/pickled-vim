@@ -1,0 +1,8 @@
+def index
+  @<+model+>s = <+Model+>.all
+
+  respond_to do |wants|
+    wants.html # index.html.erb
+    wants.xml  { render :xml => @<+model+>s }
+  end
+end
