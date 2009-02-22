@@ -2,8 +2,6 @@ scriptencoding utf-8
 
 " I like pretty colors
   colorscheme ir_black
-" And pretty fonts
-  set guifont=Inconsolata:h14
 
 " These two enable syntax highlighting
   set nocompatible          " We're running Vim, not Vi!
@@ -13,7 +11,7 @@ scriptencoding utf-8
   filetype plugin indent on 
 
 " show the `best match so far' as search strings are typed
-set incsearch
+  set incsearch
 
 " Highlight search results once found:
   set hlsearch              
@@ -40,6 +38,7 @@ set incsearch
   setlocal numberwidth=3
 
 " Use the tab complete menu
+" first tab shows all matches. next tab starts cycling through the matches
   set wildmenu 
   set wildmode=list:longest,full
 
@@ -51,7 +50,6 @@ set incsearch
 
 " Load matchit (% to bounce from do to end, etc.)
   runtime! macros/matchit.vim
-
 
 " TAB NAVIGATION
   nmap <leader>tn :tabnext<cr>
@@ -89,7 +87,7 @@ set incsearch
   nmap <leader>roodi :Shell roodi %<CR>
   nmap <leader>flog :Shell flog -m -I lib % 2>/dev/null<CR>
 
-" Quick, jump out of insert mode while no one is looking
+" Quick way tou leave insert mode, without leaving homerow
   imap ii <Esc>
 
 " Nice statusbar
@@ -118,11 +116,10 @@ augroup myfiletypes
   autocmd!
   " autoindent with two spaces, always expand tabs
   autocmd FileType ruby,eruby,yaml set autoindent shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType vim set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
   " markdown goodness
   autocmd BufRead *.mkd  set autoindent formatoptions=tcroqn2 comments=n:>
 augroup END
-
-
 
 " bind control-l to hashrocket
   imap <C-l> <Space>=><Space>
@@ -130,48 +127,18 @@ augroup END
 " align hashrockets
   vmap <leader>t<C-l> :Align =><CR>
 
-" bind command-/ to toggle comment
-" requires NERD Commenter to be installed: http://www.vim.org/scripts/script.php?script_id=1218
-  nmap <D-/> ,c<space>
-  vmap <D-/> ,c<space>
-  imap <D-/> <C-O>,c<space>
-  let NERDShutUp = 1
-
-" bind command-] to shift right
-  nmap <D-]> >>
-  vmap <D-]> >>
-  imap <D-]> <C-O>>>
-
-" bind command-[ to shift left
-  nmap <D-[> <<
-  vmap <D-[> <<
-  imap <D-[> <C-O><<
-
-" bind command-option-l to toggle line numbers
-  nmap <silent> <D-M-l> :set invnumber<CR>
-
 " bind \d to toggle file browser
 " requires NERDTree
 map <silent> <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>
 let NERDTreeQuitOnOpen=1
 "nmap <silent> <CR> NERDTreeMapActivateNode
 
-" binds \ t to textmate-style fuzzy finder
+" binds leader-t to textmate-style fuzzy finder
   map <silent> <leader>t :FuzzyFinderTextMate<CR>
   let g:fuzzy_matching_limit=60
   let g:fuzzy_ignore = "*.png;*.PNG;*.JPG;*.jpg;*.GIF;*.gif;vendor/**;coverage/**;tmp/**"
   let g:fuzzy_ceiling=20000
 
-" open tabs with command-<tab number>
-  map <silent> <D-1> :tabn 1<CR>
-  map <silent> <D-2> :tabn 2<CR>
-  map <silent> <D-3> :tabn 3<CR>
-  map <silent> <D-4> :tabn 4<CR>
-  map <silent> <D-5> :tabn 5<CR>
-  map <silent> <D-6> :tabn 6<CR>
-  map <silent> <D-7> :tabn 7<CR>
-  map <silent> <D-8> :tabn 8<CR>
-  map <silent> <D-9> :tabn 9<CR>
 
 " \F to startup an ack search
   map <leader>F :Ack<space>
@@ -208,3 +175,17 @@ let NERDTreeQuitOnOpen=1
   autocmd FileType irb inoremap <buffer> <silent> <CR> <Esc>:<C-u>ruby v=VIM::Buffer.current;v.append(v.line_number, eval(v[v.line_number]).inspect)<CR>
   nnoremap <leader>irb :<C-u>below new<CR>:setfiletype irb<CR>:set syntax=ruby<CR>:set buftype=nofile<CR>:set bufhidden=delete<CR>i
 
+let g:browser = 'open '
+" Open the Ruby ApiDock page for the word under cursor, in a new Firefox tab
+function! OpenRubyDoc(keyword)
+  let url = 'http://apidock.com/ruby/'.a:keyword
+  exec '!'.g:browser.' '.url
+endfunction           
+noremap <leader>rb :call OpenRubyDoc(expand('<cword>'))<CR>
+ 
+" Open the Rails ApiDock page for the word under cursos, in a new Firefox tab
+function! OpenRailsDoc(keyword)
+  let url = 'http://apidock.com/rails/'.a:keyword
+  exec '!'.g:browser.' '.url
+endfunction
+noremap <leader>rr :call OpenRailsDoc(expand('<cword>'))<CR>
