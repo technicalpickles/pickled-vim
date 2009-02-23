@@ -1,5 +1,9 @@
 " And pretty fonts
   set guifont=Inconsolata:h14
+
+" No toolbar
+  set guioptions-=T
+  
  
 " bind command-/ to toggle comment
 " requires NERD Commenter to be installed: http://www.vim.org/scripts/script.php?script_id=1218

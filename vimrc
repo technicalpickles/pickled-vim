@@ -14,8 +14,8 @@ scriptencoding utf-8
   set incsearch
 
 " Highlight search results once found:
-  set hlsearch              
- 
+  set hlsearch
+
 " highlight the current line the cursor is on
   set cursorline
 "sm:    flashes matching brackets or parentheses
@@ -33,17 +33,20 @@ scriptencoding utf-8
 " When scrolling off-screen do so 3 lines at a time, not 1
   set scrolloff=3
 
-" enable line numbers
+" enable line numbers    
   set number
-  setlocal numberwidth=3
+  setlocal numberwidth=5
 
-" Use the tab complete menu
+" Enable tab complete for commands.
 " first tab shows all matches. next tab starts cycling through the matches
   set wildmenu 
   set wildmode=list:longest,full
 
+" Display extra whitespace
+  set list listchars=tab:»·,trail:·
+
 " don't make it look like there are line breaks where there aren't:
-  set nowrap
+  "set nowrap
 
 " assume the /g flag on :s substitutions to replace all matches in a line:
   set gdefault
@@ -117,13 +120,14 @@ augroup myfiletypes
   " autoindent with two spaces, always expand tabs
   autocmd FileType ruby,eruby,yaml set autoindent shiftwidth=2 softtabstop=2 expandtab
   autocmd FileType vim set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType cucumber set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
   " markdown goodness
   autocmd BufRead *.mkd  set autoindent formatoptions=tcroqn2 comments=n:>
 augroup END
 
 " bind control-l to hashrocket
   imap <C-l> <Space>=><Space>
-  
+
 " align hashrockets
   vmap <leader>t<C-l> :Align =><CR>
 
@@ -154,6 +158,8 @@ augroup END
 "make Y consistent with C and D
   nnoremap Y y$
 
+" Hide search highlighting
+  map <silent> <leader>nh :nohls <CR>
   
 " toggle Quickfix window with <leader>q
   map <silent> <leader>q :QFix<CR>
@@ -161,8 +167,13 @@ augroup END
 " Make backspace work in insert mode
   set backspace=indent,eol,start
 
-" Remember last position in file
-  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g'\"" | endif
+" When editing a file, always jump to the last known cursor position.
+" Don't do it when the position is invalid or when inside an event handler
+" (happens when dropping a file on gvim).
+autocmd BufReadPost *
+      \ if line("'\"") > 0 && line("'\"") <= line("$") |
+      \   exe "normal g`\"" |
+      \ endi
 
 " IRB {{{
   autocmd FileType irb inoremap <buffer> <silent> <CR> <Esc>:<C-u>ruby v=VIM::Buffer.current;v.append(v.line_number, eval(v[v.line_number]).inspect)<CR>
@@ -171,16 +182,16 @@ augroup END
 let g:browser = 'open '
 " Open the Ruby ApiDock page for the word under cursor, using the 'open'
 " command
-function! OpenRubyDoc(keyword)
-  let url = 'http://apidock.com/ruby/'.a:keyword
-  exec '!'.g:browser.' '.url
-endfunction           
-noremap <leader>rb :call OpenRubyDoc(expand('<cword>'))<CR>
- 
+  function! OpenRubyDoc(keyword)
+    let url = 'http://apidock.com/ruby/'.a:keyword
+    exec '!'.g:browser.' '.url
+  endfunction
+  noremap <leader>rb :call OpenRubyDoc(expand('<cword>'))<CR>
+
 " Open the Rails ApiDock page for the word under cursor, using the 'open'
 " command
-function! OpenRailsDoc(keyword)
-  let url = 'http://apidock.com/rails/'.a:keyword
-  exec '!'.g:browser.' '.url
-endfunction
-noremap <leader>rr :call OpenRailsDoc(expand('<cword>'))<CR>
+  function! OpenRailsDoc(keyword)
+    let url = 'http://apidock.com/rails/'.a:keyword
+    exec '!'.g:browser.' '.url
+  endfunction
+  noremap <leader>rr :call OpenRailsDoc(expand('<cword>'))<CR>
