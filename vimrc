@@ -142,7 +142,7 @@ augroup END
   let g:fuzzy_ceiling=20000
 
 
-" \F to startup an ack search
+" <leader>F to begin searching with ack
   map <leader>F :Ack<space>
 
 " search next/previous -- center in page
@@ -151,26 +151,17 @@ augroup END
   nmap * *Nzz
   nmap # #nzz
 
-" window splitting mappings
-" split vertically with <leader> v
-" split horizontally with <leader> s
-  nmap <silent> <leader>v :vsplit<CR> <C-w><C-w>
-  nmap <silent> <leader>s :split<CR> <C-w><C-w>
-  
-" Make it way easier to switch windows (<leader>w)
-  nmap <leader>w <C-w><C-w>_
-  
-" toggle qfix with <leader>q
-  map <silent> <leader>q :QFix<CR>
-  
-" enter to insert new line after, control-enter to insert new line before
-  nmap <S-CR> o<ESC>
-  nmap <C-CR> O<ESC>
+"make Y consistent with C and D
+  nnoremap Y y$
 
-" MAKE BACKSPACE WORK IN INSERT MODE
+  
+" toggle Quickfix window with <leader>q
+  map <silent> <leader>q :QFix<CR>
+
+" Make backspace work in insert mode
   set backspace=indent,eol,start
 
-" REMEMBER LAST POSITION IN FILE
+" Remember last position in file
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g'\"" | endif
 
 " IRB {{{
@@ -178,14 +169,16 @@ augroup END
   nnoremap <leader>irb :<C-u>below new<CR>:setfiletype irb<CR>:set syntax=ruby<CR>:set buftype=nofile<CR>:set bufhidden=delete<CR>i
 
 let g:browser = 'open '
-" Open the Ruby ApiDock page for the word under cursor, in a new Firefox tab
+" Open the Ruby ApiDock page for the word under cursor, using the 'open'
+" command
 function! OpenRubyDoc(keyword)
   let url = 'http://apidock.com/ruby/'.a:keyword
   exec '!'.g:browser.' '.url
 endfunction           
 noremap <leader>rb :call OpenRubyDoc(expand('<cword>'))<CR>
  
-" Open the Rails ApiDock page for the word under cursos, in a new Firefox tab
+" Open the Rails ApiDock page for the word under cursor, using the 'open'
+" command
 function! OpenRailsDoc(keyword)
   let url = 'http://apidock.com/rails/'.a:keyword
   exec '!'.g:browser.' '.url
