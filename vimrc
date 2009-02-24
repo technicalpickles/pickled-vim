@@ -45,7 +45,7 @@
   set wildmode=list:longest,full
 
   " Display extra whitespace
-  set list listchars=tab:»·,trail:·
+  "set list listchars=tab:»·,trail:·
 
   " don't make it look like there are line breaks where there aren't:
   "set nowrap
@@ -178,8 +178,8 @@
   " align hashrockets with <leader>t control-l
   vmap <leader>t<C-l> :Align =><CR>
 
-  " Toggle NERDTree & refresh with <leader>d
-  map <silent> <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>R
+  " Toggle NERDTree with <leader>d
+  map <silent> <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>
 
   " TextMate fuzzy finder with <leader>t
   map <silent> <leader>t :FuzzyFinderTextMate<CR>
