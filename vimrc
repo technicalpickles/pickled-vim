@@ -80,11 +80,19 @@
 
   " quit NERDTree after openning a file
   let NERDTreeQuitOnOpen=1
+  " colored NERD Tree
+  let NERDChristmasTree = 1
+  let NERDTreeHighlightCursorline = 1
+  let NERDTreeShowHidden = 1
   " map enter to activating a node
   let NERDTreeMapActivateNode='<CR>'
+  let NERDTreeIgnore=['\.git']
 
+  " limit number of results shown for performance
   let g:fuzzy_matching_limit=60
+  " ignore stuff that can't be openned, and generated files
   let g:fuzzy_ignore = "*.png;*.PNG;*.JPG;*.jpg;*.GIF;*.gif;vendor/**;coverage/**;tmp/**;rdoc/**"
+  " increate the number of files scanned for very large projects
   let g:fuzzy_ceiling=20000
 
   let g:browser = 'open '
@@ -183,6 +191,9 @@
 
   " TextMate fuzzy finder with <leader>t
   map <silent> <leader>t :FuzzyFinderTextMate<CR>
+
+  " FuzzyFinder tags with <leader>T
+  nnoremap <silent> <leader>T :FuzzyFinderTag!<CR>
 
   " <leader>F to begin searching with ack
   map <leader>F :Ack<space>
