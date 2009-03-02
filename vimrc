@@ -106,6 +106,7 @@
     autocmd FileType cucumber set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     " markdown goodness
     autocmd BufRead *.mkd  set autoindent formatoptions=tcroqn2 comments=n:>
+    au BufRead,BufNewFile *etc/nginx/* set ft=nginx 
   augroup END
 
 
@@ -191,6 +192,8 @@
 
   " TextMate fuzzy finder with <leader>t
   map <silent> <leader>t :FuzzyFinderTextMate<CR>
+  " TextMate fuzzy finder in a new horizontal split window with <leader>st
+  map <silent> <leader>st <C-w><C-s>:FuzzyFinderTextMate<CR>
 
   " FuzzyFinder tags with <leader>T
   nnoremap <silent> <leader>T :FuzzyFinderTag!<CR>
