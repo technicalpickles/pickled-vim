@@ -4,6 +4,9 @@
 " No toolbar
   set guioptions-=T
   
+" fullscreen maximizes vertically AND horizontally
+  set fuoptions=maxvert,maxhorz
+  
  
 " bind command-/ to toggle comment
 " requires NERD Commenter to be installed: http://www.vim.org/scripts/script.php?script_id=1218
