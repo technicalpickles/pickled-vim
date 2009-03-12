@@ -75,6 +75,12 @@
   " Make backspace work in insert mode
   set backspace=indent,eol,start
 
+  " can has foldin plz?
+  set foldenable
+  set foldmethod=syntax
+  set foldlevel=999 " make it really high, so they're not displayed by default
+  
+
   " Turn off rails bits of statusbar
   let g:rails_statusline=0
 
@@ -86,7 +92,7 @@
   let NERDTreeShowHidden = 1
   " map enter to activating a node
   let NERDTreeMapActivateNode='<CR>'
-  let NERDTreeIgnore=['\.git']
+  let NERDTreeIgnore=['\.git','\.DS_Store']
 
   " limit number of results shown for performance
   let g:fuzzy_matching_limit=60
