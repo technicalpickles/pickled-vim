@@ -6,6 +6,9 @@
   
 " fullscreen maximizes vertically AND horizontally
   set fuoptions=maxvert,maxhorz
+
+  set lines=50
+  set columns=80
   
  
 " bind command-/ to toggle comment
