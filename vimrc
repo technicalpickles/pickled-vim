@@ -198,8 +198,10 @@
 
   " TextMate fuzzy finder with <leader>t
   map <silent> <leader>t :FuzzyFinderTextMate<CR>
-  " TextMate fuzzy finder in a new horizontal split window with <leader>st
+  " TextMate fuzzy finder in a new horizontal split window
   map <silent> <leader>st <C-w><C-s>:FuzzyFinderTextMate<CR>
+  " TextMate fuzzy finder in a new vertical split window 
+  map <silent> <leader>vt <C-w><C-v>:FuzzyFinderTextMate<CR>
 
   " FuzzyFinder tags with <leader>T
   nnoremap <silent> <leader>T :FuzzyFinderTag!<CR>
