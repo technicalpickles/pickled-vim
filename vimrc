@@ -113,6 +113,7 @@
     " markdown goodness
     autocmd BufRead *.mkd  set autoindent formatoptions=tcroqn2 comments=n:>
     au BufRead,BufNewFile *etc/nginx/* set ft=nginx 
+    au BufRead,BufNewFile *.ru set ft=ruby
   augroup END
 
 
