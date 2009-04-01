@@ -1,9 +1,0 @@
-def destroy
-  @<+model+> = <+Model+>.find(params[:id])
-  @<+model+>.destroy
-
-  respond_to do |wants|
-    wants.html { redirect_to(<+model+>s_url) }
-    wants.xml  { head :ok }
-  end
-end
