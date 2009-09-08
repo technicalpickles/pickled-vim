@@ -7,3 +7,6 @@ endif
 
 hi def link rubyRspec Function
 hi def link rubyShoulda Function
+
+compiler rubyunit
+nmap <Leader>fd :cf /tmp/autotest.txt<CR>:compiler rubyunit<CR>
