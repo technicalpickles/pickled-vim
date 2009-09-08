@@ -1,5 +1,9 @@
 " Section: configuration
-"
+
+  " goodies from gentoo
+
+  source /gentoo/etc/vim/vimrc
+
   scriptencoding utf-8
 
   " I like pretty colors
@@ -19,7 +23,7 @@
   set hlsearch
 
   " highlight the current line the cursor is on
-  set cursorline
+  " set cursorline
   "sm:    flashes matching brackets or parentheses
   set showmatch
 
@@ -111,6 +115,7 @@
     autocmd!
     " autoindent with two spaces, always expand tabs
     autocmd FileType ruby,eruby,yaml set autoindent shiftwidth=2 softtabstop=2 expandtab
+    autocmd FileType javascript set autoindent shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType vim set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType cucumber set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     " markdown goodness
@@ -202,11 +207,6 @@
   nmap <F1> <Esc>
   map! <F1> <Esc>
 
-  nmap <leader>sh :Shell
-
-  " Quick way to leave insert mode, without leaving homerow
-  imap ii <Esc>
-
   " insert hashrocket, =>, with control-l
   imap <C-l> <Space>=><Space>
 
@@ -218,10 +218,6 @@
 
   " TextMate fuzzy finder with <leader>t
   map <silent> <leader>t :FuzzyFinderTextMate<CR>
-  " TextMate fuzzy finder in a new horizontal split window
-  map <silent> <leader>st <C-w><C-s>:FuzzyFinderTextMate<CR>
-  " TextMate fuzzy finder in a new vertical split window 
-  map <silent> <leader>vt <C-w><C-v>:FuzzyFinderTextMate<CR>
 
   " FuzzyFinder tags with <leader>T
   nnoremap <silent> <leader>T :FuzzyFinderTag!<CR>
@@ -249,3 +245,17 @@
   " Easily lookup documentation on apidock
   noremap <leader>rb :call OpenRubyDoc(expand('<cword>'))<CR>
   noremap <leader>rr :call OpenRailsDoc(expand('<cword>'))<CR>
+
+  map <C-c>n :cnext<CR>
+  map <C-c>p :cprevious<CR>
+
+  function! RspecToMocha()
+    silent! %s/\.stub!\?(/.stubs(/
+    silent! %s/and_return/returns/
+    silent! %s/should_receive/expects/
+    silent! %s/should_not_receive\((.*)\)/expects\1.never
+    silent! %s/and_raise/raises/
+    :w
+  endfunction
+  command! RspecToMocha call RspecToMocha()
+  
