@@ -1,7 +1,6 @@
 # #!/usr/bin/ruby
 snippet #!
 	#!/usr/bin/ruby
-	
 # New Block
 snippet =b
 	=begin rdoc
@@ -9,13 +8,8 @@ snippet =b
 	=end
 snippet y
 	:yields: ${1:arguments}
-snippet rb
-	#!/usr/bin/env ruby -wKU
-	
 snippet req
 	require "${1}"${2}
-snippet #
-	# =>
 snippet end
 	__END__
 snippet case
@@ -59,52 +53,6 @@ snippet until
 	until ${1:condition}
 		${2}
 	end
-snippet cla class .. end
-	class ${1:`substitute(Filename(), '^.', '\u&', '')`}
-		${2}
-	end
-snippet cla class .. initialize .. end
-	class ${1:`substitute(Filename(), '^.', '\u&', '')`}
-		def initialize(${2:args})
-			${3}
-		end
-	
-	
-	end
-snippet cla class .. < ParentClass .. initialize .. end
-	class ${1:`substitute(Filename(), '^.', '\u&', '')`} < ${2:ParentClass}
-		def initialize(${3:args})
-			${4}
-		end
-	
-	
-	end
-snippet cla ClassName = Struct .. do .. end
-	${1:`substitute(Filename(), '^.', '\u&', '')`} = Struct.new(:${2:attr_names}) do
-		def ${3:method_name}
-			${4}
-		end
-	
-	
-	end
-snippet cla class BlankSlate .. initialize .. end
-	class ${1:BlankSlate}
-		instance_methods.each { |meth| undef_method(meth) unless meth =~ /\A__/ }
-snippet cla class << self .. end
-	class << ${1:self}
-		${2}
-	end
-# class .. < DelegateClass .. initialize .. end
-snippet cla-
-	class ${1:`substitute(Filename(), '^.', '\u&', '')`} < DelegateClass(${2:ParentClass})
-		def initialize(${3:args})
-			super(${4:del_obj})
-	
-			${5}
-		end
-	
-	
-	end
 snippet mod module .. end
 	module ${1:`substitute(Filename(), '^.', '\u&', '')`}
 		${2}
@@ -121,7 +69,6 @@ snippet mod module .. ClassMethods .. end
 			${2}
 		end
 	
-		
 # attr_reader
 snippet r
 	attr_reader :${1:attr_names}
@@ -155,28 +102,8 @@ snippet defs
 	end
 # def method_missing
 snippet defmm
-	def method_missing(meth, *args, &blk)
+	def method_missing(sym, *args, &block)
 		${1}
-	end
-snippet defd
-	def_delegator :${1:@del_obj}, :${2:del_meth}, :${3:new_name}
-snippet defds
-	def_delegators :${1:@del_obj}, :${2:del_methods}
-snippet am
-	alias_method :${1:new_name}, :${2:old_name}
-snippet app
-	if __FILE__ == $PROGRAM_NAME
-		${1}
-	end
-# usage_if()
-snippet usai
-	if ARGV.${1}
-		abort \"Usage: #{$PROGRAM_NAME} ${2:ARGS_GO_HERE}\"${3}
-	end
-# usage_unless()
-snippet usau
-	unless ARGV.${1}
-		abort \"Usage: #{$PROGRAM_NAME} ${2:ARGS_GO_HERE}\"${3}
 	end
 snippet array
 	Array.new(${1:10}) { |${2:i}| ${3} }
@@ -196,28 +123,17 @@ snippet deli
 	delete_if { |${1:e}| ${2} }
 snippet fil
 	fill(${1:range}) { |${2:i}| ${3} }
-# flatten_once()
-snippet flao
-	inject(Array.new) { |${1:arr}, ${2:a}| $1.push(*$2)}${3}
-snippet zip
-	zip(${1:enums}) { |${2:row}| ${3} }
 # downto(0) { |n| .. }
 snippet dow
 	downto(${1:0}) { |${2:n}| ${3} }
 snippet ste
 	step(${1:2}) { |${2:n}| ${3} }
-snippet tim
-	times { |${1:n}| ${2} }
 snippet upt
 	upto(${1:1.0/0.0}) { |${2:n}| ${3} }
 snippet loo
 	loop { ${1} }
 snippet ea
 	each { |${1:e}| ${2} }
-snippet eab
-	each_byte { |${1:byte}| ${2} }
-snippet eac- each_char { |chr| .. }
-	each_char { |${1:chr}| ${2} }
 snippet eac- each_cons(..) { |group| .. }
 	each_cons(${1:2}) { |${2:group}| ${3} }
 snippet eai
@@ -248,24 +164,6 @@ snippet sorb
 	sort_by { |${1:e}| ${2} }
 snippet ran
 	sort_by { rand }
-snippet all
-	all? { |${1:e}| ${2} }
-snippet any
-	any? { |${1:e}| ${2} }
-snippet cl
-	classify { |${1:e}| ${2} }
-snippet col
-	collect { |${1:e}| ${2} }
-snippet det
-	detect { |${1:e}| ${2} }
-snippet fet
-	fetch(${1:name}) { |${2:key}| ${3} }
-snippet fin
-	find { |${1:e}| ${2} }
-snippet fina
-	find_all { |${1:e}| ${2} }
-snippet gre
-	grep(${1:/pattern/}) { |${2:match}| ${3} }
 snippet sub
 	${1:g}sub(${2:/pattern/}) { |${3:match}| ${4} }
 snippet sca
@@ -298,34 +196,6 @@ snippet unif
 	ARGF.each_line${1} do |${2:line}|
 		${3}
 	end
-# option_parse {}
-snippet optp
-	require \"optparse\"
-	
-	options = {${1:default => \"args\"}}
-	
-	ARGV.options do |opts|
-		opts.banner = \"Usage: #{File.basename($PROGRAM_NAME)}
-snippet opt
-	opts.on( \"-${1:o}\", \"--${2:long-option-name}\", ${3:String},
-	         \"${4:Option description.}\") do |${5:opt}|
-		${6}
-	end
-snippet tc
-	require \"test/unit\"
-	
-	require \"${1:library_file_name}\"
-	
-	class Test${2:$1} < Test::Unit::TestCase
-		def test_${3:case_name}
-			${4}
-		end
-	end
-snippet ts
-	require \"test/unit\"
-	
-	require \"tc_${1:test_case_file}\"
-	require \"tc_${2:test_case_file}\"${3}
 snippet as
 	assert(${1:test}, \"${2:Failure message.}\")${3}
 snippet ase
@@ -366,38 +236,6 @@ snippet asnt
 	assert_nothing_thrown { ${1} }
 snippet fl
 	flunk("${1:Failure message.}")${2}
-# Benchmark.bmbm do .. end
-snippet bm-
-	TESTS = ${1:10_000}
-	Benchmark.bmbm do |results|
-		${2}
-	end
-snippet rep
-	results.report("${1:name}:") { TESTS.times { ${2} }}
-# Marshal.dump(.., file)
-snippet Md
-	File.open(${1:"path/to/file.dump"}, "wb") { |${2:file}| Marshal.dump(${3:obj}, $2) }${4}
-# Mashal.load(obj)
-snippet Ml
-	File.open(${1:"path/to/file.dump"}, "rb") { |${2:file}| Marshal.load($2) }${3}
-# deep_copy(..)
-snippet deec
-	Marshal.load(Marshal.dump(${1:obj_to_copy}))${2}
-snippet Pn-
-	PStore.new(${1:"file_name.pstore"})${2}
-snippet tra
-	transaction(${1:true}) { ${2} }
-# xmlread(..)
-snippet xml-
-	REXML::Document.new(File.read(${1:"path/to/file"}))${2}
-# xpath(..) { .. }
-snippet xpa
-	elements.each(${1:\"//Xpath\"}) do |${2:node}|
-		${3}
-	end
-# class_from_name()
-snippet clafn
-	split("::").inject(Object) { |par, const| par.const_get(const) }
 # singleton_class()
 snippet sinc
 	class << self; self end
