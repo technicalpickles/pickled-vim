@@ -96,7 +96,7 @@
   let NERDTreeShowHidden = 1
   " map enter to activating a node
   let NERDTreeMapActivateNode='<CR>'
-  let NERDTreeIgnore=['\.git','\.DS_Store']
+  let NERDTreeIgnore=['\.git','\.DS_Store','\.pdf']
 
   " limit number of results shown for performance
   let g:fuzzy_matching_limit=60
@@ -123,6 +123,7 @@
     au BufRead,BufNewFile *etc/nginx/* set ft=nginx 
     " treat rackup files like ruby
     au BufRead,BufNewFile *.ru set ft=ruby
+    autocmd BufEnter *.haml setlocal cursorcolumn
   augroup END
 
 
