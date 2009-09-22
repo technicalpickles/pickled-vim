@@ -80,9 +80,9 @@ Rails application development.
    |rails-refactoring|
 
 8. Integration with other plugins.  |:Rproject| creates a new project.vim
-   project.  |:Rdbext| loads database settings from database.yml for dbext.vim
-   (and this happens by default under most circumstances).  Cream users get
-   some additional mappings, and all GUI users get a menu. |rails-integration|
+   project or spawns NERDTree.  If dbext.vim is installed, it will be
+   transparently configured to reflect database.yml.  Cream users get some
+   additional mappings, and all GUI users get a menu. |rails-integration|
 
 ==============================================================================
 INSTALLATION AND USAGE				*rails-installation*
@@ -204,7 +204,8 @@ actually edit a file from a Rails application.
 						*rails-:Rtags*
 :Rtags			Calls ctags -R on the current application root and
 			writes the result to tmp/tags.  Exuberant ctags must
-			be installed.
+			be installed.  Additional arguments can be passed to
+			ctags with |g:rails_ctags_arguments|.
 
 						*rails-:Rrefresh*
 :Rrefresh		Refreshes certain cached settings.  Most noticeably,
@@ -1043,6 +1044,12 @@ like table name completion and commands like >
 	:Select * from posts where title like '%Denmark%'
 Note that dbext is a complicated plugin, and may require additional
 configuration.  See |dbext| (if installed) and |sql-completion-dynamic|.
+
+						*g:rails_ctags_arguments*  >
+	let g:rails_ctags_arguments='--exclude="*.js"'
+Additional arguments to pass to ctags from |:Rtags|.  Defaults to
+'--exclude=facebox.js --exclude="*.*.js"', which attempts to ignore jQuery
+plugins that can choke up ctags.
 
 						*g:rails_default_file*  >
 	let g:rails_default_file='config/database.yml'
