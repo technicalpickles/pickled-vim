@@ -22,7 +22,15 @@ silent! call pathogen#runtime_append_all_bundles()
   set hlsearch
 
   " highlight the current line the cursor is on
+<<<<<<< HEAD:home/.vimrc
   " set cursorline
+=======
+  set cursorline
+  
+  " highlight the current column the cursor is on
+  "set cursorcolumn
+
+>>>>>>> Some tweaks to the vimrc.:vimrc
   "sm:    flashes matching brackets or parentheses
   set showmatch
 
@@ -115,7 +123,7 @@ silent! call pathogen#runtime_append_all_bundles()
     " autoindent with two spaces, always expand tabs
     autocmd FileType ruby,eruby,yaml set autoindent shiftwidth=2 softtabstop=2 tabstop=2 expandtab
     autocmd FileType python set autoindent shiftwidth=4 softtabstop=4 expandtab
-    autocmd FileType javascript set autoindent shiftwidth=2 softtabstop=2 expandtab
+    autocmd FileType javascript,html,htmldjango,css set autoindent shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType vim set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType cucumber set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     au BufRead,BufNewFile *etc/nginx/* set ft=nginx 
