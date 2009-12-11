@@ -114,6 +114,7 @@ silent! call pathogen#runtime_append_all_bundles()
     autocmd!
     " autoindent with two spaces, always expand tabs
     autocmd FileType ruby,eruby,yaml set autoindent shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+    autocmd FileType python set autoindent shiftwidth=4 softtabstop=4 expandtab
     autocmd FileType javascript set autoindent shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType vim set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType cucumber set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
