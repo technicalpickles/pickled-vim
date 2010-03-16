@@ -1,0 +1,3 @@
+[submodule "vendor/vim-space"]
+	path = vendor/vim-space
+	url = git://github.com/tpope/vim-space.git
