@@ -1,3 +1,6 @@
+runtime! autoload/pathogen.vim
+call pathogen#runtime_append_all_bundles() 
+
 " Section: configuration
 
   " goodies from gentoo
@@ -118,8 +121,6 @@
     autocmd FileType javascript set autoindent shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType vim set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType cucumber set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
-    " markdown goodness
-    autocmd BufRead *.mkd  set autoindent formatoptions=tcroqn2 comments=n:>
     au BufRead,BufNewFile *etc/nginx/* set ft=nginx 
     " treat rackup files like ruby
     au BufRead,BufNewFile *.ru set ft=ruby

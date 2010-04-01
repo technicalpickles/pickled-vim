@@ -1,3 +1,18 @@
 [submodule "vendor/vim-space"]
 	path = vendor/vim-space
 	url = git://github.com/tpope/vim-space.git
+[submodule "vendor/vim-pathogen"]
+	path = vendor/vim-pathogen
+	url = git://github.com/tpope/vim-pathogen.git
+[submodule "home/.vim/bundles/vim-liquid"]
+	path = home/.vim/bundles/vim-liquid
+	url = git://github.com/tpope/vim-liquid.git
+[submodule "home/.vim/bundles/vim-markdown"]
+	path = home/.vim/bundles/vim-markdown
+	url = git://github.com/tpope/vim-markdown.git
+[submodule "home/.vim/bundle/vim-markdown"]
+	path = home/.vim/bundle/vim-markdown
+	url = git://github.com/tpope/vim-markdown.git
+[submodule "home/.vim/bundle/vim-liquid"]
+	path = home/.vim/bundle/vim-liquid
+	url = git://github.com/tpope/vim-liquid.git
