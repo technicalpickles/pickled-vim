@@ -3,10 +3,6 @@ silent! call pathogen#runtime_append_all_bundles()
 
 " Section: configuration
 
-  " goodies from gentoo
-
-  source /gentoo/etc/vim/vimrc
-
   scriptencoding utf-8
 
   " I like pretty colors
