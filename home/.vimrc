@@ -124,6 +124,7 @@ silent! call pathogen#runtime_append_all_bundles()
     autocmd BufEnter *.haml setlocal cursorcolumn
     au BufRead,BufNewFile Gemfile set ft=ruby                                   
     au BufRead,BufNewFile Capfile set ft=ruby                                   
+    au BufRead,BufNewFile Thorfile set ft=ruby                                   
     au BufRead,BufNewFile *.god set ft=ruby  
   augroup END
 
