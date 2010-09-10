@@ -55,6 +55,9 @@ silent! call pathogen#runtime_append_all_bundles()
   set wildmenu
   set wildmode=list:longest,full
 
+  " don't complete from included files, on account of slow
+  set complete-=i
+
   " Display extra whitespace
   "set list listchars=tab:»·,trail:·
 
