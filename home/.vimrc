@@ -22,15 +22,10 @@ silent! call pathogen#runtime_append_all_bundles()
   set hlsearch
 
   " highlight the current line the cursor is on
-<<<<<<< HEAD:home/.vimrc
-  " set cursorline
-=======
   set cursorline
-  
   " highlight the current column the cursor is on
   "set cursorcolumn
 
->>>>>>> Some tweaks to the vimrc.:vimrc
   "sm:    flashes matching brackets or parentheses
   set showmatch
 

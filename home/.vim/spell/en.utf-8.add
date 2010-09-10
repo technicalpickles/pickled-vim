@@ -15,3 +15,5 @@ git
 Gemfile
 username
 mysql
+RubyGem
+gemspec
