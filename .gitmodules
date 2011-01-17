@@ -34,3 +34,6 @@
 [submodule "home/.vim/bundle/vim-repeat"]
 	path = home/.vim/bundle/vim-repeat
 	url = git://github.com/tpope/vim-repeat.git
+[submodule "home/.vim/bundle/vimerl"]
+	path = home/.vim/bundle/vimerl
+	url = https://github.com/oscarh/vimerl.git
