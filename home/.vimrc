@@ -101,12 +101,12 @@ silent! call pathogen#runtime_append_all_bundles()
   let NERDTreeShowHidden = 1
   " map enter to activating a node
   let NERDTreeMapActivateNode='<CR>'
-  let NERDTreeIgnore=['\.git','\.DS_Store','\.pdf']
+  let NERDTreeIgnore=['\.git','\.DS_Store','\.pdf', '.beam']
 
   " limit number of results shown for performance
   let g:fuzzy_matching_limit=60
   " ignore stuff that can't be openned, and generated files
-  let g:fuzzy_ignore = "*.png;*.PNG;*.JPG;*.jpg;*.GIF;*.gif;vendor/**;coverage/**;tmp/**;rdoc/**"
+  let g:fuzzy_ignore = "*.png;*.PNG;*.JPG;*.jpg;*.GIF;*.gif;*.beam;vendor/**;coverage/**;tmp/**;rdoc/**"
   " increate the number of files scanned for very large projects
   let g:fuzzy_ceiling=20000
   " display relative path, instead of abbrevated path (lib/jeweler.rb vs
