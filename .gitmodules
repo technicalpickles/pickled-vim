@@ -40,3 +40,6 @@
 [submodule "home/.vim/bundle/vim-coffee-script"]
 	path = home/.vim/bundle/vim-coffee-script
 	url = https://github.com/kchmck/vim-coffee-script.git
+[submodule "home/.vim/bundle/vim-bufexplorer"]
+	path = home/.vim/bundle/vim-bufexplorer
+	url = git://github.com/slack/vim-bufexplorer.git
