@@ -49,3 +49,12 @@
 [submodule "home/.vim/bundle/ctrlp"]
 	path = home/.vim/bundle/ctrlp
 	url = https://github.com/kien/ctrlp.vim.git
+[submodule "home/.vim/bundle/vim-less"]
+	path = home/.vim/bundle/vim-less
+	url = git://github.com/groenewege/vim-less.git
+[submodule "home/.vim/bundle/vim-css-color"]
+	path = home/.vim/bundle/vim-css-color
+	url = git://github.com/skammer/vim-css-color.git
+[submodule "home/.vim/bundle/vim-css3-syntax"]
+	path = home/.vim/bundle/vim-css3-syntax
+	url = git://github.com/hail2u/vim-css3-syntax.git
