@@ -58,3 +58,6 @@
 [submodule "home/.vim/bundle/vim-css3-syntax"]
 	path = home/.vim/bundle/vim-css3-syntax
 	url = git://github.com/hail2u/vim-css3-syntax.git
+[submodule "home/.vim/bundle/vim-cucumber"]
+	path = home/.vim/bundle/vim-cucumber
+	url = git://github.com/tpope/vim-cucumber.git
