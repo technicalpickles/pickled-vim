@@ -67,3 +67,6 @@
 [submodule "home/.vim/bundle/nerdtree"]
 	path = home/.vim/bundle/nerdtree
 	url = git://github.com/scrooloose/nerdtree.git
+[submodule "home/.vim/bundle/jellybeans.vim"]
+	path = home/.vim/bundle/jellybeans.vim
+	url = git://github.com/nanotech/jellybeans.vim.git
