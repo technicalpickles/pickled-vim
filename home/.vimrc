@@ -5,7 +5,8 @@ call pathogen#infect()
   scriptencoding utf-8
 
   " I like pretty colors
-  colorscheme ir_black
+  colorscheme jellybeans
+  "colorscheme ir_black
 
   " These two enable syntax highlighting
   set nocompatible          " We're running Vim, not Vi!
