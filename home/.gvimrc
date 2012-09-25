@@ -1,5 +1,5 @@
 " And pretty fonts
-  set guifont=Inconsolata:h14
+  set guifont=Source\ Code\ Pro:h12
 
 " No toolbar
   set guioptions-=T
