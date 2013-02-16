@@ -76,3 +76,6 @@
 [submodule "home/.vim/bundle/puppet"]
 	path = home/.vim/bundle/puppet
 	url = git://github.com/rodjek/vim-puppet.git
+[submodule "home/.vim/bundle/vim-flavored-markdown"]
+	path = home/.vim/bundle/vim-flavored-markdown
+	url = git://github.com/jtratner/vim-flavored-markdown.git
