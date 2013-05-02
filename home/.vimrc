@@ -89,6 +89,9 @@ call pathogen#infect()
   set foldmethod=syntax
   set foldlevel=999 " make it really high, so they're not displayed by default
   
+  " 'murica
+  set spelllang=en_us
+  
 
   " Turn off rails bits of statusbar
   let g:rails_statusline=0
@@ -259,6 +262,11 @@ call pathogen#infect()
   " Easily lookup documentation on apidock
   noremap <leader>rb :call OpenRubyDoc(expand('<cword>'))<CR>
   noremap <leader>rr :call OpenRailsDoc(expand('<cword>'))<CR>
+
+  " Easily spell check
+  " http://vimcasts.org/episodes/spell-checking/
+  nmap <silent> <leader>s :set spell!<CR>
+  
 
   map <C-c>n :cnext<CR>
   map <C-c>p :cprevious<CR>
