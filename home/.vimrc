@@ -100,6 +100,10 @@ call pathogen#infect()
   \ 'file': '\v\.(exe|so|dll|gem)$',
   \ }
 
+  " ctrl-p extensions
+  "
+  let g:ctrlp_extensions = ['tag']
+
   " Turn off rails bits of statusbar
   let g:rails_statusline=0
 
