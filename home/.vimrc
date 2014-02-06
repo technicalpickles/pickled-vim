@@ -92,6 +92,13 @@ call pathogen#infect()
   " 'murica
   set spelllang=en_us
   
+  " ctrl-p ignores and whatnot
+  set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
+  "
+  let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn|tmp|bundle)$', 
+  \ 'file': '\v\.(exe|so|dll|gem)$',
+  \ }
 
   " Turn off rails bits of statusbar
   let g:rails_statusline=0
