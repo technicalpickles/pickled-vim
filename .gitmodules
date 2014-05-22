@@ -42,7 +42,7 @@
 	url = https://github.com/kchmck/vim-coffee-script.git
 [submodule "home/.vim/bundle/vim-bufexplorer"]
 	path = home/.vim/bundle/vim-bufexplorer
-	url = git://github.com/slack/vim-bufexplorer.git
+	url = git://github.com/douglasjacobsen/vim-bufexplorer.git
 [submodule "home/.vim/bundle/vim-rake"]
 	path = home/.vim/bundle/vim-rake
 	url = git://github.com/tpope/vim-rake.git
