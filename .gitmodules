@@ -79,3 +79,6 @@
 [submodule "home/.vim/bundle/vim-flavored-markdown"]
 	path = home/.vim/bundle/vim-flavored-markdown
 	url = git://github.com/jtratner/vim-flavored-markdown.git
+[submodule "home/.vim/bundle/editorconfig-vim"]
+	path = home/.vim/bundle/editorconfig-vim
+	url = https://github.com/editorconfig/editorconfig-vim.git
