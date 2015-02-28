@@ -11,6 +11,7 @@ I'm using the new and shiny [Source Code Pro](http://sourceforge.net/projects/so
 Assuming you don't have an existing .vimrc and .vim...
 
     cd ~
-    ln -s /path/to/pickled-vim/vimrc .vimrc
-    ln -s /path/to/pickled-vim/vim .vim
+    ln -s /path/to/pickled-vim/home/.vimrc .vimrc
+    ln -s /path/to/pickled-vim/home/.gvimrc .vimrc
+    ln -s /path/to/pickled-vim/home/.vim .vim
 
