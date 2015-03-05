@@ -82,3 +82,6 @@
 [submodule "home/.vim/bundle/editorconfig-vim"]
 	path = home/.vim/bundle/editorconfig-vim
 	url = https://github.com/editorconfig/editorconfig-vim.git
+[submodule "home/.vim/bundle/vim-atom-dark"]
+	path = home/.vim/bundle/vim-atom-dark
+	url = https://github.com/gosukiwi/vim-atom-dark.git
