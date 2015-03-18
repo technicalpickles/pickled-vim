@@ -5,7 +5,8 @@ call pathogen#infect()
   scriptencoding utf-8
 
   " I like pretty colors
-  colorscheme jellybeans
+  colorscheme atom-dark
+  "colorscheme jellybeans
   "colorscheme ir_black
 
   " These two enable syntax highlighting
