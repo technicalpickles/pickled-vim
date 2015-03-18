@@ -79,3 +79,6 @@
 [submodule "home/.vim/bundle/vim-atom-dark"]
 	path = home/.vim/bundle/vim-atom-dark
 	url = https://github.com/gosukiwi/vim-atom-dark.git
+[submodule "home/.vim/bundle/tabular"]
+	path = home/.vim/bundle/tabular
+	url = git://github.com/godlygeek/tabular.git
