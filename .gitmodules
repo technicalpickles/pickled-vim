@@ -36,7 +36,7 @@
 	url = https://github.com/kchmck/vim-coffee-script.git
 [submodule "home/.vim/bundle/vim-bufexplorer"]
 	path = home/.vim/bundle/vim-bufexplorer
-        url = https://github.com/jlanzarotta/bufexplorer.git
+  url = https://github.com/jlanzarotta/bufexplorer.git
 [submodule "home/.vim/bundle/vim-rake"]
 	path = home/.vim/bundle/vim-rake
 	url = git://github.com/tpope/vim-rake.git
@@ -82,3 +82,6 @@
 [submodule "home/.vim/bundle/tabular"]
 	path = home/.vim/bundle/tabular
 	url = git://github.com/godlygeek/tabular.git
+[submodule "home/.vim/bundle/vim-projectionist"]
+	path = home/.vim/bundle/vim-projectionist
+	url = https://github.com/tpope/vim-projectionist.git
