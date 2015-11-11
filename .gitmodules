@@ -85,3 +85,6 @@
 [submodule "home/.vim/bundle/vim-projectionist"]
 	path = home/.vim/bundle/vim-projectionist
 	url = https://github.com/tpope/vim-projectionist.git
+[submodule "home/.vim/bundle/vim-qargs"]
+	path = home/.vim/bundle/vim-qargs
+	url = https://github.com/nelstrom/vim-qargs.git
