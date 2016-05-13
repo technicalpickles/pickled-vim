@@ -9,7 +9,6 @@
 
   set lines=50
   set columns=80
-  
  
 " bind command-/ to toggle comment
 " requires NERD Commenter to be installed: http://www.vim.org/scripts/script.php?script_id=1218
@@ -41,4 +40,17 @@
   map <silent> <D-7> :tabn 7<CR>
   map <silent> <D-8> :tabn 8<CR>
   map <silent> <D-9> :tabn 9<CR>
+
+if has('gui_macvim')
+  " use vim search instead of pop up
+    macmenu Edit.Find.Find\.\.\. key=<nop>
+    map <D-f> /
+
+  " TextMate / Atom fuzzy finder with Command-t
+    macmenu File.New\ Tab key=<nop>
+    map <silent> <D-t> :FuzzyFinderTextMate<CR>
+
+  " Search project like Atom
+    nmap <D-F> :Ack<space>
+endif
 
