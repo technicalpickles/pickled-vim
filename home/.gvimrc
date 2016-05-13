@@ -48,9 +48,16 @@ if has('gui_macvim')
 
   " TextMate / Atom fuzzy finder with Command-t
     macmenu File.New\ Tab key=<nop>
-    map <silent> <D-t> :FuzzyFinderTextMate<CR>
+    map <silent> <D-t> :CtrlP<CR>
 
   " Search project like Atom
     nmap <D-F> :Ack<space>
+
+  " Atom's Tree View: Toggle
+    map <silent> <D-K><D-B> :execute 'NERDTreeToggle ' . getcwd()<CR>
+    map <silent> <D-Bslash> :execute 'NERDTreeToggle ' . getcwd()<CR>
+
+  " Atom's Tree View: Reveal Active File
+    map <silent> <D-Bar> :NERDTreeFind<CR>
 endif
 
