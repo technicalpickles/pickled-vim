@@ -88,3 +88,6 @@
 [submodule "home/.vim/bundle/vim-qargs"]
 	path = home/.vim/bundle/vim-qargs
 	url = https://github.com/nelstrom/vim-qargs.git
+[submodule "home/.vim/bundle/vim-dispatch"]
+	path = home/.vim/bundle/vim-dispatch
+	url = https://github.com/tpope/vim-dispatch.git
