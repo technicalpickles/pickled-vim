@@ -249,10 +249,7 @@ call pathogen#infect()
   map <silent> <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>
 
   " TextMate fuzzy finder with <leader>t
-  map <silent> <leader>t :FuzzyFinderTextMate<CR>
-
-  " FuzzyFinder tags with <leader>T
-  nnoremap <silent> <leader>T :FuzzyFinderTag!<CR>
+  map <silent> <leader>t :CtrlP<CR>
 
   " <leader>F to begin searching with ack
   map <leader>F :Ack<space>
