@@ -94,3 +94,15 @@
 [submodule "home/.vim/bundle/vim-bundler"]
 	path = home/.vim/bundle/vim-bundler
 	url = git://github.com/tpope/vim-bundler.git
+[submodule "home/.vim/bundle/vim-pug"]
+	path = home/.vim/bundle/vim-pug
+	url = git://github.com/digitaltoad/vim-pug.git
+[submodule "home/.vim/bundle/vim-jinja"]
+	path = home/.vim/bundle/vim-jinja
+	url = https://github.com/niftylettuce/vim-jinja.git
+[submodule "home/.vim/bundle/syntastic"]
+	path = home/.vim/bundle/syntastic
+	url = https://github.com/scrooloose/syntastic.git
+[submodule "home/.vim/bundle/vim-virtualenv"]
+	path = home/.vim/bundle/vim-virtualenv
+	url = https://github.com/jmcantrell/vim-virtualenv.git
