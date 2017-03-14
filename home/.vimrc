@@ -71,11 +71,27 @@ call pathogen#infect()
   set statusline=\ "
   set statusline+=%f\ " file name
   set statusline+=[
-  set statusline+=%{strlen(&ft)?&ft:'none'}, " filetype
-  set statusline+=%{&fileformat}] " file format
-  set statusline+=%h%1*%m%r%w%0* " flag
+  set statusline+=%{strlen(&ft)?&ft:'none'} " filetype
+  "set statusline+=%{&fileformat} " file format
+  set statusline+=]
+  "set statusline+=%h%1*%m%r%w%0* " flag
+  set statusline+=%#warningmsg#
+  set statusline+=%{SyntasticStatuslineFlag()}
   set statusline+=%= " right align
   set statusline+=%-14.(%l,%c%V%)\ %<%P " offset
+
+  " syntastic settings
+  "set statusline+=%#warningmsg#
+  "set statusline+=%{SyntasticStatuslineFlag()}
+  "set statusline+=%*
+
+  let g:syntastic_always_populate_loc_list = 1
+  let g:syntastic_auto_loc_list = 1
+  let g:syntastic_check_on_open = 1
+  let g:syntastic_check_on_wq = 0
+
+  let g:syntastic_python_checkers = ['pylint', 'flake8', 'pydocstyle']
+  let g:syntastic_sass_checkers=["sasslint"]
 
   " enable setting title
   set title
@@ -108,6 +124,7 @@ call pathogen#infect()
   " Turn off rails bits of statusbar
   let g:rails_statusline=0
 
+  let NERDTreeHijackNetrw=1
   " quit NERDTree after openning a file
   let NERDTreeQuitOnOpen=1
   " colored NERD Tree

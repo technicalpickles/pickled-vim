@@ -106,3 +106,6 @@
 [submodule "home/.vim/bundle/vim-virtualenv"]
 	path = home/.vim/bundle/vim-virtualenv
 	url = https://github.com/jmcantrell/vim-virtualenv.git
+[submodule "home/.vim/bundle/vim-sass-lint"]
+	path = home/.vim/bundle/vim-sass-lint
+	url = https://github.com/gcorne/vim-sass-lint.git
