@@ -74,7 +74,7 @@ call pathogen#infect()
   set statusline+=%{strlen(&ft)?&ft:'none'} " filetype
   "set statusline+=%{&fileformat} " file format
   set statusline+=]
-  "set statusline+=%h%1*%m%r%w%0* " flag
+  set statusline+=%h%1*%m%r%w%0* " flag
   set statusline+=%#warningmsg#
   set statusline+=%{SyntasticStatuslineFlag()}
   set statusline+=%= " right align
@@ -92,6 +92,7 @@ call pathogen#infect()
 
   let g:syntastic_python_checkers = ['pylint', 'flake8', 'pydocstyle']
   let g:syntastic_sass_checkers=["sasslint"]
+  let g:syntastic_scss_checkers=["sasslint"]
 
   " enable setting title
   set title
