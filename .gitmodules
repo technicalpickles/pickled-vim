@@ -109,3 +109,9 @@
 [submodule "home/.vim/bundle/vim-sass-lint"]
 	path = home/.vim/bundle/vim-sass-lint
 	url = https://github.com/gcorne/vim-sass-lint.git
+[submodule "home/.vim/bundle/local_vimrc"]
+	path = home/.vim/bundle/local_vimrc
+	url = https://github.com/LucHermitte/local_vimrc.git
+[submodule "home/.vim/bundle/lh-vim-lib"]
+	path = home/.vim/bundle/lh-vim-lib
+	url = https://github.com/LucHermitte/lh-vim-lib.git

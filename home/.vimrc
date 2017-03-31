@@ -122,6 +122,10 @@ call pathogen#infect()
   "
   let g:ctrlp_extensions = ['tag']
 
+
+  " local_vim
+  let g:local_vimrc = ['.vimrc.local']
+
   " Turn off rails bits of statusbar
   let g:rails_statusline=0
 
