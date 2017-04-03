@@ -115,3 +115,6 @@
 [submodule "home/.vim/bundle/lh-vim-lib"]
 	path = home/.vim/bundle/lh-vim-lib
 	url = https://github.com/LucHermitte/lh-vim-lib.git
+[submodule "home/.vim/bundle/vim-javascript"]
+	path = home/.vim/bundle/vim-javascript
+	url = https://github.com/pangloss/vim-javascript.git
