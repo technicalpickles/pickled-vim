@@ -20,12 +20,12 @@ if has('gui_macvim')
 
   " bind command-] to shift right
     nmap <D-]> >>
-    vmap <D-]> >>
+    vmap <D-]> >
     imap <D-]> <C-O>>>
 
   " bind command-[ to shift left
     nmap <D-[> <<
-    vmap <D-[> <<
+    vmap <D-[> <
     imap <D-[> <C-O><<
 
   " bind command-option-l to toggle line numbers
