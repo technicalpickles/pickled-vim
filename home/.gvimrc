@@ -3,20 +3,17 @@
 
 " No toolbar
   set guioptions-=T
-  
-" fullscreen maximizes vertically AND horizontally
-  set fuoptions=maxvert,maxhorz
 
   set lines=50
   set columns=80
 
-if has('gui_macvim')
+" Mac Keybindings
+if has('gui_macvim') || has('gui_vimr') || exists("neovim_dot_app")
   " bind command-/ to toggle comment
   " requires NERD Commenter to be installed: http://www.vim.org/scripts/script.php?script_id=1218
     nmap <D-/> ,c<space>
     vmap <D-/> ,c<space>
     imap <D-/> <C-O>,c<space>
-    let NERDShutUp = 1 " so it doesn't complain about types it doesn't know
 
   " bind command-] to shift right
     nmap <D-]> >>
@@ -43,11 +40,16 @@ if has('gui_macvim')
     map <silent> <D-9> :tabn 9<CR>
 
   " use vim search instead of pop up
-    macmenu Edit.Find.Find\.\.\. key=<nop>
+    if has('gui_macvim')
+      macmenu Edit.Find.Find\.\.\. key=<nop>
+    endif
+    " FIXME in neovim-dot-app, unbind full screen from this and rebind to something else?
     map <D-f> /
 
   " TextMate / Atom fuzzy finder with Command-t
-    macmenu File.New\ Tab key=<nop>
+    if has('gui_macvim')
+      macmenu File.New\ Tab key=<nop>
+    endif
     map <silent> <D-t> :CtrlP<CR>
 
   " Search project like Atom
@@ -61,3 +63,7 @@ if has('gui_macvim')
     map <silent> <D-Bar> :NERDTreeFind<CR>
 endif
 
+if has('gui_macvim')
+  " fullscreen maximizes vertically AND horizontally
+    set fuoptions=maxvert,maxhorz
+endif

@@ -122,13 +122,14 @@ call pathogen#infect()
   "
   let g:ctrlp_extensions = ['tag']
 
-
   " local_vim
   let g:local_vimrc = ['.vimrc.local']
 
   " Turn off rails bits of statusbar
   let g:rails_statusline=0
 
+  " so it doesn't complain about types it doesn't know
+  let NERDShutUp = 1
   let NERDTreeHijackNetrw=1
   " quit NERDTree after openning a file
   let NERDTreeQuitOnOpen=1
@@ -315,3 +316,11 @@ call pathogen#infect()
   endfunction
   command! RspecToMocha call RspecToMocha()
   
+" Section neovim UI
+
+  if has('gui_vimr') || exists("neovim_dot_app")
+    try
+      source ~/.gvimrc
+    endtry
+  endif
+
