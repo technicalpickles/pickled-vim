@@ -41,7 +41,8 @@
   Plug 'https://github.com/jmcantrell/vim-virtualenv.git'
   Plug 'https://github.com/oscarh/vimerl.git'
   Plug 'joshdick/onedark.vim'
-  Plug 'itchyny/lightline.vim'
+  Plug 'vim-airline/vim-airline'
+  Plug 'https://github.com/tpope/vim-fugitive.git', { 'tag': 'v2.2' }
   call plug#end()
 
 " Section: configuration
