@@ -118,3 +118,6 @@
 [submodule "home/.vim/bundle/vim-javascript"]
 	path = home/.vim/bundle/vim-javascript
 	url = https://github.com/pangloss/vim-javascript.git
+[submodule "home/.vim/bundle/html5.vim"]
+	path = home/.vim/bundle/html5.vim
+	url = https://github.com/othree/html5.vim.git
