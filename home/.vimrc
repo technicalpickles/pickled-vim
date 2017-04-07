@@ -1,13 +1,57 @@
-call pathogen#infect()
+
+" Section: plugins
+  call plug#begin('~/.vim/plugged')
+  Plug 'git://github.com/mileszs/ack.vim.git'
+  Plug 'https://github.com/kien/ctrlp.vim.git'
+  Plug 'https://github.com/editorconfig/editorconfig-vim.git'
+  " TODO go
+  Plug 'https://github.com/othree/html5.vim.git'
+  Plug 'git://github.com/nanotech/jellybeans.vim.git'
+  Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
+  Plug 'https://github.com/LucHermitte/local_vimrc.git'
+  Plug 'git://github.com/scrooloose/nerdtree.git'
+  Plug 'git://github.com/rodjek/vim-puppet.git'
+  Plug 'https://github.com/scrooloose/syntastic.git'
+  Plug 'git://github.com/godlygeek/tabular.git'
+  Plug 'https://github.com/gosukiwi/vim-atom-dark.git'
+  Plug 'https://github.com/jlanzarotta/bufexplorer.git'
+  Plug 'git://github.com/tpope/vim-bundler.git'
+  Plug 'https://github.com/kchmck/vim-coffee-script.git'
+  Plug 'git://github.com/skammer/vim-css-color.git'
+  Plug 'git://github.com/hail2u/vim-css3-syntax.git'
+  Plug 'git://github.com/tpope/vim-cucumber.git'
+  Plug 'https://github.com/tpope/vim-dispatch.git'
+  Plug 'git://github.com/tpope/vim-endwise.git'
+  Plug 'git://github.com/jtratner/vim-flavored-markdown.git'
+  Plug 'git://github.com/tpope/vim-git.git'
+  Plug 'https://github.com/pangloss/vim-javascript.git'
+  Plug 'https://github.com/niftylettuce/vim-jinja.git'
+  Plug 'git://github.com/groenewege/vim-less.git'
+  Plug 'git://github.com/tpope/vim-liquid.git'
+  Plug 'git://github.com/tpope/vim-markdown.git'
+  Plug 'https://github.com/tpope/vim-projectionist.git'
+  Plug 'git://github.com/digitaltoad/vim-pug.git'
+  Plug 'https://github.com/nelstrom/vim-qargs.git'
+  Plug 'git://github.com/tpope/vim-rails.git'
+  Plug 'git://github.com/tpope/vim-rake.git'
+  Plug 'git://github.com/tpope/vim-repeat.git'
+  Plug 'https://github.com/gcorne/vim-sass-lint.git'
+  Plug 'git://github.com/spiiph/vim-space.git'
+  Plug 'git://github.com/tpope/vim-surround.git'
+  Plug 'https://github.com/jmcantrell/vim-virtualenv.git'
+  Plug 'https://github.com/oscarh/vimerl.git'
+  call plug#end()
 
 " Section: configuration
 
   scriptencoding utf-8
 
   " I like pretty colors
-  colorscheme atom-dark
-  "colorscheme jellybeans
-  "colorscheme ir_black
+  " Note: Use !silent to avoid error at startup before vim-plug first
+  " installed
+  silent! colorscheme atom-dark
+  "silent! colorscheme jellybeans
+  "silent! colorscheme ir_black
 
   " These two enable syntax highlighting
   set nocompatible          " We're running Vim, not Vi!

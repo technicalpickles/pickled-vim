@@ -121,3 +121,6 @@
 [submodule "home/.vim/bundle/html5.vim"]
 	path = home/.vim/bundle/html5.vim
 	url = https://github.com/othree/html5.vim.git
+[submodule "vendor/vim-plug"]
+	path = vendor/vim-plug
+	url = https://github.com/junegunn/vim-plug.git
