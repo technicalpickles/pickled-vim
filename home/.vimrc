@@ -90,7 +90,7 @@
   " When scrolling off-screen do so 3 lines at a time, not 1
   set scrolloff=3
 
-  " enable line numbers 
+  " enable line numbers
   set number
   setlocal numberwidth=5
 
@@ -154,15 +154,15 @@
   set foldenable
   set foldmethod=syntax
   set foldlevel=999 " make it really high, so they're not displayed by default
-  
+
   " 'murica
   set spelllang=en_us
-  
+
   " ctrl-p ignores and whatnot
   set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
   "
   let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\v[\/]\.(git|hg|svn|tmp|bundle)$', 
+  \ 'dir':  '\v[\/]\.(git|hg|svn|tmp|bundle)$',
   \ 'file': '\v\.(exe|so|dll|gem)$',
   \ }
 
@@ -215,16 +215,16 @@
     autocmd FileType cucumber set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType puppet set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
-    au BufRead,BufNewFile *etc/nginx/* set ft=nginx 
+    au BufRead,BufNewFile *etc/nginx/* set ft=nginx
     " treat rackup files like ruby
     au BufRead,BufNewFile *.ru set ft=ruby
     au BufRead,BufNewFile Gemfile set ft=ruby
     autocmd BufEnter *.haml setlocal cursorcolumn
-    au BufRead,BufNewFile Gemfile set ft=ruby                                   
-    au BufRead,BufNewFile Capfile set ft=ruby                                   
-    au BufRead,BufNewFile Thorfile set ft=ruby                                   
-    au BufRead,BufNewFile *.god set ft=ruby  
-    au BufRead,BufNewFile .caprc set ft=ruby  
+    au BufRead,BufNewFile Gemfile set ft=ruby
+    au BufRead,BufNewFile Capfile set ft=ruby
+    au BufRead,BufNewFile Thorfile set ft=ruby
+    au BufRead,BufNewFile *.god set ft=ruby
+    au BufRead,BufNewFile .caprc set ft=ruby
     au BufNewFile,BufRead *.md,*.markdown setlocal filetype=ghmarkdown
   augroup END
 
@@ -349,7 +349,7 @@
   " Easily spell check
   " http://vimcasts.org/episodes/spell-checking/
   nmap <silent> <leader>s :set spell!<CR>
-  
+
 
   map <C-c>n :cnext<CR>
   map <C-c>p :cprevious<CR>
@@ -363,7 +363,7 @@
     :w
   endfunction
   command! RspecToMocha call RspecToMocha()
-  
+
 " Section neovim UI
 
   if has('gui_vimr') || exists("neovim_dot_app")
@@ -372,133 +372,7 @@
     endtry
   endif
 
-" Section lightline
-" https://github.com/itchyny/lightline.vim#for-power-users
-  let g:lightline = {
-        \ 'colorscheme': 'onedark',
-        \ 'active': {
-        \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
-        \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
-        \ },
-        \ 'component_function': {
-        \   'fugitive': 'LightlineFugitive',
-        \   'filename': 'LightlineFilename',
-        \   'fileformat': 'LightlineFileformat',
-        \   'filetype': 'LightlineFiletype',
-        \   'fileencoding': 'LightlineFileencoding',
-        \   'mode': 'LightlineMode',
-        \   'ctrlpmark': 'CtrlPMark',
-        \ },
-        \ 'component_expand': {
-        \   'syntastic': 'SyntasticStatuslineFlag',
-        \ },
-        \ 'component_type': {
-        \   'syntastic': 'error',
-        \ },
-        \ 'subseparator': { 'left': '|', 'right': '|' }
-        \ }
-
-  function! LightlineModified()
-    return &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
-  endfunction
-
-  function! LightlineReadonly()
-    return &ft !~? 'help' && &readonly ? 'RO' : ''
-  endfunction
-
-  function! LightlineFilename()
-    let fname = expand('%:t')
-    return fname == 'ControlP' && has_key(g:lightline, 'ctrlp_item') ? g:lightline.ctrlp_item :
-          \ fname == '__Tagbar__' ? g:lightline.fname :
-          \ fname =~ '__Gundo\|NERD_tree' ? '' :
-          \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
-          \ &ft == 'unite' ? unite#get_status_string() :
-          \ &ft == 'vimshell' ? vimshell#get_status_string() :
-          \ ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
-          \ ('' != fname ? fname : '[No Name]') .
-          \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
-  endfunction
-
-  function! LightlineFugitive()
-    try
-      if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
-        let mark = ''  " edit here for cool mark
-        let branch = fugitive#head()
-        return branch !=# '' ? mark.branch : ''
-      endif
-    catch
-    endtry
-    return ''
-  endfunction
-
-  function! LightlineFileformat()
-    return winwidth(0) > 70 ? &fileformat : ''
-  endfunction
-
-  function! LightlineFiletype()
-    return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
-  endfunction
-
-  function! LightlineFileencoding()
-    return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
-  endfunction
-
-  function! LightlineMode()
-    let fname = expand('%:t')
-    return fname == '__Tagbar__' ? 'Tagbar' :
-          \ fname == 'ControlP' ? 'CtrlP' :
-          \ fname == '__Gundo__' ? 'Gundo' :
-          \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
-          \ fname =~ 'NERD_tree' ? 'NERDTree' :
-          \ &ft == 'unite' ? 'Unite' :
-          \ &ft == 'vimfiler' ? 'VimFiler' :
-          \ &ft == 'vimshell' ? 'VimShell' :
-          \ winwidth(0) > 60 ? lightline#mode() : ''
-  endfunction
-
-  function! CtrlPMark()
-    if expand('%:t') =~ 'ControlP' && has_key(g:lightline, 'ctrlp_item')
-      call lightline#link('iR'[g:lightline.ctrlp_regex])
-      return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
-            \ , g:lightline.ctrlp_next], 0)
-    else
-      return ''
-    endif
-  endfunction
-
-  let g:ctrlp_status_func = {
-    \ 'main': 'CtrlPStatusFunc_1',
-    \ 'prog': 'CtrlPStatusFunc_2',
-    \ }
-
-  function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
-    let g:lightline.ctrlp_regex = a:regex
-    let g:lightline.ctrlp_prev = a:prev
-    let g:lightline.ctrlp_item = a:item
-    let g:lightline.ctrlp_next = a:next
-    return lightline#statusline(0)
-  endfunction
-
-  function! CtrlPStatusFunc_2(str)
-    return lightline#statusline(0)
-  endfunction
-
-  let g:tagbar_status_func = 'TagbarStatusFunc'
-
-  function! TagbarStatusFunc(current, sort, fname, ...) abort
-      let g:lightline.fname = a:fname
-    return lightline#statusline(0)
-  endfunction
-
-  augroup AutoSyntastic
-    autocmd!
-    autocmd BufWritePost *.c,*.cpp call s:syntastic()
-  augroup END
-  function! s:syntastic()
-    SyntasticCheck
-    call lightline#update()
-  endfunction
-
-  let g:unite_force_overwrite_statusline = 0
-  let g:vimfiler_force_overwrite_statusline = 0
-  let g:vimshell_force_overwrite_statusline = 0
+" Section Airline
+  let g:airline_powerline_fonts = 1
+  let g:airline#extensions#tabline#enabled = 1
+  let g:airline_skip_empty_sections = 1
