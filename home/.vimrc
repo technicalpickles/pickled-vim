@@ -51,6 +51,7 @@
   Plug 'ervandew/supertab'
   Plug 'StanAngeloff/php.vim'
   Plug 'asciidoc/vim-asciidoc'
+  Plug 'keith/rspec.vim'
   call plug#end()
 
 " Section: configuration
