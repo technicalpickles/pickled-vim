@@ -54,6 +54,7 @@
   Plug 'keith/rspec.vim'
   Plug 'https://github.com/SirVer/ultisnips.git'
   Plug 'https://github.com/honza/vim-snippets.git'
+  Plug 'junegunn/vim-easy-align'
 
   call plug#end()
 
@@ -377,3 +378,10 @@
   let g:airline_powerline_fonts = 1
   let g:airline#extensions#tabline#enabled = 1
   let g:airline_skip_empty_sections = 1
+
+" Section Easy Align
+  " Start interactive EasyAlign in visual mode (e.g. vipga)
+  xmap ga <Plug>(EasyAlign)
+
+  " Start interactive EasyAlign for a motion/text object (e.g. gaip)
+  nmap ga <Plug>(EasyAlign)
