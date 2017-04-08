@@ -50,6 +50,7 @@
   Plug 'majutsushi/tagbar'
   Plug 'ervandew/supertab'
   Plug 'StanAngeloff/php.vim'
+  Plug 'asciidoc/vim-asciidoc'
   call plug#end()
 
 " Section: configuration
