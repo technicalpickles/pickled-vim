@@ -49,6 +49,7 @@
   Plug 'vim-scripts/IndentAnything'
   Plug 'majutsushi/tagbar'
   Plug 'ervandew/supertab'
+  Plug 'StanAngeloff/php.vim'
   call plug#end()
 
 " Section: configuration
