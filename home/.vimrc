@@ -48,6 +48,7 @@
   Plug 'tpope/vim-ragtag'
   Plug 'vim-scripts/IndentAnything'
   Plug 'majutsushi/tagbar'
+  Plug 'ervandew/supertab'
   call plug#end()
 
 " Section: configuration
