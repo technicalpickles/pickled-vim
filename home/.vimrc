@@ -47,6 +47,7 @@
   Plug 'vim-scripts/dbext.vim'
   Plug 'tpope/vim-ragtag'
   Plug 'vim-scripts/IndentAnything'
+  Plug 'majutsushi/tagbar'
   call plug#end()
 
 " Section: configuration
