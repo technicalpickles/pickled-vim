@@ -46,6 +46,7 @@
   Plug 'scrooloose/nerdcommenter'
   Plug 'vim-scripts/dbext.vim'
   Plug 'tpope/vim-ragtag'
+  Plug 'vim-scripts/IndentAnything'
   call plug#end()
 
 " Section: configuration

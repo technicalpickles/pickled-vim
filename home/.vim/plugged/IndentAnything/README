@@ -1,0 +1,11 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1839
+
+The IndentAnything plugin is intended to make it easier to write new indentation scripts and/or supplement existing ones.  It makes the assumption that all indentable languages have similar characteristics:
+
+	- blocks of code or text over multiple lines
+	- continuation lines
+	- comments
+
+The rules of indentation are specified in a series of variables.  Explanation is provided in the included doc/IndentAnything.txt help file.
+
+An example HTML indentation enhancement is also included.
