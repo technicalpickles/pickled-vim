@@ -52,6 +52,9 @@
   Plug 'StanAngeloff/php.vim'
   Plug 'asciidoc/vim-asciidoc'
   Plug 'keith/rspec.vim'
+  Plug 'https://github.com/SirVer/ultisnips.git'
+  Plug 'https://github.com/honza/vim-snippets.git'
+
   call plug#end()
 
 " Section: configuration
