@@ -43,6 +43,7 @@
   Plug 'joshdick/onedark.vim'
   Plug 'vim-airline/vim-airline'
   Plug 'https://github.com/tpope/vim-fugitive.git', { 'tag': 'v2.2' }
+  Plug 'scrooloose/nerdcommenter'
   call plug#end()
 
 " Section: configuration

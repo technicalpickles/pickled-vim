@@ -10,7 +10,6 @@
 " Mac Keybindings
 if has('gui_macvim') || has('gui_vimr') || exists("neovim_dot_app")
   " bind command-/ to toggle comment
-  " requires NERD Commenter to be installed: http://www.vim.org/scripts/script.php?script_id=1218
     nmap <D-/> ,c<space>
     vmap <D-/> ,c<space>
     imap <D-/> <C-O>,c<space>
