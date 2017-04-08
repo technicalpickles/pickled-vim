@@ -44,6 +44,8 @@
   Plug 'vim-airline/vim-airline'
   Plug 'https://github.com/tpope/vim-fugitive.git', { 'tag': 'v2.2' }
   Plug 'scrooloose/nerdcommenter'
+  Plug 'vim-scripts/dbext.vim'
+  Plug 'tpope/vim-ragtag'
   call plug#end()
 
 " Section: configuration
