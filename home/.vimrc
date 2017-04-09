@@ -157,12 +157,13 @@
 
     " Section: ruby
       autocmd FileType ruby,eruby,yaml set autoindent shiftwidth=2 softtabstop=2 tabstop=2 expandtab
-      au BufRead,BufNewFile *.ru set ft=ruby
-      au BufRead,BufNewFile Gemfile set ft=ruby
-      au BufRead,BufNewFile Gemfile set ft=ruby
+      au BufRead,BufNewFile Brewfile set ft=ruby
       au BufRead,BufNewFile Capfile set ft=ruby
+      au BufRead,BufNewFile Gemfile set ft=ruby
+      au BufRead,BufNewFile Gemfile set ft=ruby
       au BufRead,BufNewFile Thorfile set ft=ruby
       au BufRead,BufNewFile *.god set ft=ruby
+      au BufRead,BufNewFile *.ru set ft=ruby
       au BufRead,BufNewFile .caprc set ft=ruby
 
     " Section: other stuff
