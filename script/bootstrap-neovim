@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+cd "$(dirname "$0")/.."
+
+gem="gem"
+if rbenv version | grep -q system ; then
+  gem="sudo gem"
+fi
+$gem install neovim
+
+script/bootstrap-python

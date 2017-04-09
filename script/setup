@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -e
+cd "$(dirname "$0")/.."
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  brew bundle check >/dev/null 2>&1  || {
+    echo "==> Installing Homebrew dependencies…"
+    brew bundle
+  }
+fi
+
+echo "==> Creating symlinks…"
+files=$(ls -A home/)
+for f in $files; do
+  f="home/${f}"
+  absolute_f="$(pwd)/${f}"
+  home_f="${HOME}/$(basename "$f")"
+
+  if [[ -e ${home_f} ]]; then
+    if [[ -L $home_f ]]; then
+      home_f_target="$(greadlink -f "$home_f")"
+      if [[ "${home_f_target}" == "${absolute_f}" ]]; then
+        echo "${home_f} ok"
+      else
+        echo "${home_f} exists and symlink to ${home_f_target}. Move out of the way and run again."
+      fi
+    elif [[ -f $f ]]; then
+      if [[ -f $home_f ]]; then
+        echo "$home_f exists and is a file. Move out of the way and run again"
+        continue
+      fi
+    elif [[ -d $f ]]; then
+      if [[ -d $home_f ]]; then
+        echo "$home_f exists and is a file. Move out of the way and run again"
+        continue
+      fi
+    fi
+  else
+    echo "${home_f} -> ${absolute_f}"
+    ln -s "${absolute_f}" "${home_f}"
+  fi
+done

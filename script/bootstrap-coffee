@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+cd "$(dirname "$0")/.."
+
+if ! nodenv which coffee &>/dev/null; then
+  npm install -g coffee-script
+fi
