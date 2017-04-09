@@ -41,3 +41,5 @@ for f in $files; do
     ln -s "${absolute_f}" "${home_f}"
   fi
 done
+
+script/bootstrap
