@@ -330,3 +330,8 @@
 " Section: rails plugin
   " Turn off rails bits of statusbar
   let g:rails_statusline=0
+
+" Section: ultisnips plugin
+  let g:UltiSnipsExpandTrigger="<tab>"
+  let g:UltiSnipsJumpForwardTrigger="<tab>"
+  let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
