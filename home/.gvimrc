@@ -1,11 +1,13 @@
 " And pretty fonts
-  set guifont=Source\ Code\ Pro:h12
+  set macligatures
+  set guifont=Fira\ Code:h14
+
 
 " No toolbar
   set guioptions-=T
 
-  set lines=50
-  set columns=80
+  set lines=60
+  set columns=120
 
 " Mac Keybindings
 if has('gui_macvim') || has('gui_vimr') || exists("neovim_dot_app")

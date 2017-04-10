@@ -20,7 +20,7 @@ This repository uses [scripts to rule them all](https://github.com/github/script
 
 If you are on macOS, you are done. If you are on another platform, you'll need to figure out how to install the following:
 
-Fonts:
+Fonts (only needed for gui):
 
 - [Source Code Pro](https://github.com/adobe-fonts/source-code-pro)
 
