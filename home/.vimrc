@@ -5,6 +5,7 @@
   Plug 'https://github.com/LucHermitte/local_vimrc.git'
   Plug 'https://github.com/SirVer/ultisnips.git'
   Plug 'https://github.com/StanAngeloff/php.vim.git'
+  Plug 'https://github.com/airblade/vim-gitgutter.git'
   Plug 'https://github.com/asciidoc/vim-asciidoc.git'
   Plug 'https://github.com/digitaltoad/vim-pug.git'
   Plug 'https://github.com/editorconfig/editorconfig-vim.git'
@@ -54,7 +55,6 @@
   Plug 'https://github.com/vim-airline/vim-airline.git'
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
-
   call plug#end()
 
 " Section: configuration
