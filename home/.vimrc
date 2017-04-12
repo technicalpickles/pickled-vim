@@ -51,6 +51,7 @@
   Plug 'https://github.com/tpope/vim-rails.git'
   Plug 'https://github.com/tpope/vim-rake.git'
   Plug 'https://github.com/tpope/vim-repeat.git'
+  Plug 'https://github.com/tpope/vim-sensible.git'
   Plug 'https://github.com/tpope/vim-surround.git'
   Plug 'https://github.com/vim-airline/vim-airline.git'
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
@@ -76,9 +77,6 @@
   " Enable filetype-specific indenting and plugins
   filetype plugin indent on
 
-  " show the `best match so far' as search strings are typed
-  set incsearch
-
   " Highlight search results once found:
   set hlsearch
 
@@ -89,9 +87,6 @@
 
   "sm:    flashes matching brackets or parentheses
   set showmatch
-
-  "sta:   helps with backspacing because of expandtab
-  set smarttab
 
   " Change <Leader>
   let mapleader = ","
@@ -108,12 +103,8 @@
 
   " Enable tab complete for commands.
   " first tab shows all matches. next tab starts cycling through the matches
-  set wildmenu
   set wildmode=list:longest,full
   set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
-
-  " don't complete from included files, on account of slow
-  set complete-=i
 
   " Display extra whitespace
   "set list listchars=tab:»·,trail:·
@@ -124,19 +115,10 @@
   " assume the /g flag on :s substitutions to replace all matches in a line:
   set gdefault
 
-  " Load matchit (% to bounce from do to end, etc.)
-  runtime! macros/matchit.vim
-
-  " always show statusline
-  set laststatus=2
-
   " enable setting title
   set title
   " configure title to look like: Vim /path/to/file
   set titlestring=VIM:\ %-25.55F\ %a%r%m titlelen=70
-
-  " Make backspace work in insert mode
-  set backspace=indent,eol,start
 
   " can has foldin plz?
   set foldenable
@@ -156,7 +138,7 @@
     autocmd!
 
     " Section: ruby
-      autocmd FileType ruby,eruby,yaml set autoindent shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+      autocmd FileType ruby,eruby,yaml set shiftwidth=2 softtabstop=2 tabstop=2 expandtab
       au BufRead,BufNewFile Brewfile set ft=ruby
       au BufRead,BufNewFile Capfile set ft=ruby
       au BufRead,BufNewFile Gemfile set ft=ruby
@@ -168,17 +150,16 @@
 
     " Section: other stuff
 
-    " autoindent with two spaces, always expand tabs
-    autocmd FileType python set autoindent shiftwidth=4 softtabstop=4 expandtab
-    autocmd FileType javascript,html,htmldjango,css set autoindent shiftwidth=2 softtabstop=2 expandtab
-    autocmd FileType vim set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
-    autocmd FileType cucumber set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
-    autocmd FileType puppet set autoindent tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+    " indent with two spaces, always expand tabs
+    autocmd FileType python set shiftwidth=4 softtabstop=4 expandtab
+    autocmd FileType javascript,html,htmldjango,css set shiftwidth=2 softtabstop=2 expandtab
+    autocmd FileType vim set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+    autocmd FileType cucumber set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+    autocmd FileType puppet set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
     au BufRead,BufNewFile *etc/nginx/* set ft=nginx
     " treat rackup files like ruby
     autocmd BufEnter *.haml setlocal cursorcolumn
-    au BufNewFile,BufRead *.md,*.markdown setlocal filetype=ghmarkdown
   augroup END
 
 
