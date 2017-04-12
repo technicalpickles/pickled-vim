@@ -10,6 +10,7 @@
   Plug 'https://github.com/digitaltoad/vim-pug.git'
   Plug 'https://github.com/editorconfig/editorconfig-vim.git'
   Plug 'https://github.com/ervandew/supertab.git'
+  Plug 'https://github.com/farmergreg/vim-lastplace.git'
   Plug 'https://github.com/gcorne/vim-sass-lint.git'
   Plug 'https://github.com/godlygeek/tabular.git'
   Plug 'https://github.com/gosukiwi/vim-atom-dark.git'
@@ -161,15 +162,6 @@
     " treat rackup files like ruby
     autocmd BufEnter *.haml setlocal cursorcolumn
   augroup END
-
-
-  " When editing a file, always jump to the last known cursor position.
-  " Don't do it when the position is invalid or when inside an event handler
-  " (happens when dropping a file on gvim).
-  autocmd BufReadPost *
-        \ if line("'\"") > 0 && line("'\"") <= line("$") |
-        \   exe "normal g`\"" |
-        \ endi
 
   " Turn on language specific omnifuncs
   autocmd FileType ruby set omnifunc=rubycomplete#Complete
