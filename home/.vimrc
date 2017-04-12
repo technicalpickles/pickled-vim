@@ -140,7 +140,7 @@
 
     " Section: ruby
       autocmd FileType ruby,eruby,yaml set shiftwidth=2 softtabstop=2 tabstop=2 expandtab
-      au BufRead,BufNewFile Brewfile set ft=ruby
+      au BufRead,BufNewFile *.Brewfile set ft=ruby
       au BufRead,BufNewFile Capfile set ft=ruby
       au BufRead,BufNewFile Gemfile set ft=ruby
       au BufRead,BufNewFile Gemfile set ft=ruby
