@@ -1,4 +1,3 @@
-
 " Section: plugins
   call plug#begin('~/.vim/plugged')
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
@@ -37,6 +36,7 @@
   Plug 'https://github.com/scrooloose/nerdcommenter.git'
   Plug 'https://github.com/scrooloose/nerdtree.git'
   Plug 'https://github.com/scrooloose/syntastic.git'
+  Plug 'https://github.com/sickill/vim-pasta.git'
   Plug 'https://github.com/skammer/vim-css-color.git'
   Plug 'https://github.com/spiiph/vim-space.git'
   Plug 'https://github.com/tpope/vim-bundler.git'
