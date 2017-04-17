@@ -141,14 +141,14 @@
 
     " Section: ruby
       autocmd FileType ruby,eruby,yaml set shiftwidth=2 softtabstop=2 tabstop=2 expandtab
-      au BufRead,BufNewFile *.Brewfile set ft=ruby
-      au BufRead,BufNewFile Capfile set ft=ruby
-      au BufRead,BufNewFile Gemfile set ft=ruby
-      au BufRead,BufNewFile Gemfile set ft=ruby
-      au BufRead,BufNewFile Thorfile set ft=ruby
-      au BufRead,BufNewFile *.god set ft=ruby
-      au BufRead,BufNewFile *.ru set ft=ruby
-      au BufRead,BufNewFile .caprc set ft=ruby
+      autocmd BufRead,BufNewFile *.Brewfile set ft=ruby
+      autocmd BufRead,BufNewFile Capfile set ft=ruby
+      autocmd BufRead,BufNewFile Gemfile set ft=ruby
+      autocmd BufRead,BufNewFile Gemfile set ft=ruby
+      autocmd BufRead,BufNewFile Thorfile set ft=ruby
+      autocmd BufRead,BufNewFile *.god set ft=ruby
+      autocmd BufRead,BufNewFile *.ru set ft=ruby
+      autocmd BufRead,BufNewFile .caprc set ft=ruby
 
     " Section: other stuff
 
@@ -158,9 +158,8 @@
     autocmd FileType vim set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType cucumber set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType puppet set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
-    au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
-    au BufRead,BufNewFile *etc/nginx/* set ft=nginx
-    " treat rackup files like ruby
+    autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
+    autocmd BufRead,BufNewFile *etc/nginx/* set ft=nginx
     autocmd BufEnter *.haml setlocal cursorcolumn
   augroup END
 
