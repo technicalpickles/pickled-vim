@@ -15,15 +15,14 @@
   Plug 'https://github.com/gosukiwi/vim-atom-dark.git'
   Plug 'https://github.com/groenewege/vim-less.git'
   Plug 'https://github.com/hail2u/vim-css3-syntax.git'
-  Plug 'https://github.com/technicalpickles/vim-snippets.git'
+  Plug 'https://github.com/ivalkeen/vim-ctrlp-tjump.git'
   Plug 'https://github.com/jlanzarotta/bufexplorer.git'
   Plug 'https://github.com/jmcantrell/vim-virtualenv.git'
+  Plug 'https://github.com/johann-p-koebbe/rspec.vim.git'  " fork with better ultisnips support
   Plug 'https://github.com/joshdick/onedark.vim.git'
   Plug 'https://github.com/jtratner/vim-flavored-markdown.git'
   Plug 'https://github.com/junegunn/vim-easy-align.git'
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
-  Plug 'https://github.com/johann-p-koebbe/rspec.vim.git'  " fork with better ultisnips support
-  Plug 'https://github.com/technicalpickles/vim-ruby-minitest.git' " fork with different filetype
   Plug 'https://github.com/kien/ctrlp.vim.git'
   Plug 'https://github.com/majutsushi/tagbar.git'
   Plug 'https://github.com/mileszs/ack.vim.git'
@@ -39,6 +38,8 @@
   Plug 'https://github.com/sickill/vim-pasta.git'
   Plug 'https://github.com/skammer/vim-css-color.git'
   Plug 'https://github.com/spiiph/vim-space.git'
+  Plug 'https://github.com/technicalpickles/vim-ruby-minitest.git' " fork with different filetype
+  Plug 'https://github.com/technicalpickles/vim-snippets.git'
   Plug 'https://github.com/tpope/vim-bundler.git'
   Plug 'https://github.com/tpope/vim-cucumber.git'
   Plug 'https://github.com/tpope/vim-dispatch.git'
@@ -141,14 +142,14 @@
 
     " Section: ruby
       autocmd FileType ruby,eruby,yaml set shiftwidth=2 softtabstop=2 tabstop=2 expandtab
-      au BufRead,BufNewFile *.Brewfile set ft=ruby
-      au BufRead,BufNewFile Capfile set ft=ruby
-      au BufRead,BufNewFile Gemfile set ft=ruby
-      au BufRead,BufNewFile Gemfile set ft=ruby
-      au BufRead,BufNewFile Thorfile set ft=ruby
-      au BufRead,BufNewFile *.god set ft=ruby
-      au BufRead,BufNewFile *.ru set ft=ruby
-      au BufRead,BufNewFile .caprc set ft=ruby
+      autocmd BufRead,BufNewFile *.Brewfile set ft=ruby
+      autocmd BufRead,BufNewFile Capfile set ft=ruby
+      autocmd BufRead,BufNewFile Gemfile set ft=ruby
+      autocmd BufRead,BufNewFile Gemfile set ft=ruby
+      autocmd BufRead,BufNewFile Thorfile set ft=ruby
+      autocmd BufRead,BufNewFile *.god set ft=ruby
+      autocmd BufRead,BufNewFile *.ru set ft=ruby
+      autocmd BufRead,BufNewFile .caprc set ft=ruby
 
     " Section: other stuff
 
@@ -158,9 +159,8 @@
     autocmd FileType vim set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType cucumber set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType puppet set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
-    au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
-    au BufRead,BufNewFile *etc/nginx/* set ft=nginx
-    " treat rackup files like ruby
+    autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
+    autocmd BufRead,BufNewFile *etc/nginx/* set ft=nginx
     autocmd BufEnter *.haml setlocal cursorcolumn
   augroup END
 
@@ -230,6 +230,10 @@
   map <C-c>n :cnext<CR>
   map <C-c>p :cprevious<CR>
 
+  " replace default tjump with vim-ctrlp-tjump
+  map <C-]> :CtrlPtjump<CR>
+  vmap <C-]> :CtrlPtjumpVisual<CR>
+
   function! RspecToMocha()
     silent! %s/\.stub!\?(/.stubs(/
     silent! %s/and_return/returns/
@@ -251,7 +255,6 @@
 
 " Section: airline plugin
   let g:airline_powerline_fonts = 1
-  let g:airline#extensions#tabline#enabled = 1
   let g:airline_skip_empty_sections = 1
 
 " Section vim-easy-align plugin
@@ -309,3 +312,10 @@
   let g:UltiSnipsExpandTrigger="<tab>"
   let g:UltiSnipsJumpForwardTrigger="<tab>"
   let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+
+" Section: vim-space
+  " this interfers with my mapping <C-]> to vim-ctrlp-tjump
+  let g:space_no_tags = 1
+
+" Section: vim-ctrlp-tjump
+  let g:ctrlp_tjump_only_silent = 1 " jump immediately if only one tag
