@@ -15,14 +15,15 @@
   Plug 'https://github.com/gosukiwi/vim-atom-dark.git'
   Plug 'https://github.com/groenewege/vim-less.git'
   Plug 'https://github.com/hail2u/vim-css3-syntax.git'
-  Plug 'https://github.com/honza/vim-snippets.git'
+  Plug 'https://github.com/technicalpickles/vim-snippets.git'
   Plug 'https://github.com/jlanzarotta/bufexplorer.git'
   Plug 'https://github.com/jmcantrell/vim-virtualenv.git'
   Plug 'https://github.com/joshdick/onedark.vim.git'
   Plug 'https://github.com/jtratner/vim-flavored-markdown.git'
   Plug 'https://github.com/junegunn/vim-easy-align.git'
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
-  Plug 'https://github.com/keith/rspec.vim.git'
+  Plug 'https://github.com/johann-p-koebbe/rspec.vim.git'  " fork with better ultisnips support
+  Plug 'https://github.com/technicalpickles/vim-ruby-minitest.git' " fork with different filetype
   Plug 'https://github.com/kien/ctrlp.vim.git'
   Plug 'https://github.com/majutsushi/tagbar.git'
   Plug 'https://github.com/mileszs/ack.vim.git'
