@@ -50,3 +50,11 @@ Depending on your current python or ruby, you may need to reinstall some package
    path/to/pickled-vim/script/bootstrap-neovim
 
 After that `:checkHealth` should confirm everything clear.
+
+## Development
+
+For debugging mappings not working as expected:
+
+- use `map` (or whichever variation) with nothing to map to find what its doing, ie `map <C-]>`
+- if it's mapped to a function, grep .vim for that
+- if it's a specific plugin, check the source/docs to see if there's an option to disable
