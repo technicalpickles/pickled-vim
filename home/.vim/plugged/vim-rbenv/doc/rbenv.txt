@@ -1,0 +1,21 @@
+*rbenv.txt*  Support for rbenv
+
+Author:  Tim Pope <http://tpo.pe/>
+License: Same terms as Vim itself (see |license|)
+
+This plugin is only available if 'compatible' is not set and rbenv is in the
+$PATH.
+
+COMMANDS                                        *:Rbenv*
+
+:Rbenv [args]           Invoke an rbenv command.  Includes tab complete.
+
+:Rbenv shell [version]  Set or show the Vim-specific Ruby version.
+
+ABOUT                                           *rbenv-about*
+
+Grab the latest version or report a bug on GitHub:
+
+https://github.com/tpope/vim-rbenv
+
+ vim:tw=78:et:ft=help:norl:

@@ -52,6 +52,7 @@
   Plug 'https://github.com/tpope/vim-ragtag.git'
   Plug 'https://github.com/tpope/vim-rails.git'
   Plug 'https://github.com/tpope/vim-rake.git'
+  Plug 'https://github.com/tpope/vim-rbenv.git'
   Plug 'https://github.com/tpope/vim-repeat.git'
   Plug 'https://github.com/tpope/vim-sensible.git'
   Plug 'https://github.com/tpope/vim-surround.git'
