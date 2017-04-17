@@ -28,7 +28,6 @@
   Plug 'https://github.com/majutsushi/tagbar.git'
   Plug 'https://github.com/mileszs/ack.vim.git'
   Plug 'https://github.com/nanotech/jellybeans.vim.git'
-  Plug 'https://github.com/nelstrom/vim-qargs.git'
   Plug 'https://github.com/niftylettuce/vim-jinja.git'
   Plug 'https://github.com/oscarh/vimerl.git'
   Plug 'https://github.com/othree/html5.vim.git'
