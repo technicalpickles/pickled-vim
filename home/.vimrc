@@ -290,6 +290,12 @@
   let g:ale_open_list = 1 " show when there are errors
   let g:ale_sign_column_always = 1 " always show sign column, so text doesn't move around
 
+  " configure which linters to use
+  " - javascript: off by default, since no one syntax checker is going to work everywhere. use .vimrc to override
+  let g:ale_linters = {
+  \  'javascript': [],
+  \}
+
 " Section: bufexplorer plugin
   let g:bufExplorerDefaultHelp=0       " Do not show default help.
   let g:bufExplorerShowRelativePath=1  " Show relative paths.
