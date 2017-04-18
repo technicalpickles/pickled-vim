@@ -25,7 +25,7 @@
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
   Plug 'https://github.com/kien/ctrlp.vim.git'
   Plug 'https://github.com/majutsushi/tagbar.git'
-  Plug 'https://github.com/mileszs/ack.vim.git'
+  "Plug 'https://github.com/mileszs/ack.vim.git'
   Plug 'https://github.com/nanotech/jellybeans.vim.git'
   Plug 'https://github.com/niftylettuce/vim-jinja.git'
   Plug 'https://github.com/oscarh/vimerl.git'
@@ -60,6 +60,8 @@
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/w0rp/ale.git'
+  Plug 'https://github.com/mhinz/vim-grepper.git'
+ 
   call plug#end()
 
 " Section: configuration
@@ -205,7 +207,7 @@
   map <silent> <leader>t :CtrlP<CR>
 
   " <leader>F to begin searching with ack
-  map <leader>F :Ack<space>
+  map <leader>F :GrepperAg<space>
 
   " search next/previous -- center in page
   nmap n nzz

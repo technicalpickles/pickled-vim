@@ -54,7 +54,7 @@ if has('gui_macvim') || has('gui_vimr') || exists("neovim_dot_app")
     map <silent> <D-t> :CtrlP<CR>
 
   " Search project like Atom
-    nmap <D-F> :Ack<space>
+    nmap <D-F> :GrepperAg<space>
 
   " Atom's Tree View: Toggle
     map <silent> <D-K><D-B> :execute 'NERDTreeToggle ' . getcwd()<CR>
