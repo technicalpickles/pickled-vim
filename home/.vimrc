@@ -34,7 +34,7 @@
   Plug 'https://github.com/rodjek/vim-puppet.git'
   Plug 'https://github.com/scrooloose/nerdcommenter.git'
   Plug 'https://github.com/scrooloose/nerdtree.git'
-  Plug 'https://github.com/scrooloose/syntastic.git'
+  "Plug 'https://github.com/scrooloose/syntastic.git'
   Plug 'https://github.com/sickill/vim-pasta.git'
   Plug 'https://github.com/skammer/vim-css-color.git'
   Plug 'https://github.com/spiiph/vim-space.git'
@@ -59,6 +59,7 @@
   Plug 'https://github.com/vim-airline/vim-airline.git'
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
+  Plug 'https://github.com/w0rp/ale.git'
   call plug#end()
 
 " Section: configuration
@@ -273,7 +274,7 @@
   " ctrl-p extensions
   let g:ctrlp_extensions = ['tag']
 
-" Section syntastic plugin
+" Section: syntastic plugin
   let g:syntastic_always_populate_loc_list = 1
   let g:syntastic_auto_loc_list = 1
   let g:syntastic_check_on_open = 1
@@ -282,6 +283,10 @@
   let g:syntastic_python_checkers = ['pylint', 'flake8', 'pydocstyle']
   let g:syntastic_sass_checkers=["sasslint"]
   let g:syntastic_scss_checkers=["sasslint"]
+
+  " Section: vim-ale
+  let g:ale_open_list = 1 " show when there are errors
+  let g:ale_sign_column_always = 1 " always show sign column, so text doesn't move around
 
 " Section: bufexplorer plugin
   let g:bufExplorerDefaultHelp=0       " Do not show default help.
