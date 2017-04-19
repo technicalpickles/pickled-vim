@@ -25,7 +25,8 @@
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
   Plug 'https://github.com/kien/ctrlp.vim.git'
   Plug 'https://github.com/majutsushi/tagbar.git'
-  "Plug 'https://github.com/mileszs/ack.vim.git'
+  Plug 'https://github.com/mhinz/vim-grepper.git'
+  Plug 'https://github.com/moll/vim-node.git'
   Plug 'https://github.com/nanotech/jellybeans.vim.git'
   Plug 'https://github.com/niftylettuce/vim-jinja.git'
   Plug 'https://github.com/oscarh/vimerl.git'
@@ -34,10 +35,10 @@
   Plug 'https://github.com/rodjek/vim-puppet.git'
   Plug 'https://github.com/scrooloose/nerdcommenter.git'
   Plug 'https://github.com/scrooloose/nerdtree.git'
-  "Plug 'https://github.com/scrooloose/syntastic.git'
   Plug 'https://github.com/sickill/vim-pasta.git'
   Plug 'https://github.com/skammer/vim-css-color.git'
   Plug 'https://github.com/spiiph/vim-space.git'
+  Plug 'https://github.com/technicalpickles/vim-nodenv.git'
   Plug 'https://github.com/technicalpickles/vim-ruby-minitest.git' " fork with different filetype
   Plug 'https://github.com/technicalpickles/vim-snippets.git'
   Plug 'https://github.com/tpope/vim-bundler.git'
@@ -56,11 +57,11 @@
   Plug 'https://github.com/tpope/vim-repeat.git'
   Plug 'https://github.com/tpope/vim-sensible.git'
   Plug 'https://github.com/tpope/vim-surround.git'
+  Plug 'https://github.com/tpope/vim-unimpaired.git'
   Plug 'https://github.com/vim-airline/vim-airline.git'
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/w0rp/ale.git'
-  Plug 'https://github.com/mhinz/vim-grepper.git'
  
   call plug#end()
 
