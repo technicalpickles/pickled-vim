@@ -333,3 +333,9 @@
 
 " Section: vim-ctrlp-tjump
   let g:ctrlp_tjump_only_silent = 1 " jump immediately if only one tag
+
+" Section: nerdcommenter
+  " Add spaces after comment delimiters by default
+  let g:NERDSpaceDelims = 1
+  " Align line-wise comment delimiters flush left instead of following code indentation
+  let g:NERDDefaultAlign = 'left'
