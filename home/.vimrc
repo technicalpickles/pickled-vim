@@ -2,6 +2,7 @@
   call plug#begin('~/.vim/plugged')
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
   Plug 'https://github.com/LucHermitte/local_vimrc.git'
+  Plug 'https://github.com/Raimondi/delimitMate.git'
   Plug 'https://github.com/SirVer/ultisnips.git'
   Plug 'https://github.com/StanAngeloff/php.vim.git'
   Plug 'https://github.com/airblade/vim-gitgutter.git'
