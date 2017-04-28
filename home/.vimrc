@@ -340,3 +340,7 @@
   let g:NERDSpaceDelims = 1
   " Align line-wise comment delimiters flush left instead of following code indentation
   let g:NERDDefaultAlign = 'left'
+
+" Section: vim-javascript
+  " Enable jsdoc syntax
+  let g:javascript_plugin_jsdoc = 1
