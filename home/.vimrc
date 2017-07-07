@@ -300,6 +300,20 @@
   \  'javascript': [],
   \}
 
+  " Exclude things that will almost always warn:
+  " SC1090 - Can't follow non-constant source. Use a directive to specify location.
+  " SC1091 - Not following: (error message here)
+  let g:ale_linters_sh_shellcheck_exclusions='SC1090,SC1091'
+
+  " Use relaxed yamllint options, since almost never writes good lint.
+  " and don't care about line length, since again, no one will write short
+  " lines.
+  " we just need to write good enough yaml.
+  "
+  " projects that care more will need to override this in a project-specific .vimrc
+  let g:ale_yaml_yamllint_options='-d "{extends: relaxed, rules: {line-length: disable}}"'
+
+
 " Section: bufexplorer plugin
   let g:bufExplorerDefaultHelp=0       " Do not show default help.
   let g:bufExplorerShowRelativePath=1  " Show relative paths.
