@@ -63,6 +63,7 @@
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/w0rp/ale.git'
+  Plug 'https://github.com/ternjs/tern_for_vim.git'
  
   call plug#end()
 
