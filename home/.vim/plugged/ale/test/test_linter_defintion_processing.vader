@@ -323,3 +323,121 @@ Execute(PreProcess should set a default value for lint_file):
   \}
 
   AssertEqual 0, ale#linter#PreProcess(g:linter).lint_file
+
+Execute(PreProcess should set a default value for aliases):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'callback': 'x',
+  \ 'executable': 'x',
+  \ 'command': 'x',
+  \}
+
+  AssertEqual [], ale#linter#PreProcess(g:linter).aliases
+
+Execute(PreProcess should complain about invalid `aliases` values):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'callback': 'x',
+  \ 'executable': 'x',
+  \ 'command': 'x',
+  \ 'aliases': 'foo',
+  \}
+
+  AssertThrows call ale#linter#PreProcess(g:linter)
+  AssertEqual '`aliases` must be a List of String values', g:vader_exception
+
+  let g:linter.aliases = [1]
+
+  AssertThrows call ale#linter#PreProcess(g:linter)
+  AssertEqual '`aliases` must be a List of String values', g:vader_exception
+
+Execute(PreProcess should accept `aliases` lists):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'callback': 'x',
+  \ 'executable': 'x',
+  \ 'command': 'x',
+  \ 'aliases': [],
+  \}
+
+  AssertEqual [], ale#linter#PreProcess(g:linter).aliases
+
+  let g:linter.aliases = ['foo', 'bar']
+
+  AssertEqual ['foo', 'bar'], ale#linter#PreProcess(g:linter).aliases
+
+Execute(PreProcess should accept tsserver LSP configuration):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'executable': 'x',
+  \ 'command': 'x',
+  \ 'lsp': 'tsserver',
+  \ 'language_callback': 'x',
+  \ 'project_root_callback': 'x',
+  \}
+
+  AssertEqual 'tsserver', ale#linter#PreProcess(g:linter).lsp
+
+  call remove(g:linter, 'executable')
+  let g:linter.executable_callback = 'X'
+
+  call ale#linter#PreProcess(g:linter)
+
+  call remove(g:linter, 'command')
+  let g:linter.command_callback = 'X'
+
+  call ale#linter#PreProcess(g:linter)
+
+Execute(PreProcess should accept stdio LSP configuration):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'executable': 'x',
+  \ 'command': 'x',
+  \ 'lsp': 'stdio',
+  \ 'language_callback': 'x',
+  \ 'project_root_callback': 'x',
+  \}
+
+  AssertEqual 'stdio', ale#linter#PreProcess(g:linter).lsp
+
+  call remove(g:linter, 'executable')
+  let g:linter.executable_callback = 'X'
+
+  call ale#linter#PreProcess(g:linter)
+
+  call remove(g:linter, 'command')
+  let g:linter.command_callback = 'X'
+
+  call ale#linter#PreProcess(g:linter)
+
+Execute(PreProcess should accept LSP server configurations):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'lsp': 'socket',
+  \ 'address_callback': 'X',
+  \ 'language_callback': 'x',
+  \ 'project_root_callback': 'x',
+  \}
+
+  AssertEqual 'socket', ale#linter#PreProcess(g:linter).lsp
+
+Execute(PreProcess should require an address_callback for LSP socket configurations):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'lsp': 'socket',
+  \}
+
+  AssertThrows call ale#linter#PreProcess(g:linter)
+  AssertEqual '`address_callback` must be defined for getting the LSP address', g:vader_exception
+
+Execute(PreProcess should complain about address_callback for non-LSP linters):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'callback': 'SomeFunction',
+  \ 'executable': 'echo',
+  \ 'command': 'echo',
+  \ 'address_callback': 'X',
+  \}
+
+  AssertThrows call ale#linter#PreProcess(g:linter)
+  AssertEqual '`address_callback` cannot be used when lsp != ''socket''', g:vader_exception

@@ -29,7 +29,7 @@ function! ale_linters#sml#smlnj#Handle(buffer, lines) abort
           \   'bufnr': a:buffer,
           \   'lnum': l:match[1] + 0,
           \   'text': l:match[2] . ': ' . l:match[3],
-          \   'type': l:match[2] ==# 'error' ? 'E' : 'W',
+          \   'type': l:match[2] is# 'error' ? 'E' : 'W',
           \})
           continue
         endif
@@ -39,7 +39,7 @@ function! ale_linters#sml#smlnj#Handle(buffer, lines) abort
     return l:out
 endfunction
 
-call g:ale#linter#Define('sml', {
+call ale#linter#Define('sml', {
 \   'name': 'smlnj',
 \   'executable': 'sml',
 \   'command': 'sml',

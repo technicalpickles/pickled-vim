@@ -1,32 +1,29 @@
 " Author: w0rp <devw0rp@gmail.com>
 " Description: Lints sh files using bash -n
 
+" Backwards compatibility
+if exists('g:ale_linters_sh_shell_default_shell')
+    let g:ale_sh_shell_default_shell = g:ale_linters_sh_shell_default_shell
+endif
+
 " This option can be changed to change the default shell when the shell
 " cannot be taken from the hashbang line.
-if !exists('g:ale_linters_sh_shell_default_shell')
-    let g:ale_linters_sh_shell_default_shell = fnamemodify($SHELL, ':t')
+if !exists('g:ale_sh_shell_default_shell')
+    let g:ale_sh_shell_default_shell = fnamemodify($SHELL, ':t')
 
-    if g:ale_linters_sh_shell_default_shell ==# ''
-        let g:ale_linters_sh_shell_default_shell = 'bash'
+    if g:ale_sh_shell_default_shell is# '' || g:ale_sh_shell_default_shell is# 'fish'
+        let g:ale_sh_shell_default_shell = 'bash'
     endif
 endif
 
 function! ale_linters#sh#shell#GetExecutable(buffer) abort
-    let l:banglines = getbufline(a:buffer, 1)
+    let l:shell_type = ale#handlers#sh#GetShellType(a:buffer)
 
-    " Take the shell executable from the hashbang, if we can.
-    if len(l:banglines) == 1 && l:banglines[0] =~# '^#!'
-        " Remove options like -e, etc.
-        let l:line = substitute(l:banglines[0], '--\?[a-zA-Z0-9]\+', '', 'g')
-
-        for l:possible_shell in ['bash', 'tcsh', 'csh', 'zsh', 'sh']
-            if l:line =~# l:possible_shell . '\s*$'
-                return l:possible_shell
-            endif
-        endfor
+    if !empty(l:shell_type)
+        return l:shell_type
     endif
 
-    return ale#Var(a:buffer, 'linters_sh_shell_default_shell')
+    return ale#Var(a:buffer, 'sh_shell_default_shell')
 endfunction
 
 function! ale_linters#sh#shell#GetCommand(buffer) abort

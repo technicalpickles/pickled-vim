@@ -1,4 +1,9 @@
 Before:
+  Save g:ale_max_buffer_history_size
+  Save g:ale_history_log_output
+
+  unlet! b:ale_history
+
   " Temporarily set the shell to /bin/sh, if it isn't already set that way.
   " This will make it so the test works when running it directly.
   let g:current_shell = &shell
@@ -6,6 +11,7 @@ Before:
   let g:history = []
   let g:ale_buffer_info = {}
   let g:ale_max_buffer_history_size = 20
+  let g:ale_history_log_output = 0
 
   function! CollectResults(buffer, output)
     return []
@@ -15,11 +21,16 @@ Before:
   \ 'name': 'testlinter',
   \ 'callback': 'CollectResults',
   \ 'executable': 'echo',
-  \ 'command': 'echo command history test',
+  \ 'command': '/bin/sh -c ''echo command history test''',
   \ 'read_buffer': 0,
   \})
 
 After:
+  Restore
+
+  " Clear the history we changed.
+  unlet! b:ale_history
+
   " Reset the shell back to what it was before.
   let &shell = g:current_shell
   unlet g:current_shell
@@ -40,11 +51,11 @@ Execute(History should be set when commands are run):
   call ale#Lint()
   call ale#engine#WaitForJobs(2000)
 
-  let g:history = g:ale_buffer_info[bufnr('%')].history
+  let g:history = ale#history#Get(bufnr(''))
 
   AssertEqual 1, len(g:history)
   AssertEqual sort(['status', 'exit_code', 'job_id', 'command']), sort(keys(g:history[0]))
-  AssertEqual ['/bin/sh', '-c', 'echo command history test'], g:history[0].command
+  AssertEqual ['/bin/sh', '-c', '/bin/sh -c ''echo command history test'''], g:history[0].command
   AssertEqual 'finished', g:history[0].status
   AssertEqual 0, g:history[0].exit_code
   " The Job ID will change each time, but we can check the type.
@@ -58,7 +69,7 @@ Execute(History should be not set when disabled):
   call ale#Lint()
   call ale#engine#WaitForJobs(2000)
 
-  AssertEqual 0, len(g:ale_buffer_info[bufnr('%')].history)
+  AssertEqual [], ale#history#Get(bufnr(''))
 
 Execute(History should include command output if logging is enabled):
   AssertEqual 'foobar', &filetype
@@ -68,35 +79,32 @@ Execute(History should include command output if logging is enabled):
   call ale#Lint()
   call ale#engine#WaitForJobs(2000)
 
-  let g:history = g:ale_buffer_info[bufnr('%')].history
+  let g:history = ale#history#Get(bufnr(''))
 
   AssertEqual 1, len(g:history)
   AssertEqual ['command history test'], g:history[0].output
 
 Execute(History items should be popped after going over the max):
-  let g:ale_buffer_info[1] = {
-  \ 'history': map(range(20), '{''status'': ''started'', ''job_id'': v:val, ''command'': ''foobar''}'),
-  \}
+  let b:ale_history = map(range(20), '{''status'': ''started'', ''job_id'': v:val, ''command'': ''foobar''}')
 
-  call ale#history#Add(1, 'started', 347, 'last command')
+  call ale#history#Add(bufnr(''), 'started', 347, 'last command')
 
   AssertEqual
   \ (
   \   map(range(1, 19), '{''status'': ''started'', ''job_id'': v:val, ''command'': ''foobar''}')
   \   + [{'status': 'started', 'job_id': 347, 'command': 'last command'}]
   \ ),
-  \ g:ale_buffer_info[1].history
+  \ ale#history#Get(bufnr(''))
 
 Execute(Nothing should be added to history if the size is too low):
   let g:ale_max_buffer_history_size = 0
-  let g:ale_buffer_info[1] = {'history': []}
 
-  call ale#history#Add(1, 'started', 347, 'last command')
+  call ale#history#Add(bufnr(''), 'started', 347, 'last command')
 
-  AssertEqual [], g:ale_buffer_info[1].history
+  AssertEqual [], ale#history#Get(bufnr(''))
 
   let g:ale_max_buffer_history_size = -2
 
   call ale#history#Add(1, 'started', 347, 'last command')
 
-  AssertEqual [], g:ale_buffer_info[1].history
+  AssertEqual [], ale#history#Get(bufnr(''))

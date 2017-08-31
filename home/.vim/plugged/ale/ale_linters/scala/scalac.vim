@@ -1,5 +1,25 @@
-" Author: Zoltan Kalmar - https://github.com/kalmiz
+" Author: Zoltan Kalmar - https://github.com/kalmiz,
+"         w0rp <devw0rp@gmail.com>
 " Description: Basic scala support using scalac
+
+function! ale_linters#scala#scalac#GetExecutable(buffer) abort
+    if index(split(getbufvar(a:buffer, '&filetype'), '\.'), 'sbt') >= 0
+        " Don't check sbt files with scalac.
+        return ''
+    endif
+
+    return 'scalac'
+endfunction
+
+function! ale_linters#scala#scalac#GetCommand(buffer) abort
+    let l:executable = ale_linters#scala#scalac#GetExecutable(a:buffer)
+
+    if empty(l:executable)
+        return ''
+    endif
+
+    return ale#Escape(l:executable) . ' -Ystop-after:parser %t'
+endfunction
 
 function! ale_linters#scala#scalac#Handle(buffer, lines) abort
     " Matches patterns line the following:
@@ -18,7 +38,7 @@ function! ale_linters#scala#scalac#Handle(buffer, lines) abort
         endif
 
         let l:text = l:match[3]
-        let l:type = l:match[2] ==# 'error' ? 'E' : 'W'
+        let l:type = l:match[2] is# 'error' ? 'E' : 'W'
         let l:col = 0
 
         if l:ln + 1 < len(a:lines)
@@ -38,8 +58,8 @@ endfunction
 
 call ale#linter#Define('scala', {
 \   'name': 'scalac',
-\   'executable': 'scalac',
-\   'output_stream': 'stderr',
-\   'command': 'scalac -Ystop-after:parser %t',
+\   'executable_callback': 'ale_linters#scala#scalac#GetExecutable',
+\   'command_callback': 'ale_linters#scala#scalac#GetCommand',
 \   'callback': 'ale_linters#scala#scalac#Handle',
+\   'output_stream': 'stderr',
 \})

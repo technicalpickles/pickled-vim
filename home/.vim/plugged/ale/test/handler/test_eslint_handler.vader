@@ -1,32 +1,36 @@
 Before:
-  runtime ale_linters/javascript/eslint.vim
+  Save g:ale_javascript_eslint_suppress_eslintignore
+
+  let g:ale_javascript_eslint_suppress_eslintignore = 0
+
+After:
+  Restore
+
+  unlet! g:config_error_lines
 
 Execute(The eslint handler should parse lines correctly):
   AssertEqual
   \ [
   \   {
-  \     'bufnr': 347,
   \     'lnum': 47,
   \     'col': 14,
   \     'text': 'Missing trailing comma. [Warning/comma-dangle]',
   \     'type': 'W',
   \   },
   \   {
-  \     'bufnr': 347,
   \     'lnum': 56,
   \     'col': 41,
   \     'text': 'Missing semicolon. [Error/semi]',
   \     'type': 'E',
   \   },
   \   {
-  \     'bufnr': 347,
   \     'lnum': 13,
   \     'col': 3,
   \     'text': 'Parsing error: Unexpected token',
   \     'type': 'E',
   \   },
   \ ],
-  \ ale_linters#javascript#eslint#Handle(347, [
+  \ ale#handlers#eslint#Handle(347, [
   \   'This line should be ignored completely',
   \   '/path/to/some-filename.js:47:14: Missing trailing comma. [Warning/comma-dangle]',
   \   '/path/to/some-filename.js:56:41: Missing semicolon. [Error/semi]',
@@ -54,7 +58,7 @@ Execute(The eslint handler should print a message about a missing configuration 
   \   'text': 'eslint configuration error (type :ALEDetail for more information)',
   \   'detail': join(g:config_error_lines, "\n"),
   \ }],
-  \ ale_linters#javascript#eslint#Handle(347, g:config_error_lines[:])
+  \ ale#handlers#eslint#Handle(347, g:config_error_lines[:])
 
 Execute(The eslint handler should print a message for config parsing errors):
   let g:config_error_lines = [
@@ -82,8 +86,151 @@ Execute(The eslint handler should print a message for config parsing errors):
   \   'text': 'eslint configuration error (type :ALEDetail for more information)',
   \   'detail': join(g:config_error_lines, "\n"),
   \ }],
-  \ ale_linters#javascript#eslint#Handle(347, g:config_error_lines[:])
+  \ ale#handlers#eslint#Handle(347, g:config_error_lines[:])
 
-After:
-  unlet! g:config_error_lines
-  call ale#linter#Reset()
+Execute(The eslint handler should print a message for invalid configuration settings):
+  let g:config_error_lines = [
+  \ '/home/w0rp/git/wazoku/wazoku-spotlight/.eslintrc.js:',
+  \ ' Configuration for rule "indent" is invalid:',
+  \ ' Value "off" is the wrong type.',
+  \ '',
+  \ 'Error: /home/w0rp/git/wazoku/wazoku-spotlight/.eslintrc.js:',
+  \ ' Configuration for rule "indent" is invalid:',
+  \ ' Value "off" is the wrong type.',
+  \ '',
+  \ '    at validateRuleOptions (/usr/local/lib/node_modules/eslint/lib/config/config-validator.js:115:15)',
+  \ '    at /usr/local/lib/node_modules/eslint/lib/config/config-validator.js:162:13',
+  \ '    at Array.forEach (native)',
+  \ '    at Object.validate (/usr/local/lib/node_modules/eslint/lib/config/config-validator.js:161:35)',
+  \ '    at Object.load (/usr/local/lib/node_modules/eslint/lib/config/config-file.js:522:19)',
+  \ '    at loadConfig (/usr/local/lib/node_modules/eslint/lib/config.js:63:33)',
+  \ '    at getLocalConfig (/usr/local/lib/node_modules/eslint/lib/config.js:130:29)',
+  \ '    at Config.getConfig (/usr/local/lib/node_modules/eslint/lib/config.js:256:22)',
+  \ '    at processText (/usr/local/lib/node_modules/eslint/lib/cli-engine.js:224:33)',
+  \ '    at CLIEngine.executeOnText (/usr/local/lib/node_modules/eslint/lib/cli-engine.js:756:26)',
+  \]
+
+  AssertEqual
+  \ [{
+  \   'lnum': 1,
+  \   'text': 'eslint configuration error (type :ALEDetail for more information)',
+  \   'detail': join(g:config_error_lines, "\n"),
+  \ }],
+  \ ale#handlers#eslint#Handle(347, g:config_error_lines[:])
+
+Execute(The eslint handler should print a message when import is not used in a module):
+  let g:config_error_lines = [
+  \ 'ImportDeclaration should appear when the mode is ES6 and in the module context.',
+  \ 'AssertionError: ImportDeclaration should appear when the mode is ES6 and in the module context.',
+  \ '    at Referencer.ImportDeclaration (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/eslint-scope/lib/referencer.js:597:9)',
+  \ '    at Referencer.Visitor.visit (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/esrecurse/esrecurse.js:122:34)',
+  \ '    at Referencer.Visitor.visitChildren (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/esrecurse/esrecurse.js:101:38)',
+  \ '    at Referencer.Program (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/eslint-scope/lib/referencer.js:449:14)',
+  \ '    at Referencer.Visitor.visit (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/esrecurse/esrecurse.js:122:34)',
+  \ '    at Object.analyze (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/eslint-scope/lib/index.js:138:16)',
+  \ '    at EventEmitter.module.exports.api.verify (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/eslint/lib/eslint.js:887:40)',
+  \ '    at processText (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/eslint/lib/cli-engine.js:278:31)',
+  \ '    at CLIEngine.executeOnText (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/eslint/lib/cli-engine.js:734:26)',
+  \ '    at Object.execute (/home/w0rp/git/wazoku/wazoku-spotlight/spotlight/static/node_modules/eslint/lib/cli.js:171:42)   ',
+  \]
+
+  AssertEqual
+  \ [{
+  \   'lnum': 1,
+  \   'text': 'eslint configuration error (type :ALEDetail for more information)',
+  \   'detail': join(g:config_error_lines, "\n"),
+  \ }],
+  \ ale#handlers#eslint#Handle(347, g:config_error_lines[:])
+
+Execute(The eslint handler should output end_col values where appropriate):
+  AssertEqual
+  \ [
+  \   {
+  \     'lnum': 4,
+  \     'col': 3,
+  \     'end_col': 15,
+  \     'text': 'Parsing error: Unexpected token ''some string'' [Error]',
+  \     'type': 'E',
+  \   },
+  \   {
+  \     'lnum': 70,
+  \     'col': 3,
+  \     'end_col': 5,
+  \     'text': '''foo'' is not defined. [Error/no-undef]',
+  \     'type': 'E',
+  \   },
+  \   {
+  \     'lnum': 71,
+  \     'col': 2,
+  \     'end_col': 6,
+  \     'text': 'Unexpected `await` inside a loop. [Error/no-await-in-loop]',
+  \     'type': 'E',
+  \   },
+  \   {
+  \     'lnum': 72,
+  \     'col': 6,
+  \     'end_col': 10,
+  \     'text': 'Redundant use of `await` on a return value. [Error/no-return-await]',
+  \     'type': 'E',
+  \   },
+  \   {
+  \     'lnum': 73,
+  \     'col': 4,
+  \     'end_col': 10,
+  \     'text': 'Unexpected console statement [Error/no-console]',
+  \     'type': 'E',
+  \   },
+  \   {
+  \     'lnum': 74,
+  \     'col': 4,
+  \     'end_col': 11,
+  \     'text': 'Unexpected ''debugger'' statement. [Error/no-debugger]',
+  \     'type': 'E',
+  \   },
+  \ ],
+  \ ale#handlers#eslint#Handle(347, [
+  \   'app.js:4:3: Parsing error: Unexpected token ''some string'' [Error]',
+  \   'app.js:70:3: ''foo'' is not defined. [Error/no-undef]',
+  \   'app.js:71:2: Unexpected `await` inside a loop. [Error/no-await-in-loop]',
+  \   'app.js:72:6: Redundant use of `await` on a return value. [Error/no-return-await]',
+  \   'app.js:73:4: Unexpected console statement [Error/no-console]',
+  \   'app.js:74:4: Unexpected ''debugger'' statement. [Error/no-debugger]',
+  \ ])
+
+Execute(The eslint hint about using typescript-eslint-parser):
+  silent! noautocmd file foo.ts
+
+  AssertEqual
+  \ [
+  \   {
+  \     'lnum': 451,
+  \     'col': 2,
+  \     'end_col': 2,
+  \     'text': 'Parsing error (You may need configure typescript-eslint-parser): Unexpected token ) [Error]',
+  \     'type': 'E',
+  \   },
+  \ ],
+  \ ale#handlers#eslint#Handle(bufnr(''), [
+  \ 'foo.ts:451:2: Parsing error: Unexpected token ) [Error]',
+  \ ])
+
+Execute(eslint should warn about ignored files by default):
+  AssertEqual
+  \ [{
+  \    'lnum': 0,
+  \    'col': 0,
+  \    'type': 'W',
+  \    'text': 'File ignored because of a matching ignore pattern. Use "--no-ignore" to override. [Warning]'
+  \ }],
+  \ ale#handlers#eslint#Handle(347, [
+  \  '/path/to/some/ignored.js:0:0: File ignored because of a matching ignore pattern. Use "--no-ignore" to override. [Warning]',
+  \ ])
+
+Execute(eslint should not warn about ignored files when explicitly disabled):
+  let g:ale_javascript_eslint_suppress_eslintignore = 1
+
+  AssertEqual
+  \ [],
+  \ ale#handlers#eslint#Handle(347, [
+  \  '/path/to/some/ignored.js:0:0: File ignored because of a matching ignore pattern. Use "--no-ignore" to override. [Warning]',
+  \ ])

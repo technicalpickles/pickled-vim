@@ -6,7 +6,7 @@ function! ale_linters#erlang#erlc#GetCommand(buffer) abort
     let l:output_file = tempname()
     call ale#engine#ManageFile(a:buffer, l:output_file)
 
-    return 'erlc -o ' . fnameescape(l:output_file)
+    return 'erlc -o ' . ale#Escape(l:output_file)
     \   . ' ' . ale#Var(a:buffer, 'erlang_erlc_options')
     \   . ' %t'
 endfunction
@@ -27,7 +27,7 @@ function! ale_linters#erlang#erlc#Handle(buffer, lines) abort
     let l:pattern_no_module_definition = '\v(no module definition)$'
     let l:pattern_unused = '\v(.* is unused)$'
 
-    let l:is_hrl = fnamemodify(bufname(a:buffer), ':e') ==# 'hrl'
+    let l:is_hrl = fnamemodify(bufname(a:buffer), ':e') is# 'hrl'
 
     for l:line in a:lines
         let l:match = matchlist(l:line, l:pattern)

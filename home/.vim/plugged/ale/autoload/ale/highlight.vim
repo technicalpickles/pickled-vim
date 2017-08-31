@@ -6,97 +6,114 @@ if !hlexists('ALEError')
     highlight link ALEError SpellBad
 endif
 
+if !hlexists('ALEStyleError')
+    highlight link ALEStyleError ALEError
+endif
+
 if !hlexists('ALEWarning')
     highlight link ALEWarning SpellCap
 endif
 
-" This map holds highlights to be set when buffers are opened.
-" We can only set highlights for whatever the current buffer is, so we will
-" wait until the buffer is entered again to show the highlights, unless
-" the buffer is in focus when linting completes.
-let s:buffer_highlights = {}
+if !hlexists('ALEStyleWarning')
+    highlight link ALEStyleWarning ALEWarning
+endif
 
-function! ale#highlight#UnqueueHighlights(buffer) abort
-    if has_key(s:buffer_highlights, a:buffer)
-        call remove(s:buffer_highlights, a:buffer)
+if !hlexists('ALEInfo')
+    highlight link ALEInfo ALEWarning
+endif
+
+" The maximum number of items for the second argument of matchaddpos()
+let s:MAX_POS_VALUES = 8
+let s:MAX_COL_SIZE = 1073741824 " pow(2, 30)
+
+function! ale#highlight#CreatePositions(line, col, end_line, end_col) abort
+    if a:line >= a:end_line
+        " For single lines, just return the one position.
+        return [[[a:line, a:col, a:end_col - a:col + 1]]]
     endif
+
+    " Get positions from the first line at the first column, up to a large
+    " integer for highlighting up to the end of the line, followed by
+    " the lines in-between, for highlighting entire lines, and
+    " a highlight for the last line, up to the end column.
+    let l:all_positions =
+    \   [[a:line, a:col, s:MAX_COL_SIZE]]
+    \   + range(a:line + 1, a:end_line - 1)
+    \   + [[a:end_line, 1, a:end_col]]
+
+    return map(
+    \   range(0, len(l:all_positions) - 1, s:MAX_POS_VALUES),
+    \   'l:all_positions[v:val : v:val + s:MAX_POS_VALUES - 1]',
+    \)
 endfunction
 
-function! s:GetALEMatches() abort
-    let l:list = []
-
+" Given a loclist for current items to highlight, remove all highlights
+" except these which have matching loclist item entries.
+function! ale#highlight#RemoveHighlights() abort
     for l:match in getmatches()
-        if l:match['group'] ==# 'ALEError' || l:match['group'] ==# 'ALEWarning'
-            call add(l:list, l:match)
+        if l:match.group =~# '^ALE'
+            call matchdelete(l:match.id)
         endif
     endfor
-
-    return l:list
-endfunction
-
-function! s:GetCurrentMatchIDs(loclist) abort
-    let l:current_id_map = {}
-
-    for l:item in a:loclist
-        if has_key(l:item, 'match_id')
-            let l:current_id_map[l:item.match_id] = 1
-        endif
-    endfor
-
-    return l:current_id_map
 endfunction
 
 function! ale#highlight#UpdateHighlights() abort
-    let l:buffer = bufnr('%')
-    let l:has_new_items = has_key(s:buffer_highlights, l:buffer)
-    let l:loclist = l:has_new_items ? remove(s:buffer_highlights, l:buffer) : []
-    let l:current_id_map = s:GetCurrentMatchIDs(l:loclist)
+    let l:item_list = g:ale_enabled
+    \   ? get(b:, 'ale_highlight_items', [])
+    \   : []
 
-    if l:has_new_items || !g:ale_enabled
-        for l:match in s:GetALEMatches()
-            if !has_key(l:current_id_map, l:match.id)
-                call matchdelete(l:match.id)
+    call ale#highlight#RemoveHighlights()
+
+    for l:item in l:item_list
+        if l:item.type is# 'W'
+            if get(l:item, 'sub_type', '') is# 'style'
+                let l:group = 'ALEStyleWarning'
+            else
+                let l:group = 'ALEWarning'
             endif
-        endfor
-    endif
+        elseif l:item.type is# 'I'
+            let l:group = 'ALEInfo'
+        elseif get(l:item, 'sub_type', '') is# 'style'
+            let l:group = 'ALEStyleError'
+        else
+            let l:group = 'ALEError'
+        endif
 
-    " Remove anything with a current match_id
-    call filter(l:loclist, '!has_key(v:val, ''match_id'')')
+        let l:line = l:item.lnum
+        let l:col = l:item.col
+        let l:end_line = get(l:item, 'end_lnum', l:line)
+        let l:end_col = get(l:item, 'end_col', l:col)
 
-    if l:has_new_items
-        for l:item in l:loclist
-            let l:col = l:item.col
-            let l:group = l:item.type ==# 'E' ? 'ALEError' : 'ALEWarning'
-            let l:line = l:item.lnum
-            let l:size = 1
+        " Set all of the positions, which are chunked into Lists which
+        " are as large as will be accepted by matchaddpos.
+        call map(
+        \   ale#highlight#CreatePositions(l:line, l:col, l:end_line, l:end_col),
+        \   'matchaddpos(l:group, v:val)'
+        \)
+    endfor
+endfunction
 
-            " Rememeber the match ID for the item.
-            " This ID will be used to preserve loclist items which are set
-            " many times.
-            let l:item.match_id = matchaddpos(l:group, [[l:line, l:col, l:size]])
-        endfor
-    endif
+function! ale#highlight#BufferHidden(buffer) abort
+    " Remove highlights right away when buffers are hidden.
+    " They will be restored later when buffers are entered.
+    call ale#highlight#RemoveHighlights()
 endfunction
 
 augroup ALEHighlightBufferGroup
     autocmd!
     autocmd BufEnter * call ale#highlight#UpdateHighlights()
+    autocmd BufHidden * call ale#highlight#BufferHidden(expand('<abuf>'))
 augroup END
 
 function! ale#highlight#SetHighlights(buffer, loclist) abort
-    " Only set set items for the buffer if ALE is enabled.
-    if g:ale_enabled
-        " Set a list of items to be set as highlights for a buffer when
-        " we next open it.
-        "
-        " We'll filter the loclist down to items we can set now.
-        let s:buffer_highlights[a:buffer] = filter(
-        \   copy(a:loclist),
-        \   'v:val.bufnr == a:buffer && v:val.col > 0'
-        \)
+    let l:new_list = g:ale_enabled
+    \   ? filter(copy(a:loclist), 'v:val.bufnr == a:buffer && v:val.col > 0')
+    \   : []
 
-        " Update highlights for the current buffer, which may or may not
-        " be the buffer we just set highlights for.
-        call ale#highlight#UpdateHighlights()
-    endif
+    " Set the list in the buffer variable.
+    call setbufvar(str2nr(a:buffer), 'ale_highlight_items', l:new_list)
+
+    " Update highlights for the current buffer, which may or may not
+    " be the buffer we just set highlights for.
+    call ale#highlight#UpdateHighlights()
 endfunction

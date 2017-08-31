@@ -301,6 +301,13 @@
   \  'javascript': [],
   \}
 
+  " Set per-path options
+  " - .env files aren't usually real shell files, so ignore those
+  let g:ale_pattern_options = {
+  \   '\.env': {'ale_enabled': 0},
+  \   '\.env.*$': {'ale_enabled': 0}
+  \}
+
   " Exclude things that will almost always warn:
   " SC1090 - Can't follow non-constant source. Use a directive to specify location.
   " SC1091 - Not following: (error message here)

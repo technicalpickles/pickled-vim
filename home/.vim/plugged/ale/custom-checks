@@ -44,24 +44,32 @@ fi
 
 shopt -s globstar
 
-directory="$1"
+directories=("$@")
 
 check_errors() {
     regex="$1"
     message="$2"
 
-    for match in $(
-        grep -n "$regex" "$directory"/**/*.vim \
-        | grep -o '^[^:]\+:[0-9]\+' \
-        | sed 's:^\./::'
-    ); do
-        RETURN_CODE=1
-        echo "$match $message"
+    for directory in "${directories[@]}"; do
+        while IFS= read -r match; do
+            RETURN_CODE=1
+            echo "$match $message"
+        done < <(grep -n "$regex" "$directory"/**/*.vim \
+            | grep -v 'no-custom-checks' \
+            | grep -o '^[^:]\+:[0-9]\+' \
+            | sed 's:^\./::')
     done
 }
 
 if (( FIX_ERRORS )); then
-    sed -i "s/^\(function.*)\) *$/\1 abort/" "$directory"/**/*.vim
+    for directory in "${directories[@]}"; do
+        sed -i "s/^\(function.*)\) *$/\1 abort/" "$directory"/**/*.vim
+        sed -i "s/shellescape(/ale#Escape(/" "$directory"/**/*.vim
+        sed -i 's/==#/is#/g' "$directory"/**/*.vim
+        sed -i 's/==?/is?/g' "$directory"/**/*.vim
+        sed -i 's/!=#/isnot#/g' "$directory"/**/*.vim
+        sed -i 's/!=?/isnot?/g' "$directory"/**/*.vim
+    done
 fi
 
 check_errors \
@@ -73,5 +81,12 @@ check_errors '^  [^ ]' 'Use four spaces, not two spaces'
 check_errors $'\t' 'Use four spaces, not tabs'
 # This check should prevent people from using a particular inconsistent name.
 check_errors 'let g:ale_\w\+_\w\+_args =' 'Name your option g:ale_<filetype>_<lintername>_options instead'
+check_errors 'shellescape(' 'Use ale#Escape instead of shellescape'
+check_errors 'simplify(' 'Use ale#path#Simplify instead of simplify'
+check_errors "expand(['\"]%" "Use expand('#' . a:buffer . '...') instead. You might get a filename for the wrong buffer."
+check_errors '==#' "Use 'is#' instead of '==#'. 0 ==# 'foobar' is true"
+check_errors '==?' "Use 'is?' instead of '==?'. 0 ==? 'foobar' is true"
+check_errors '!=#' "Use 'isnot#' instead of '!=#'. 0 !=# 'foobar' is false"
+check_errors '!=?' "Use 'isnot?' instead of '!=?'. 0 !=? 'foobar' is false"
 
 exit $RETURN_CODE

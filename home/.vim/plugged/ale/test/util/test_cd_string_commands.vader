@@ -1,9 +1,15 @@
 Before:
   silent! cd /testplugin/test/util
+  let g:dir = getcwd()
+
+After:
+  silent execute 'cd ' . fnameescape(g:dir)
+  unlet! g:dir
 
 Execute(CdString should output the correct command string):
-  AssertEqual 'cd /foo\ bar/baz && ', ale#path#CdString('/foo bar/baz')
+  AssertEqual 'cd ''/foo bar/baz'' && ', ale#path#CdString('/foo bar/baz')
 
 Execute(BufferCdString should output the correct command string):
-  Assert match(ale#path#BufferCdString(bufnr('')), '^cd .*test/util && $') >= 0,
-  \ 'String didn''t match regex: ' . ale#path#BufferCdString(bufnr(''))
+  call ale#test#SetFilename('foo.txt')
+
+  AssertEqual 'cd ' . shellescape(g:dir) . ' && ', ale#path#BufferCdString(bufnr(''))
