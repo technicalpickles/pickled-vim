@@ -2,7 +2,7 @@
   call plug#begin('~/.vim/plugged')
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
   Plug 'https://github.com/Raimondi/delimitMate.git'
-  Plug 'https://github.com/SirVer/ultisnips.git'
+  "Plug 'https://github.com/SirVer/ultisnips.git'
   Plug 'https://github.com/StanAngeloff/php.vim.git'
   Plug 'https://github.com/airblade/vim-gitgutter.git'
   Plug 'https://github.com/asciidoc/vim-asciidoc.git'
@@ -24,7 +24,7 @@
   Plug 'https://github.com/junegunn/vim-easy-align.git'
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
   Plug 'https://github.com/kien/ctrlp.vim.git'
-  Plug 'https://github.com/majutsushi/tagbar.git'
+  " Plug 'https://github.com/majutsushi/tagbar.git'
   Plug 'https://github.com/mhinz/vim-grepper.git'
   Plug 'https://github.com/moll/vim-node.git'
   Plug 'https://github.com/nanotech/jellybeans.vim.git'
