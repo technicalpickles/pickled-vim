@@ -26,6 +26,7 @@
   Plug 'https://github.com/kien/ctrlp.vim.git'
   " Plug 'https://github.com/majutsushi/tagbar.git'
   Plug 'https://github.com/mhinz/vim-grepper.git'
+  Plug 'https://github.com/mhinz/vim-startify.git'
   Plug 'https://github.com/moll/vim-node.git'
   Plug 'https://github.com/nanotech/jellybeans.vim.git'
   Plug 'https://github.com/niftylettuce/vim-jinja.git'
@@ -63,6 +64,7 @@
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/w0rp/ale.git'
   Plug 'https://github.com/ternjs/tern_for_vim.git'
+  
  
   call plug#end()
 
