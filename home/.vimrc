@@ -298,9 +298,16 @@
 
   " configure which linters to use
   " - javascript: off by default, since no one syntax checker is going to work everywhere. use .vimrc to override
+  " - ruby: only use mri
   let g:ale_linters = {
   \  'javascript': [],
+  \  'ruby': ['mri'],
   \}
+
+  " use rubocop if there's a config for it
+  if filereadable(".rubocop.yml")
+    let g:ale_linters.ruby = ['mri', 'rubocop']
+  endif
 
   " Set per-path options
   " - .env files aren't usually real shell files, so ignore those
