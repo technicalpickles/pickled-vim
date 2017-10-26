@@ -140,9 +140,6 @@
 
   "let g:browser = 'open '
 
-  " use the_silver_surfer for Ack
-  let g:ackprg = 'ag --nogroup --nocolor --column'
-
   augroup myfiletypes
     " Clear old autocmds in group
     autocmd!
