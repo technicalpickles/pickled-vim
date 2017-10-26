@@ -64,7 +64,6 @@
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/w0rp/ale.git'
-  
  
   call plug#end()
 
@@ -278,16 +277,6 @@
 
   " ctrl-p extensions
   let g:ctrlp_extensions = ['tag']
-
-" Section: syntastic plugin
-  let g:syntastic_always_populate_loc_list = 1
-  let g:syntastic_auto_loc_list = 1
-  let g:syntastic_check_on_open = 1
-  let g:syntastic_check_on_wq = 0
-
-  let g:syntastic_python_checkers = ['pylint', 'flake8', 'pydocstyle']
-  let g:syntastic_sass_checkers=["sasslint"]
-  let g:syntastic_scss_checkers=["sasslint"]
 
   " Section: vim-ale
   let g:ale_open_list = 1 " show when there are errors
