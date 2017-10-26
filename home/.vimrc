@@ -1,14 +1,14 @@
 " Section: plugins
   call plug#begin('~/.vim/plugged')
+  " Plug 'https://github.com/majutsushi/tagbar.git'
+  " Plug 'https://github.com/SirVer/ultisnips.git'
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
   Plug 'https://github.com/Raimondi/delimitMate.git'
-  "Plug 'https://github.com/SirVer/ultisnips.git'
   Plug 'https://github.com/StanAngeloff/php.vim.git'
   Plug 'https://github.com/airblade/vim-gitgutter.git'
   Plug 'https://github.com/asciidoc/vim-asciidoc.git'
   Plug 'https://github.com/digitaltoad/vim-pug.git'
   Plug 'https://github.com/editorconfig/editorconfig-vim.git'
-  Plug 'https://github.com/ervandew/supertab.git'
   Plug 'https://github.com/farmergreg/vim-lastplace.git'
   Plug 'https://github.com/gcorne/vim-sass-lint.git'
   Plug 'https://github.com/godlygeek/tabular.git'
@@ -24,7 +24,7 @@
   Plug 'https://github.com/junegunn/vim-easy-align.git'
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
   Plug 'https://github.com/kien/ctrlp.vim.git'
-  " Plug 'https://github.com/majutsushi/tagbar.git'
+  Plug 'https://github.com/maralla/completor.vim.git'
   Plug 'https://github.com/mhinz/vim-grepper.git'
   Plug 'https://github.com/mhinz/vim-startify.git'
   Plug 'https://github.com/moll/vim-node.git'
@@ -42,6 +42,7 @@
   Plug 'https://github.com/technicalpickles/vim-nodenv.git'
   Plug 'https://github.com/technicalpickles/vim-ruby-minitest.git' " fork with different filetype
   Plug 'https://github.com/technicalpickles/vim-snippets.git'
+  Plug 'https://github.com/ternjs/tern_for_vim.git'
   Plug 'https://github.com/tpope/vim-bundler.git'
   Plug 'https://github.com/tpope/vim-cucumber.git'
   Plug 'https://github.com/tpope/vim-dispatch.git'
@@ -63,7 +64,6 @@
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/w0rp/ale.git'
-  Plug 'https://github.com/ternjs/tern_for_vim.git'
   
  
   call plug#end()
