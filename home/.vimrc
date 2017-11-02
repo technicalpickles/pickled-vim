@@ -366,3 +366,6 @@
 " Section: project specific vimrc
   set exrc
   set secure
+
+" Section:
+  let g:startify_list_order = ['dir', 'bookmarks', 'sessions', 'commands']
