@@ -282,12 +282,23 @@
   let g:ale_open_list = 1 " show when there are errors
   let g:ale_sign_column_always = 1 " always show sign column, so text doesn't move around
 
+
+  " workaround for https://github.com/w0rp/ale/issues/580
+  call ale#linter#Define('eruby', {
+  \   'name': 'erubylint',
+  \   'executable': 'erb',
+  \   'output_stream': 'stderr',
+  \   'command': "ruby -rerb -e \"puts ERB.new(File.read(%t, encoding: 'BINARY').gsub('<%=','<%'), nil, '-').src\" | ruby -c",
+  \   'callback': 'ale#handlers#ruby#HandleSyntaxErrors',
+  \})
+
   " configure which linters to use
   " - javascript: off by default, since no one syntax checker is going to work everywhere. use .vimrc to override
   " - ruby: only use mri
   let g:ale_linters = {
   \  'javascript': [],
   \  'ruby': ['mri'],
+  \  'eruby': ['erubylint']
   \}
 
   " use rubocop if there's a config for it
