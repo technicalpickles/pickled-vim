@@ -382,5 +382,21 @@
   set exrc
   set secure
 
-" Section:
+" Section: startify
   let g:startify_list_order = ['dir', 'bookmarks', 'sessions', 'commands']
+
+" Section bgtags
+  " Disable tag binary search, assume tag files are unsorted. This is likely true
+  " given that autotag is rewriting tags files, and the tags command I'm using
+  " also doesn't generate a sorted file. This will save a binary search (fast as
+  " it is) and go directly to a linear search.
+  set notagbsearch
+
+  let g:bgtags_user_commands = {
+  \ "directories": {
+    \ "default": "ctags -R"
+    \ },
+  \ "filetypes": {
+    \ "default": "ctags -f-"
+    \ }
+  \ }
