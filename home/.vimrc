@@ -1,7 +1,5 @@
 " Section: plugins
   call plug#begin('~/.vim/plugged')
-  " Plug 'https://github.com/majutsushi/tagbar.git'
-  " Plug 'https://github.com/SirVer/ultisnips.git'
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
   Plug 'https://github.com/Raimondi/delimitMate.git'
   Plug 'https://github.com/StanAngeloff/php.vim.git'
@@ -64,6 +62,12 @@
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/w0rp/ale.git'
+  Plug 'https://github.com/zerowidth/vim-bgtags.git'
+
+" Section: plugins that probably will be deleted
+" Plug 'https://github.com/majutsushi/tagbar.git'
+" Plug 'https://github.com/SirVer/ultisnips.git'
+
  
   call plug#end()
 
