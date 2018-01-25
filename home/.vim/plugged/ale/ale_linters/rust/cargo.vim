@@ -1,7 +1,8 @@
 " Author: Daniel Schemala <istjanichtzufassen@gmail.com>
 " Description: rustc invoked by cargo for rust files
 
-let g:ale_rust_cargo_use_check = get(g:, 'ale_rust_cargo_use_check', 0)
+call ale#Set('rust_cargo_use_check', 1)
+call ale#Set('rust_cargo_check_all_targets', 0)
 
 function! ale_linters#rust#cargo#GetCargoExecutable(bufnr) abort
     if ale#path#FindNearestFile(a:bufnr, 'Cargo.toml') isnot# ''
@@ -13,19 +14,35 @@ function! ale_linters#rust#cargo#GetCargoExecutable(bufnr) abort
     endif
 endfunction
 
-function! ale_linters#rust#cargo#GetCommand(buffer) abort
-    let l:command = ale#Var(a:buffer, 'rust_cargo_use_check')
-    \   ? 'check'
-    \   : 'build'
+function! ale_linters#rust#cargo#VersionCheck(buffer) abort
+    return !ale#semver#HasVersion('cargo')
+    \   ? 'cargo --version'
+    \   : ''
+endfunction
 
-    return 'cargo ' . l:command . ' --frozen --message-format=json -q'
+function! ale_linters#rust#cargo#GetCommand(buffer, version_output) abort
+    let l:version = ale#semver#GetVersion('cargo', a:version_output)
+
+    let l:use_check = ale#Var(a:buffer, 'rust_cargo_use_check')
+    \   && ale#semver#GTE(l:version, [0, 17, 0])
+    let l:use_all_targets = l:use_check
+    \   && ale#Var(a:buffer, 'rust_cargo_check_all_targets')
+    \   && ale#semver#GTE(l:version, [0, 22, 0])
+
+    return 'cargo '
+    \   . (l:use_check ? 'check' : 'build')
+    \   . (l:use_all_targets ? ' --all-targets' : '')
+    \   . ' --frozen --message-format=json -q'
 endfunction
 
 call ale#linter#Define('rust', {
 \   'name': 'cargo',
 \   'executable_callback': 'ale_linters#rust#cargo#GetCargoExecutable',
-\   'command_callback': 'ale_linters#rust#cargo#GetCommand',
+\   'command_chain': [
+\       {'callback': 'ale_linters#rust#cargo#VersionCheck'},
+\       {'callback': 'ale_linters#rust#cargo#GetCommand'},
+\   ],
 \   'callback': 'ale#handlers#rust#HandleRustErrors',
-\   'output_stream': 'stdout',
+\   'output_stream': 'both',
 \   'lint_file': 1,
 \})

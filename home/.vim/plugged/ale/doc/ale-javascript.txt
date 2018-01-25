@@ -56,116 +56,21 @@ g:ale_javascript_eslint_suppress_eslintignore
   Type: |Number|
   Default: `0`
 
-  This variable can be set to disable the warning that linting is disabled on
-  the current file due to being covered by `.eslintignore`.
+  This variable can be set to `1` to disable warnings for files being ignored
+  by eslint.
 
 
-===============================================================================
-prettier                                              *ale-javascript-prettier*
-
-g:ale_javascript_prettier_executable     *g:ale_javascript_prettier_executable*
-                                         *b:ale_javascript_prettier_executable*
-  Type: |String|
-  Default: `'prettier'`
-
-  See |ale-integrations-local-executables|
-
-
-g:ale_javascript_prettier_options           *g:ale_javascript_prettier_options*
-                                            *b:ale_javascript_prettier_options*
-  Type: |String|
-  Default: `''`
-
-  This variable can be set to pass additional options to prettier.
-
-
-g:ale_javascript_prettier_use_global     *g:ale_javascript_prettier_use_global*
-                                         *b:ale_javascript_prettier_use_global*
+g:ale_javascript_eslint_suppress_missing_config
+                              *g:ale_javascript_eslint_suppress_missing_config*
+                              *b:ale_javascript_eslint_suppress_missing_config*
   Type: |Number|
   Default: `0`
 
-  See |ale-integrations-local-executables|
+  This variable can be set to `1` to disable errors for missing eslint
+  configuration files.
 
-g:ale_javascript_prettier_use_local_config
-                                   *g:ale_javascript_prettier_use_local_config*
-                                   *b:ale_javascript_prettier_use_local_config*
-  Type: |Number|
-  Default: `0`
-
-  This variable can be set to use the local prettier configuration file.
-
-===============================================================================
-prettier-eslint                                *ale-javascript-prettier-eslint*
-
-ALE supports `prettier-eslint` >= 4.2.0. Using lower version is not recommended
-because it cannot be configured to use the ESLint configuration file for input
-given via stdin. However ALE could be set up on your own risk with older
-versions with |g:ale_javascript_prettier_eslint_legacy|
-
-g:ale_javascript_prettier_eslint_executable
-                                  *g:ale_javascript_prettier_eslint_executable*
-                                  *b:ale_javascript_prettier_eslint_executable*
-  Type: |String|
-  Default: `'prettier-eslint'`
-
-  See |ale-integrations-local-executables|
-
-
-g:ale_javascript_prettier_eslint_options
-                                     *g:ale_javascript_prettier_eslint_options*
-                                     *b:ale_javascript_prettier_eslint_options*
-  Type: |String|
-  Default: `''`
-
-  This variable can be set to pass additional options to prettier-eslint.
-
-
-g:ale_javascript_prettier_eslint_use_global
-                                  *g:ale_javascript_prettier_eslint_use_global*
-                                  *b:ale_javascript_prettier_eslint_use_global*
-  Type: |Number|
-  Default: `0`
-
-  See |ale-integrations-local-executables|
-
-g:ale_javascript_prettier_eslint_legacy
-                                      *g:ale_javascript_prettier_eslint_legacy*
-                                      *b:ale_javascript_prettier_eslint_legacy*
-  Type: |Number|
-  Default: `0`
-
-  Fallback option for `prettier-eslint` < 4.2.0
-
-
-===============================================================================
-prettier-standard                            *ale-javascript-prettier-standard*
-
-
-g:ale_javascript_prettier_standard_executable
-                                *g:ale_javascript_prettier_standard_executable*
-                                *b:ale_javascript_prettier_standard_executable*
-  Type: |String|
-  Default: `'prettier-standard'`
-
-  See |ale-integrations-local-executables|
-
-
-g:ale_javascript_prettier_standard_options
-                                   *g:ale_javascript_prettier_standard_options*
-                                   *b:ale_javascript_prettier_standard_options*
-  Type: |String|
-  Default: `''`
-
-  This variable can be set to pass additional options to prettier-standard.
-
-
-g:ale_javascript_prettier_standard_use_global
-                                *g:ale_javascript_prettier_standard_use_global*
-                                *b:ale_javascript_prettier_standard_use_global*
-  Type: |Number|
-  Default: `0`
-
-  See |ale-integrations-local-executables|
+  When turning this option on, eslint will not report any problems when no
+  configuration files are found.
 
 
 ===============================================================================
@@ -179,12 +84,32 @@ g:ale_javascript_flow_executable             *g:ale_javascript_flow_executable*
   See |ale-integrations-local-executables|
 
 
+g:ale_javascript_flow_use_home_config   *g:ale_javascript_flow_use_home_config*
+                                        *b:ale_javascript_flow_use_home_config*
+  Type: |Number|
+  Default: `0`
+
+  When set to `1`, ALE will allow Flow to be executed with configuration files
+  from your home directory. ALE will not run Flow with home directory
+  configuration files by default, as doing so can lead to Vim consuming all of
+  your RAM and CPU power.
+
+
 g:ale_javascript_flow_use_global             *g:ale_javascript_flow_use_global*
                                              *b:ale_javascript_flow_use_global*
   Type: |Number|
   Default: `0`
 
   See |ale-integrations-local-executables|
+
+
+===============================================================================
+importjs                                              *ale-javascript-importjs*
+
+g:ale_javascript_importjs_executable     *g:ale_javascript_importjs_executable*
+                                         *b:ale_javascript_importjs_executable*
+  Type: |String|
+  Default: `'importjs'`
 
 
 ===============================================================================
@@ -223,6 +148,96 @@ g:ale_javascript_jshint_use_global         *g:ale_javascript_jshint_use_global*
   Default: `0`
 
   See |ale-integrations-local-executables|
+
+
+===============================================================================
+prettier                                              *ale-javascript-prettier*
+
+g:ale_javascript_prettier_executable     *g:ale_javascript_prettier_executable*
+                                         *b:ale_javascript_prettier_executable*
+  Type: |String|
+  Default: `'prettier'`
+
+  See |ale-integrations-local-executables|
+
+
+g:ale_javascript_prettier_options           *g:ale_javascript_prettier_options*
+                                            *b:ale_javascript_prettier_options*
+  Type: |String|
+  Default: `''`
+
+  This variable can be set to pass additional options to prettier.
+
+
+g:ale_javascript_prettier_use_global     *g:ale_javascript_prettier_use_global*
+                                         *b:ale_javascript_prettier_use_global*
+  Type: |Number|
+  Default: `0`
+
+  See |ale-integrations-local-executables|
+
+
+===============================================================================
+prettier-eslint                                *ale-javascript-prettier-eslint*
+
+g:ale_javascript_prettier_eslint_executable
+                                  *g:ale_javascript_prettier_eslint_executable*
+                                  *b:ale_javascript_prettier_eslint_executable*
+  Type: |String|
+  Default: `'prettier-eslint'`
+
+  See |ale-integrations-local-executables|
+
+
+g:ale_javascript_prettier_eslint_options
+                                     *g:ale_javascript_prettier_eslint_options*
+                                     *b:ale_javascript_prettier_eslint_options*
+  Type: |String|
+  Default: `''`
+
+  This variable can be set to pass additional options to prettier-eslint.
+
+
+g:ale_javascript_prettier_eslint_use_global
+                                  *g:ale_javascript_prettier_eslint_use_global*
+                                  *b:ale_javascript_prettier_eslint_use_global*
+  Type: |Number|
+  Default: `0`
+
+  See |ale-integrations-local-executables|
+
+
+===============================================================================
+prettier-standard                            *ale-javascript-prettier-standard*
+
+
+g:ale_javascript_prettier_standard_executable
+                                *g:ale_javascript_prettier_standard_executable*
+                                *b:ale_javascript_prettier_standard_executable*
+  Type: |String|
+  Default: `'prettier-standard'`
+
+  See |ale-integrations-local-executables|
+
+
+g:ale_javascript_prettier_standard_options
+                                   *g:ale_javascript_prettier_standard_options*
+                                   *b:ale_javascript_prettier_standard_options*
+  Type: |String|
+  Default: `''`
+
+  This variable can be set to pass additional options to prettier-standard.
+
+
+g:ale_javascript_prettier_standard_use_global
+                                *g:ale_javascript_prettier_standard_use_global*
+                                *b:ale_javascript_prettier_standard_use_global*
+  Type: |Number|
+  Default: `0`
+
+  See |ale-integrations-local-executables|
+
+
 
 
 ===============================================================================

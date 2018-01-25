@@ -3,13 +3,14 @@
 import os
 import re
 import logging
+import glob
 from completor import Completor
 
 from .utils import test_subseq, LIMIT
 
 
 logger = logging.getLogger('completor')
-DSN_PAT = re.compile('\w+:(//?[^\s]*)?')
+PAT = re.compile('(\w+:(//?[^\s]*)?)|(</[^\s>]*>?)')
 
 
 def find(current_dir, input_data):
@@ -24,8 +25,11 @@ def find(current_dir, input_data):
     if not os.path.isabs(dirname):
         dirname = os.path.join(current_dir, dirname)
 
+    dir_spec = os.path.join(dirname, '*')
+    dir_len = len(dir_spec) - 1
     entries = []
-    for entry in os.listdir(dirname):
+    for fname in glob.iglob(dir_spec):
+        entry = fname[dir_len:]
         score = test_subseq(basename, entry)
         if score is None:
             continue
@@ -80,7 +84,7 @@ class Filename(Completor):
         :param base: type unicode
         """
         logger.info('start filename parse: %s', base)
-        pat = list(DSN_PAT.finditer(base))
+        pat = list(PAT.finditer(base))
         if pat:
             base = base[pat[-1].end():]
 

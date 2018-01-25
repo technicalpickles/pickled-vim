@@ -69,15 +69,18 @@ Startify basically provides two things:
 
    And you can define your own custom ascii art header now!
 
-2) It eases handling of loading and saving sessions by only working with a
-   certain directory. These commands are used for convenience:
+2) The plugin eases the handling of loading and saving sessions by putting
+   sessions in a central directory.
 
-      :SLoad       load a session
-      :SSave       save a session
-      :SDelete[!]  delete a session
-      :SClose      close a session
+      :SLoad       load a session    |startify-:SLoad|
+      :SSave[!]    save a session    |startify-:SSave|
+      :SDelete[!]  delete a session  |startify-:SDelete|
+      :SClose      close a session   |startify-:SClose|
 
-    If ! is given, you won't get prompted.
+   If ! is given, you won't get prompted.
+
+   It also supports session persistence, so once a session is loaded, it gets
+   saved automatically when Vim is quit: |g:startify_session_persistence|
 
 ==============================================================================
 OPTIONS                                                       *startify-options*
@@ -658,11 +661,14 @@ Open the startify buffer.
                                                                *startify-:SSave*
                                                              *startify-:SDelete*
 >
-    :SSave [session]
-    :SDelete [session]
+    :SSave[!] [session]
+    :SDelete[!] [session]
 <
 Save or delete a session. If you don't specify a session name, it will prompt
 you for one.
+
+Use `:SSave!` or `:SDelete!` to always overwrite or delete an existing session.
+
                                                                *startify-:SLoad*
 >
     :SLoad [session]
@@ -775,6 +781,8 @@ FAQ                                                               *startify-faq*
     |startify-faq-11|  How to use the output of a command as header?
     |startify-faq-12|  There is an empty window with vim-plug!
     |startify-faq-13|  How to disable random quotes header?
+    |startify-faq-14|  NERDTree with NERDTreeTabs does not work in gvim!
+    |startify-faq-15|  Startify is cluttered with help files!
 
 ------------------------------------------------------------------------------
                                                                *startify-faq-01*
@@ -956,6 +964,29 @@ How to disable random quotes header?~
     let g:startify_custom_header = []
 <
 See |g:startify_custom_header|.
+
+------------------------------------------------------------------------------
+                                                               *startify-faq-14*
+NERDTree with NERDTreeTabs does not work in gvim!~
+
+Mind that `https://github.com/jistr/vim-nerdtree-tabs` is no longer maintained
+and has quite some issues.
+
+Anyway, this particular issue can be resolved in different ways. See:
+
+    https://github.com/mhinz/vim-startify/issues/24
+
+------------------------------------------------------------------------------
+                                                               *startify-faq-15*
+Startify is cluttered with help files!~
+
+Everytime you use |:h|, you open a file from the Vim runtime directory or of
+an installed plugin. By default, Startify detects these files and skips them.
+
+This works for most use cases, but not for all.
+
+If the default fails for you and the Startify buffer is cluttered with help
+files, add that path to the skiplist yourself: |g:startify_skiplist|.
 
 ==============================================================================
 EXAMPLE                                                       *startify-example*

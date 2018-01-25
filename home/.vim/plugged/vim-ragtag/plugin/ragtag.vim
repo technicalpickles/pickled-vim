@@ -28,7 +28,7 @@ augroup ragtag
   autocmd FileType *html*,wml,jsp,gsp,mustache,smarty         call s:Init()
   autocmd FileType php,asp*,cf,mason,eruby,liquid,jst,eelixir call s:Init()
   autocmd FileType xml,xslt,xsd,docbk                         call s:Init()
-  autocmd FileType javascript.jsx,jsx                         call s:Init()
+  autocmd FileType javascript.jsx,jsx,handlebars              call s:Init()
   autocmd InsertLeave * call s:Leave()
   autocmd CursorHold * if exists("b:loaded_ragtag") | call s:Leave() | endif
 augroup END
@@ -50,19 +50,13 @@ endfunction
 
 function! s:Init()
   let b:loaded_ragtag = 1
-  inoremap <silent> <buffer> <SID>xmlversion  <?xml version="1.0" encoding="<C-R>=toupper(<SID>charset())<CR>"?>
-  inoremap      <buffer> <SID>html5       <!DOCTYPE html>
-  inoremap      <buffer> <SID>xhtmltrans  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   if s:subtype() == "xml"
-    imap <script> <buffer> <SID>doctype <SID>xmlversion
-  elseif exists("+omnifunc")
-    inoremap <silent> <buffer> <SID>doctype  <C-R>=<SID>htmlEn()<CR><!DOCTYPE<C-X><C-O><C-P><C-R>=<SID>htmlDis()<CR><C-N><C-R>=<SID>doctypeSeek()<CR>
+    imap <script> <buffer> <C-X>! <?xml version="1.0" encoding="<C-R>=toupper(<SID>charset())<CR>"?>
   elseif s:subtype() == "xhtml"
-    imap <script> <buffer> <SID>doctype <SID>xhtmltrans
+    imap <script> <buffer> <C-X>! <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   else
-    imap <script> <buffer> <SID>doctype <SID>html5
+    imap <script> <buffer> <C-X>! <!DOCTYPE html>
   endif
-  imap <script> <buffer> <C-X>! <SID>doctype
 
   imap <silent> <buffer> <C-X># <C-R>=<SID>charsetTag()<CR>
   inoremap <silent> <buffer> <SID>HtmlComplete <C-R>=<SID>htmlEn()<CR><C-X><C-O><C-P><C-R>=<SID>htmlDis()<CR><C-N>
@@ -133,6 +127,19 @@ function! s:Init()
     inoremap <buffer> <C-X>>    }
     let b:surround_45 = "{\r}"
     let b:surround_61 = "{\r}"
+  elseif s:isFiletype('handlebars')
+    inoremap <buffer> <SID>ragtagOopen    {{
+    inoremap <buffer> <SID>ragtagOclose   }}
+    inoremap <buffer> <C-X><Lt> {{
+    inoremap <buffer> <C-X>>    }}
+    let b:surround_45 = "{{\r}}"
+    let b:surround_61 = "{{\r}}"
+  elseif s:isFiletype('html')
+    inoremap <buffer> <SID>ragtagOopen    <!--#echo var=
+    inoremap <buffer> <C-X><Lt> <!--#
+    inoremap <buffer> <C-X>>    -->
+    let b:surround_45 = "<!--#\r -->"
+    let b:surround_61 = "<!--#echo var=\r -->"
   else
     inoremap <buffer> <SID>ragtagOopen    <%=<Space>
     inoremap <buffer> <C-X><Lt> <%
@@ -196,6 +203,11 @@ function! s:Init()
     inoremap <buffer> <C-X>'     {*<Space><Space>*}<Esc>2hi
     inoremap <buffer> <C-X>"     <C-V><NL><Esc>I<C-X>{*<Space><Esc>A<Space>*}<Esc>F<NL>s
     let b:surround_35 = "{* \r *}"
+  elseif s:isFiletype('handlebars')
+    imap <script> <buffer> <C-X>= <SID>ragtagOopen<SID>ragtagOclose<Left><Left>
+    inoremap  <buffer> <C-X>_ <Esc>ciW{{#<C-R>"}}<CR>{{/<C-R>"}}<Esc>khi
+    inoremap  <buffer> <C-X>' {{!}}<Esc>hi
+    inoremap  <buffer> <C-X>" <C-V><NL><Esc>I{{!<Esc>A}}<Esc>F<NL>s
   else
     imap <buffer> <C-X>' <C-X><Lt>#<Space><Space><C-X>><Esc>2hi
     imap <buffer> <C-X>" <C-V><NL><Esc>I<C-X><Lt>#<Space><Esc>A<Space><C-X>><Esc>F<NL>s

@@ -38,16 +38,57 @@ function! ale#FileTooLarge() abort
     return l:max > 0 ? (line2byte(line('$') + 1) > l:max) : 0
 endfunction
 
+let s:getcmdwintype_exists = exists('*getcmdwintype')
+
 " A function for checking various conditions whereby ALE just shouldn't
 " attempt to do anything, say if particular buffer types are open in Vim.
 function! ale#ShouldDoNothing(buffer) abort
+    " The checks are split into separate if statements to make it possible to
+    " profile each check individually with Vim's profiling tools.
+
+    " Don't perform any checks when newer NeoVim versions are exiting.
+    if get(v:, 'exiting', v:null) isnot v:null
+        return 1
+    endif
+
     " Do nothing for blacklisted files
-    " OR if ALE is running in the sandbox
-    return index(g:ale_filetype_blacklist, &filetype) >= 0
-    \   || (exists('*getcmdwintype') && !empty(getcmdwintype()))
-    \   || ale#util#InSandbox()
-    \   || !ale#Var(a:buffer, 'enabled')
-    \   || ale#FileTooLarge()
+    if index(g:ale_filetype_blacklist, getbufvar(a:buffer, '&filetype')) >= 0
+        return 1
+    endif
+
+    " Do nothing if running from command mode
+    if s:getcmdwintype_exists && !empty(getcmdwintype())
+        return 1
+    endif
+
+    let l:filename = fnamemodify(bufname(a:buffer), ':t')
+
+    if l:filename is# '.'
+        return 1
+    endif
+
+    " Do nothing if running in the sandbox
+    if ale#util#InSandbox()
+        return 1
+    endif
+
+    " Do nothing if ALE is disabled.
+    if !ale#Var(a:buffer, 'enabled')
+        return 1
+    endif
+
+    " Do nothing if the file is too large.
+    if ale#FileTooLarge()
+        return 1
+    endif
+
+    " Do nothing from CtrlP buffers with CtrlP-funky.
+    if exists(':CtrlPFunky') is 2
+    \&& getbufvar(a:buffer, '&l:statusline') =~# 'CtrlPMode.*funky'
+        return 1
+    endif
+
+    return 0
 endfunction
 
 " (delay, [linting_flag, buffer_number])
@@ -83,7 +124,7 @@ function! s:ALEQueueImpl(delay, linting_flag, buffer) abort
     " Remember that we want to check files for this buffer.
     " We will remember this until we finally run the linters, via any event.
     if a:linting_flag is# 'lint_file'
-        let s:should_lint_file_for_buffer[bufnr('%')] = 1
+        let s:should_lint_file_for_buffer[a:buffer] = 1
     endif
 
     if s:lint_timer != -1
@@ -215,4 +256,32 @@ function! ale#Escape(str) abort
     endif
 
     return shellescape (a:str)
+endfunction
+
+" Get the loclist item message according to a given format string.
+"
+" See `:help g:ale_loclist_msg_format` and `:help g:ale_echo_msg_format`
+function! ale#GetLocItemMessage(item, format_string) abort
+    let l:msg = a:format_string
+    let l:severity = g:ale_echo_msg_warning_str
+    let l:code = get(a:item, 'code', '')
+    let l:type = get(a:item, 'type', 'E')
+    let l:linter_name = get(a:item, 'linter_name', '')
+    let l:code_repl = !empty(l:code) ? '\=submatch(1) . l:code . submatch(2)' : ''
+
+    if l:type is# 'E'
+        let l:severity = g:ale_echo_msg_error_str
+    elseif l:type is# 'I'
+        let l:severity = g:ale_echo_msg_info_str
+    endif
+
+    " Replace special markers with certain information.
+    " \=l:variable is used to avoid escaping issues.
+    let l:msg = substitute(l:msg, '\V%severity%', '\=l:severity', 'g')
+    let l:msg = substitute(l:msg, '\V%linter%', '\=l:linter_name', 'g')
+    let l:msg = substitute(l:msg, '\v\%([^\%]*)code([^\%]*)\%', l:code_repl, 'g')
+    " Replace %s with the text.
+    let l:msg = substitute(l:msg, '\V%s', '\=a:item.text', 'g')
+
+    return l:msg
 endfunction

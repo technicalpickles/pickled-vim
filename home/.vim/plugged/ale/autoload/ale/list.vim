@@ -37,23 +37,28 @@ function! ale#list#GetCombinedList() abort
     return l:list
 endfunction
 
-function! s:FixList(list) abort
+function! s:FixList(buffer, list) abort
+    let l:format = ale#Var(a:buffer, 'loclist_msg_format')
     let l:new_list = []
 
     for l:item in a:list
+        let l:fixed_item = copy(l:item)
+
+        let l:fixed_item.text = ale#GetLocItemMessage(l:item, l:format)
+
         if l:item.bufnr == -1
             " If the buffer number is invalid, remove it.
-            let l:fixed_item = copy(l:item)
             call remove(l:fixed_item, 'bufnr')
-        else
-            " Don't copy the Dictionary if we do not need to.
-            let l:fixed_item = l:item
         endif
 
         call add(l:new_list, l:fixed_item)
     endfor
 
     return l:new_list
+endfunction
+
+function! s:BufWinId(buffer) abort
+    return exists('*bufwinid') ? bufwinid(str2nr(a:buffer)) : 0
 endfunction
 
 function! s:SetListsImpl(timer_id, buffer, loclist) abort
@@ -63,32 +68,30 @@ function! s:SetListsImpl(timer_id, buffer, loclist) abort
         let l:quickfix_list = ale#list#GetCombinedList()
 
         if has('nvim')
-            call setqflist(s:FixList(l:quickfix_list), ' ', l:title)
+            call setqflist(s:FixList(a:buffer, l:quickfix_list), ' ', l:title)
         else
-            call setqflist(s:FixList(l:quickfix_list))
+            call setqflist(s:FixList(a:buffer, l:quickfix_list))
             call setqflist([], 'r', {'title': l:title})
         endif
     elseif g:ale_set_loclist
         " If windows support is off, bufwinid() may not exist.
         " We'll set result in the current window, which might not be correct,
-        " but is better than nothing.
-        let l:win_id = exists('*bufwinid') ? bufwinid(str2nr(a:buffer)) : 0
+        " but it's better than nothing.
+        let l:id = s:BufWinId(a:buffer)
 
         if has('nvim')
-            call setloclist(l:win_id, s:FixList(a:loclist), ' ', l:title)
+            call setloclist(l:id, s:FixList(a:buffer, a:loclist), ' ', l:title)
         else
-            call setloclist(l:win_id, s:FixList(a:loclist))
-            call setloclist(l:win_id, [], 'r', {'title': l:title})
+            call setloclist(l:id, s:FixList(a:buffer, a:loclist))
+            call setloclist(l:id, [], 'r', {'title': l:title})
         endif
     endif
-
-    let l:keep_open = ale#Var(a:buffer, 'keep_list_window_open')
 
     " Open a window to show the problems if we need to.
     "
     " We'll check if the current buffer's List is not empty here, so the
     " window will only be opened if the current buffer has problems.
-    if s:ShouldOpen(a:buffer) && (l:keep_open || !empty(a:loclist))
+    if s:ShouldOpen(a:buffer) && !empty(a:loclist)
         let l:winnr = winnr()
         let l:mode = mode()
         let l:reset_visual_selection = l:mode is? 'v' || l:mode is# "\<c-v>"
@@ -96,10 +99,10 @@ function! s:SetListsImpl(timer_id, buffer, loclist) abort
 
         if g:ale_set_quickfix
             if !ale#list#IsQuickfixOpen()
-                execute 'copen ' . str2nr(ale#Var(a:buffer, 'list_window_size'))
+                silent! execute 'copen ' . str2nr(ale#Var(a:buffer, 'list_window_size'))
             endif
         elseif g:ale_set_loclist
-            execute 'lopen ' . str2nr(ale#Var(a:buffer, 'list_window_size'))
+            silent! execute 'lopen ' . str2nr(ale#Var(a:buffer, 'list_window_size'))
         endif
 
         " If focus changed, restore it (jump to the last window).
@@ -117,10 +120,23 @@ function! s:SetListsImpl(timer_id, buffer, loclist) abort
             endif
         endif
     endif
+
+    " If ALE isn't currently checking for more problems, close the window if
+    " needed now. This check happens inside of this timer function, so
+    " the window can be closed reliably.
+    if !ale#engine#IsCheckingBuffer(a:buffer)
+        call s:CloseWindowIfNeeded(a:buffer)
+    endif
 endfunction
 
 function! ale#list#SetLists(buffer, loclist) abort
     if get(g:, 'ale_set_lists_synchronously') == 1
+    \|| getbufvar(a:buffer, 'ale_save_event_fired', 0)
+        " Update lists immediately if running a test synchronously, or if the
+        " buffer was saved.
+        "
+        " The lists need to be updated immediately when saving a buffer so
+        " that we can reliably close window automatically, if so configured.
         call s:SetListsImpl(-1, a:buffer, a:loclist)
     else
         call ale#util#StartPartialTimer(
@@ -131,7 +147,7 @@ function! ale#list#SetLists(buffer, loclist) abort
     endif
 endfunction
 
-function! s:CloseWindowIfNeededImpl(timer_id, buffer) abort
+function! s:CloseWindowIfNeeded(buffer) abort
     if ale#Var(a:buffer, 'keep_list_window_open') || !s:ShouldOpen(a:buffer)
         return
     endif
@@ -143,22 +159,14 @@ function! s:CloseWindowIfNeededImpl(timer_id, buffer) abort
             if empty(getqflist())
                 cclose
             endif
-        elseif g:ale_set_loclist && empty(getloclist(0))
-            lclose
+        else
+            let l:win_id = s:BufWinId(a:buffer)
+
+            if g:ale_set_loclist && empty(getloclist(l:win_id))
+                lclose
+            endif
         endif
     " Ignore 'Cannot close last window' errors.
     catch /E444/
     endtry
-endfunction
-
-function! ale#list#CloseWindowIfNeeded(buffer) abort
-    if get(g:, 'ale_set_lists_synchronously') == 1
-        call s:CloseWindowIfNeededImpl(-1, a:buffer)
-    else
-        call ale#util#StartPartialTimer(
-        \   0,
-        \   function('s:CloseWindowIfNeededImpl'),
-        \   [a:buffer],
-        \)
-    endif
 endfunction

@@ -11,7 +11,8 @@ from completor.compat import to_bytes
 
 ACTION_MAP = {
     b'complete': 'complete',
-    b'definition': 'find-definition'
+    b'definition': 'find-definition',
+    b'doc': 'complete-with-snippet'
 }
 
 
@@ -29,7 +30,10 @@ class Racer(Completor):
         )
 
     def prepare_request(self, action):
-        line, col = self.cursor
+        line, _ = self.cursor
+        col = len(self.input_data)
+        if action == b'doc':
+            col += 1
         action = ACTION_MAP.get(action)
         if not action:
             return ''
@@ -48,7 +52,21 @@ class Racer(Completor):
             if len(parts) < 4:
                 continue
             ret.append({'filename': parts[3], 'lnum': int(parts[1]),
-                        'col': int(parts[2]) + 1, 'text': parts[0]})
+                        'col': int(parts[2]) + 1, 'name': parts[0]})
+        return ret
+
+    def on_doc(self, items):
+        ret = []
+        for item in items:
+            if not item.startswith(b'MATCH'):
+                continue
+            parts = item.split(b';', 7)
+            if len(parts) < 8:
+                continue
+            doc = parts[-1].replace(b'\\n', b'\n').replace(b"\\'", b"'").\
+                replace(b'\;', b';').replace(b'\\"', b'"').strip(b'"')
+            if doc:
+                ret.append(doc)
         return ret
 
     # items: list of bytes

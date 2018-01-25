@@ -1,4 +1,4 @@
-# vim-lastplace v3.1.0
+# vim-lastplace v3.1.1
 
 Intelligently reopen files at your last edit position. By default git,
 svn, and mercurial commit messages are ignored because you
@@ -7,11 +7,12 @@ one.
 
 ## Advantages
 Advantages over the snippets that can be found around the net include:
+* Commit messages automatically start at the beginning of a file. This is important because many version control systems re-use the same file for commit message editing.
 * Maximizes Available Context
     - Center the cursor vertically after restoring last edit position.
     - Keep as much of the file on screen as possible when last edit position is at the end of the file.
-* Commit messages automatically start beginning of the file. This is important because many version control systems re-use the same file for commit message editing.
 * Opens folds if the last edit position is inside a fold.
+* Works properly with new file templates and scripts that jump to a specific line in them.
 
 ## Installation
 Thanks to [David Rabel](https://github.com/NoreSoft)'s hard work, you can install vim-lastplace from debian-testing:
@@ -35,7 +36,7 @@ You can configure buffer types to ignore by setting
 g:lastplace_ignore_buftype in your vimrc. This is a comma separated list.
 By default it is set to:
 
-        let g:lastplace_ignore_buftype = "quickfix"
+        let g:lastplace_ignore_buftype = "quickfix,nofile,help"
 
 Folds are automatically opened when jumping to the last edit position. If you
 do not like this behavior you can disable it by putting this in your vimrc:
@@ -48,6 +49,11 @@ if there is very little recent activity in this repository. If you do find
 a bug, please submit a pull request that fixes whatever problem you're having.
 
 ## Version History
+vim-lastplace uses [semver](http://semver.org/) to manage version numbers.
+
+### 3.1.1
+- Add 'nofile' and 'help' to lastplace_ignore_buftype. (Issue [#14](https://github.com/farmergreg/vim-lastplace/issues/14))
+- Do not jump when a new file is created (Issue [#15](https://github.com/farmergreg/vim-lastplace/issues/15), [#16](https://github.com/farmergreg/vim-lastplace/issues/16))
 
 ### 3.1.0
 - Add g:lastplace_ignore_buftype setting.
@@ -84,7 +90,7 @@ a bug, please submit a pull request that fixes whatever problem you're having.
 
 ## About
 
-- Author  :  Greg Dietsche
+- Author  :  Gregory L. Dietsche
 - Web Page: https://www.gregd.org/
 
 Get the latest version, submit pull requests, and file bug reports

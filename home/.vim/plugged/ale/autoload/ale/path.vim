@@ -1,16 +1,27 @@
 " Author: w0rp <devw0rp@gmail.com>
 " Description: Functions for working with paths in the filesystem.
 
+" simplify a path, and fix annoying issues with paths on Windows.
+"
+" Forward slashes are changed to back slashes so path equality works better.
+"
+" Paths starting with more than one forward slash are changed to only one
+" forward slash, to prevent the paths being treated as special MSYS paths.
 function! ale#path#Simplify(path) abort
-    " //foo is turned into /foo to stop Windows doing stupid things with
-    " search paths.
-    return substitute(simplify(a:path), '^//\+', '/', 'g') " no-custom-checks
+    if has('unix')
+        return substitute(simplify(a:path), '^//\+', '/', 'g') " no-custom-checks
+    endif
+
+    let l:win_path = substitute(a:path, '/', '\\', 'g')
+
+    return substitute(simplify(l:win_path), '^\\\+', '\', 'g') " no-custom-checks
 endfunction
 
 " Given a buffer and a filename, find the nearest file by searching upwards
 " through the paths relative to the given buffer.
 function! ale#path#FindNearestFile(buffer, filename) abort
     let l:buffer_filename = fnamemodify(bufname(a:buffer), ':p')
+    let l:buffer_filename = fnameescape(l:buffer_filename)
 
     let l:relative_path = findfile(a:filename, l:buffer_filename . ';')
 
@@ -25,6 +36,7 @@ endfunction
 " through the paths relative to the given buffer.
 function! ale#path#FindNearestDirectory(buffer, directory_name) abort
     let l:buffer_filename = fnamemodify(bufname(a:buffer), ':p')
+    let l:buffer_filename = fnameescape(l:buffer_filename)
 
     let l:relative_path = finddir(a:directory_name, l:buffer_filename . ';')
 
@@ -64,26 +76,20 @@ endfunction
 
 " Return 1 if a path is an absolute path.
 function! ale#path#IsAbsolute(filename) abort
+    if has('win32') && a:filename[:0] is# '\'
+        return 1
+    endif
+
     " Check for /foo and C:\foo, etc.
     return a:filename[:0] is# '/' || a:filename[1:2] is# ':\'
 endfunction
 
+let s:temp_dir = fnamemodify(tempname(), ':h')
+
 " Given a filename, return 1 if the file represents some temporary file
 " created by Vim.
 function! ale#path#IsTempName(filename) abort
-    let l:prefix_list = [
-    \   $TMPDIR,
-    \   resolve($TMPDIR),
-    \   '/run/user',
-    \]
-
-    for l:prefix in l:prefix_list
-        if a:filename[:len(l:prefix) - 1] is# l:prefix
-            return 1
-        endif
-    endfor
-
-    return 0
+    return a:filename[:len(s:temp_dir) - 1] is# s:temp_dir
 endfunction
 
 " Given a base directory, which must not have a trailing slash, and a
@@ -91,7 +97,7 @@ endfunction
 " directory, return the absolute path to the file.
 function! ale#path#GetAbsPath(base_directory, filename) abort
     if ale#path#IsAbsolute(a:filename)
-        return a:filename
+        return ale#path#Simplify(a:filename)
     endif
 
     let l:sep = has('win32') ? '\' : '/'
@@ -133,8 +139,8 @@ endfunction
 
 " Given a path, return every component of the path, moving upwards.
 function! ale#path#Upwards(path) abort
-    let l:pattern = ale#Has('win32') ? '\v/+|\\+' : '\v/+'
-    let l:sep = ale#Has('win32') ? '\' : '/'
+    let l:pattern = has('win32') ? '\v/+|\\+' : '\v/+'
+    let l:sep = has('win32') ? '\' : '/'
     let l:parts = split(ale#path#Simplify(a:path), l:pattern)
     let l:path_list = []
 
@@ -143,7 +149,7 @@ function! ale#path#Upwards(path) abort
         let l:parts = l:parts[:-2]
     endwhile
 
-    if ale#Has('win32') && a:path =~# '^[a-zA-z]:\'
+    if has('win32') && a:path =~# '^[a-zA-z]:\'
         " Add \ to C: for C:\, etc.
         let l:path_list[-1] .= '\'
     elseif a:path[0] is# '/'
@@ -175,5 +181,12 @@ function! ale#path#FromURI(uri) abort
     let l:i = len('file://')
     let l:encoded_path = a:uri[: l:i - 1] is# 'file://' ? a:uri[l:i :] : a:uri
 
-    return ale#uri#Decode(l:encoded_path)
+    let l:path = ale#uri#Decode(l:encoded_path)
+
+    " If the path is like /C:/foo/bar, it should be C:\foo\bar instead.
+    if l:path =~# '^/[a-zA-Z]:'
+        let l:path = substitute(l:path[1:], '/', '\\', 'g')
+    endif
+
+    return l:path
 endfunction

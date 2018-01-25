@@ -65,7 +65,7 @@ If you want to set global grepper options in your vimrc, use either of the
 following two lines first:
 >
     let g:grepper = {}            " initialize g:grepper with empty dictionary
-    runtime autoload/grepper.vim  " initialize g:grepper with default values
+    runtime plugin/grepper.vim    " initialize g:grepper with default values
 <
 Make sure to have a look at |grepper-example|.
 
@@ -79,12 +79,16 @@ All options:~
     |g:grepper.switch|
     |g:grepper.jump|
     |g:grepper.prompt|
+    |g:grepper.prompt_quote|
     |g:grepper.dir|
+    |g:grepper.repo|
     |g:grepper.simple_prompt|
     |g:grepper.side|
+    |g:grepper.side_cmd|
     |g:grepper.tools|
     |g:grepper.next_tool|
     |g:grepper.stop|
+    |g:grepper.append|
 
 ------------------------------------------------------------------------------
                                             *g:grepper.buffer* *g:grepper.buffers*  >
@@ -137,6 +141,26 @@ Automatically jump to the first match.
 To prompt or not to prompt!
 
 ------------------------------------------------------------------------------
+                                                        *g:grepper.prompt_quote*  >
+    let g:grepper.prompt_quote = 0
+<
+Think of the prompt as a pre-populated command-line in your shell. When the
+query contains whitespace or other special characters, you need to quote it.
+
+But the input to the prompt is not limited to only the actual query. You're
+free to give other options to the specified tool like you would in the shell.
+E.g. the git prompt defaults to `git grep -nI`, so `-i 'foo bar' *.vim` is a
+perfectly valid query.
+
+To keep that flexibility, Grepper does not quote the query by default.
+
+The following values are available:
+
+  1    Quote the query automatically.
+  2    Populate the prompt with single quotes and put cursor in between.
+  3    Populate the prompt with double quotes and put cursor in between.
+
+------------------------------------------------------------------------------
                                                                  *g:grepper.dir*  >
     let g:grepper.dir = 'cwd'
 <
@@ -154,14 +178,23 @@ won't change back after the search finishes.
     isn't below the current working directory already.
 
  repo~
-    Look in the current and all upper directories for a folder called
-    .git, .hg, or .svn and change to the directory that contains it.
+    Start searching for any directory or file from |g:grepper.repo| from the
+    current directory upwards. If there is a match, switch to its directory.
+
+    Exception: If git is used, we first try `git rev-parse --show-toplevel`,
+    since submodules don't have an own .git directory.
 
 You can specify multiple values:
 >
     let g:grepper.dir = 'repo,file'
 <
 In this case, `file` is only used if `repo` failed.
+
+------------------------------------------------------------------------------
+                                                                *g:grepper.repo*  >
+    let g:grepper.repo = ['.git', '.hg', '.svn']
+<
+The directories or files to search for when using |g:grepper.dir| with `repo`.
 
 ------------------------------------------------------------------------------
                                                        *g:grepper.simple_prompt*  >
@@ -175,6 +208,12 @@ Only show the tool name in the prompt, without any of its arguments.
 <
 Open a new window and show matches with surrounding context. See |grepper-side|
 for details.
+
+------------------------------------------------------------------------------
+                                                            *g:grepper.side_cmd*  >
+    let g:grepper.side_cmd = 'vnew'
+<
+The command used for opening the side window. See |grepper-side| for details.
 
 ------------------------------------------------------------------------------
                                                                *g:grepper.tools*  >
@@ -211,10 +250,11 @@ Chances are, if you have more than 5000 matches, you executed Grepper in a
 place with too many subdirectories or your search query was too general or
 both. This limits the impact of otherwise long-running processes.
 
-NOTE: In Vim, the stdout callback works line-by-line and Grepper will stop the
-search at the exact number of matches. In Neovim, it most probably won't be
-the exact number. For the sake of improving performance, Neovim (or rather the
-underlying libuv) does batch processing of the grep tools' output.
+------------------------------------------------------------------------------
+                                                              *g:grepper.append*  >
+    let g:grepper.append = 0
+<
+Append matches to the current quickfix or location list.
 
 ==============================================================================
 COMMANDS                                                      *grepper-:Grepper*
@@ -241,6 +281,7 @@ All flags:~
     |:Grepper-query|
     |:Grepper-grepprg|
     |:Grepper-stop|
+    |:Grepper-append|
 
 ------------------------------------------------------------------------------
                                               *:Grepper-buffer* *:Grepper-buffers*  >
@@ -324,8 +365,8 @@ This must be the last flag!~
                                                               *:Grepper-grepprg*  >
     -grepprg <cmd>
 <
-Overrule the default |'grepprg'| for the current tool. See |grepper-add-tool|
-for what a tool is made of.
+Overrule the default |'grepprg'| for the current tool. See |grepper-tools| for
+what a tool is made of.
 
 NOTE: It's recommended to use this together with |:Grepper-tool|, so that the
 output gets escaped properly.
@@ -346,6 +387,12 @@ This flag can be used in two ways:
     `:Grepper -stop`      stop the currently running search
 
 NOTE: Starting a new search will stop the currently running job anyway.
+
+------------------------------------------------------------------------------
+                                                               *:Grepper-append*  >
+    -[no]append
+<
+Overrules |g:grepper.append|.
 
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
@@ -372,13 +419,23 @@ There is no default mapping for the operator, but you can set it like this:
     nmap gs  <plug>(GrepperOperator)
     xmap gs  <plug>(GrepperOperator)
 <
-This defines an |operator| "gs" that takes any |{motion}| and uses that
-selection to populate the search prompt. The query is quoted automatically.
+This defines an |operator| "gs" that takes any |{motion}| and starts searching
+for the selected query right away. The query is quoted automatically.
 
 Useful examples are gsW, gsiw, or gsi". See |text-objects| for all of them.
 
 In visual mode, it uses the current selection.
 
+Whereas |g:grepper| is used to configure the global behaviour of this plugin,
+`g:grepper.operator` can be used to configure the behaviour of the operator.
+`g:grepper.operator` takes exactly the same |grepper-options|.
+
+There is only one difference between both "namespaces" by default, the
+operator won't prompt. To change this, put this in your vimrc:
+>
+    runtime plugin/grepper.vim  " initialize g:grepper with default values
+    let g:grepper.operator.prompt = 1
+<
 If you have vim-repeat installed, you can repeat the operator action. For
 example, you can "gsiw" on "nice_word" to populate the search prompt with
 "nice_word". Next time you hit ".", "gsiw" will be repeated and the search
@@ -391,7 +448,7 @@ A tool is, like any other option, just a key in |g:grepper|. If you add a new
 tool, you have to add it to |g:grepper.tools| as well.
 >
     " initialize g:grepper with defaults
-    runtime autoload/grepper.vim
+    runtime plugin/grepper.vim
 
     let g:grepper.tools += ['git']
     let g:grepper.git = {
@@ -402,7 +459,7 @@ tool, you have to add it to |g:grepper.tools| as well.
 <
 If you merely want to add an option for a default tool:
 >
-    runtime autoload/grepper.vim
+    runtime plugin/grepper.vim
     let g:grepper.rg.grepprg .= ' --smart-case'
 <
 -----------------------------------------------------------------------------
@@ -499,6 +556,9 @@ Mappings:~
 
 Customization:~
 
+  Set |g:grepper.side_cmd| to open the side window with a command other than
+  |:vnew|.
+
   After the buffer of the new window is filled with the matches, the
   "GrepperSide" filetype is set.
   There's also a buffer-local variable "b:grepper_side" that contains the
@@ -568,7 +628,7 @@ as query instead.
 If you never use any options in the search prompt anyway, you can make it the
 default like this:
 >
-    runtime autoload/grepper.vim
+    runtime plugin/grepper.vim
     let g:grepper.ag.grepprg .= ' --'
 <
 ------------------------------------------------------------------------------
@@ -604,10 +664,7 @@ This is a possible configuration..
     let g:grepper.jump      = 1
     let g:grepper.next_tool = '<leader>g'
 
-    command! Todo :Grepper
-          \ -noprompt
-          \ -tool git
-          \ -grepprg git grep -nIi '\(TODO\|FIXME\)'
+    command! Todo Grepper -tool git -query -E '(TODO|FIXME|XXX):'
 <
 ==============================================================================
 vim: tw=78

@@ -1,6 +1,7 @@
 " Author: w0rp <devw0rp@gmail.com>
 " Description: Functions for integrating with Python linters.
 
+let s:sep = has('win32') ? '\' : '/'
 " bin is used for Unix virtualenv directories, and Scripts is for Windows.
 let s:bin_dir = has('unix') ? 'bin' : 'Scripts'
 let g:ale_virtualenv_dir_names = get(g:, 'ale_virtualenv_dir_names', [
@@ -9,8 +10,8 @@ let g:ale_virtualenv_dir_names = get(g:, 'ale_virtualenv_dir_names', [
 \   've-py3',
 \   've',
 \   'virtualenv',
+\   'venv',
 \])
-
 
 function! ale#python#FindProjectRootIni(buffer) abort
     for l:path in ale#path#Upwards(expand('#' . a:buffer . ':p:h'))
@@ -18,6 +19,9 @@ function! ale#python#FindProjectRootIni(buffer) abort
         \|| filereadable(l:path . '/setup.cfg')
         \|| filereadable(l:path . '/pytest.ini')
         \|| filereadable(l:path . '/tox.ini')
+        \|| filereadable(l:path . '/mypy.ini')
+        \|| filereadable(l:path . '/pycodestyle.cfg')
+        \|| filereadable(l:path . '/flake8.cfg')
             return l:path
         endif
     endfor
@@ -29,7 +33,7 @@ endfunction
 " The root directory is defined as the first directory found while searching
 " upwards through paths, including the current directory, until a path
 " containing an init file (one from MANIFEST.in, setup.cfg, pytest.ini,
-" tox.ini) is found. If it is not possible to find the project root directorty
+" tox.ini) is found. If it is not possible to find the project root directory
 " via init file, then it will be defined as the first directory found
 " searching upwards through paths, including the current directory, until no
 " __init__.py files is found.
@@ -58,15 +62,20 @@ function! ale#python#FindVirtualenv(buffer) abort
         endif
 
         for l:dirname in ale#Var(a:buffer, 'virtualenv_dir_names')
-            let l:venv_dir = ale#path#Simplify(l:path . '/' . l:dirname)
+            let l:venv_dir = ale#path#Simplify(
+            \   join([l:path, l:dirname], s:sep)
+            \)
+            let l:script_filename = ale#path#Simplify(
+            \   join([l:venv_dir, s:bin_dir, 'activate'], s:sep)
+            \)
 
-            if filereadable(ale#path#Simplify(l:venv_dir . '/' . s:bin_dir . '/activate'))
+            if filereadable(l:script_filename)
                 return l:venv_dir
             endif
         endfor
     endfor
 
-    return ''
+    return $VIRTUAL_ENV
 endfunction
 
 " Given a buffer number and a command name, find the path to the executable.
@@ -81,7 +90,9 @@ function! ale#python#FindExecutable(buffer, base_var_name, path_list) abort
 
     if !empty(l:virtualenv)
         for l:path in a:path_list
-            let l:ve_executable = ale#path#Simplify(l:virtualenv . '/' . s:bin_dir . '/' . l:path)
+            let l:ve_executable = ale#path#Simplify(
+            \   join([l:virtualenv, s:bin_dir, l:path], s:sep)
+            \)
 
             if executable(l:ve_executable)
                 return l:ve_executable

@@ -26,11 +26,18 @@ function! ale_linters#lua#luacheck#Handle(buffer, lines) abort
     let l:output = []
 
     for l:match in ale#util#GetMatches(a:lines, l:pattern)
+        if !ale#Var(a:buffer, 'warn_about_trailing_whitespace')
+        \   && l:match[3] is# 'W'
+        \   && index(range(611, 614), str2nr(l:match[4])) >= 0
+            continue
+        endif
+
         call add(l:output, {
         \   'lnum': l:match[1] + 0,
         \   'col': l:match[2] + 0,
-        \   'text': l:match[3] . l:match[4] . ': ' . l:match[5],
         \   'type': l:match[3],
+        \   'code': l:match[3] . l:match[4],
+        \   'text': l:match[5],
         \})
     endfor
 

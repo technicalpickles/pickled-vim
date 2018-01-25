@@ -14,7 +14,9 @@ Before:
 
 After:
   let g:ale_has_override = {}
+
   call ale#test#RestoreDirectory()
+  call ale#semver#ResetVersionCache()
 
 Execute(The prettier callback should return the correct default values):
   call ale#test#SetFilename('../prettier-test-files/testfile.js')
@@ -26,9 +28,9 @@ Execute(The prettier callback should return the correct default values):
   \     . ' %t'
   \     . ' --write',
   \ },
-  \ ale#fixers#prettier#Fix(bufnr(''))
+  \ ale#fixers#prettier#ApplyFixForVersion(bufnr(''), [])
 
-Execute(The prettier callback should include configuration files when the option is set):
+Execute(The --config option should not be set automatically):
   let g:ale_javascript_prettier_use_local_config = 1
   call ale#test#SetFilename('../prettier-test-files/with_config/testfile.js')
 
@@ -37,10 +39,9 @@ Execute(The prettier callback should include configuration files when the option
   \   'read_temporary_file': 1,
   \   'command': ale#Escape(g:ale_javascript_prettier_executable)
   \     . ' %t'
-  \     . ' --config ' . ale#Escape(simplify(g:dir .  '/../prettier-test-files/with_config/.prettierrc'))
   \     . ' --write',
   \ },
-  \ ale#fixers#prettier#Fix(bufnr(''))
+  \ ale#fixers#prettier#ApplyFixForVersion(bufnr(''), [])
 
 Execute(The prettier callback should include custom prettier options):
   let g:ale_javascript_prettier_options = '--no-semi'
@@ -52,7 +53,45 @@ Execute(The prettier callback should include custom prettier options):
   \   'command': ale#Escape(g:ale_javascript_prettier_executable)
   \     . ' %t'
   \     . ' --no-semi'
-  \     . ' --config ' . ale#Escape(simplify(g:dir .  '/../prettier-test-files/with_config/.prettierrc'))
   \     . ' --write',
   \ },
+  \ ale#fixers#prettier#ApplyFixForVersion(bufnr(''), [])
+
+Execute(The version check should be correct):
+  call ale#test#SetFilename('../prettier-test-files/testfile.js')
+
+  AssertEqual
+  \ {
+  \   'chain_with': 'ale#fixers#prettier#ApplyFixForVersion',
+  \   'command': ale#Escape(g:ale_javascript_prettier_executable)
+  \     . ' --version',
+  \ },
   \ ale#fixers#prettier#Fix(bufnr(''))
+
+Execute(--stdin-filepath should be used when prettier is new enough):
+  let g:ale_javascript_prettier_options = '--no-semi'
+  call ale#test#SetFilename('../prettier-test-files/with_config/testfile.js')
+
+  AssertEqual
+  \ {
+  \   'command': 'cd ' . ale#Escape(expand('%:p:h')) . ' && '
+  \     . ale#Escape(g:ale_javascript_prettier_executable)
+  \     . ' --no-semi'
+  \     . ' --stdin-filepath %s --stdin',
+  \ },
+  \ ale#fixers#prettier#ApplyFixForVersion(bufnr(''), ['1.6.0'])
+
+Execute(The version number should be cached):
+  call ale#test#SetFilename('../prettier-test-files/with_config/testfile.js')
+
+  " Call the second callback with the version output.
+  call ale#fixers#prettier#ApplyFixForVersion(bufnr(''), ['1.6.0'])
+
+  " Call it again without the version output. We should use the newer command.
+  AssertEqual
+  \ {
+  \   'command': 'cd ' . ale#Escape(expand('%:p:h')) . ' && '
+  \     . ale#Escape(g:ale_javascript_prettier_executable)
+  \     . ' --stdin-filepath %s --stdin',
+  \ },
+  \ ale#fixers#prettier#ApplyFixForVersion(bufnr(''), [])

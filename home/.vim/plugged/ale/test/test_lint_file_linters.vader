@@ -1,10 +1,15 @@
 Before:
+  Save g:ale_fix_on_save
+  Save g:ale_enabled
   Save g:ale_run_synchronously
+  Save g:ale_set_lists_synchronously
   Save g:ale_buffer_info
   Save g:ale_linters
 
   let g:ale_buffer_info = {}
   let g:ale_run_synchronously = 1
+  let g:ale_set_lists_synchronously = 1
+  let b:ale_save_event_fired = 0
   call ale#ResetLintFileMarkers()
 
   let g:buffer_result = [
@@ -61,7 +66,7 @@ Before:
   call ale#linter#Define('foobar', {
   \ 'name': 'lint_file_linter',
   \ 'callback': 'LintFileCallback',
-  \ 'executable': 'echo',
+  \ 'executable': has('win32') ? 'cmd' : 'echo',
   \ 'command': 'echo',
   \ 'lint_file': 1,
   \})
@@ -69,7 +74,7 @@ Before:
   call ale#linter#Define('foobar', {
   \ 'name': 'buffer_linter',
   \ 'callback': 'BufferCallback',
-  \ 'executable': 'echo',
+  \ 'executable': has('win32') ? 'cmd' : 'echo',
   \ 'command': 'echo',
   \ 'read_buffer': 0,
   \})
@@ -259,7 +264,10 @@ Execute(The Save event should respect the buffer number):
   \], GetSimplerLoclist()
 
 Execute(The Save event should set b:ale_save_event_fired to 1):
-  let b:ale_enabled = 0
+  let g:ale_lint_on_save = 1
+  let b:ale_enabled = 1
+
+  call ale#linter#Reset()
   call ale#events#SaveEvent(bufnr(''))
 
   " This flag needs to be set so windows can be opened, etc.
@@ -287,3 +295,10 @@ Execute(lint_file linters should stay running after checking without them):
   AssertEqual 2, len(g:ale_buffer_info[bufnr('')].job_list)
 
   call ale#engine#WaitForJobs(2000)
+
+Execute(The save event should not lint the buffer when ALE is disabled):
+  let g:ale_enabled = 0
+  call ale#events#SaveEvent(bufnr(''))
+
+  AssertEqual [], GetSimplerLoclist()
+  AssertEqual 0, b:ale_save_event_fired

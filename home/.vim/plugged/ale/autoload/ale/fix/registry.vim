@@ -21,11 +21,22 @@ let s:default_registry = {
 \       'function': 'ale#fixers#prettier_standard#Fix',
 \       'suggested_filetypes': ['javascript'],
 \       'description': 'Apply prettier-standard to a file.',
+\       'aliases': ['prettier-standard'],
 \   },
 \   'eslint': {
 \       'function': 'ale#fixers#eslint#Fix',
 \       'suggested_filetypes': ['javascript', 'typescript'],
 \       'description': 'Apply eslint --fix to a file.',
+\   },
+\   'mix_format': {
+\       'function': 'ale#fixers#mix_format#Fix',
+\       'suggested_filetypes': ['elixir'],
+\       'description': 'Apply mix format to a file.',
+\   },
+\   'format': {
+\       'function': 'ale#fixers#format#Fix',
+\       'suggested_filetypes': ['elm'],
+\       'description': 'Apply elm-format to a file.',
 \   },
 \   'isort': {
 \       'function': 'ale#fixers#isort#Fix',
@@ -34,13 +45,19 @@ let s:default_registry = {
 \   },
 \   'prettier': {
 \       'function': 'ale#fixers#prettier#Fix',
-\       'suggested_filetypes': ['javascript'],
+\       'suggested_filetypes': ['javascript', 'typescript', 'json', 'css', 'scss', 'less'],
 \       'description': 'Apply prettier to a file.',
 \   },
 \   'prettier_eslint': {
 \       'function': 'ale#fixers#prettier_eslint#Fix',
 \       'suggested_filetypes': ['javascript'],
 \       'description': 'Apply prettier-eslint to a file.',
+\       'aliases': ['prettier-eslint'],
+\   },
+\   'importjs': {
+\       'function': 'ale#fixers#importjs#Fix',
+\       'suggested_filetypes': ['javascript'],
+\       'description': 'automatic imports for javascript',
 \   },
 \   'puppetlint': {
 \       'function': 'ale#fixers#puppetlint#Fix',
@@ -51,6 +68,11 @@ let s:default_registry = {
 \       'function': 'ale#fixers#generic#RemoveTrailingBlankLines',
 \       'suggested_filetypes': [],
 \       'description': 'Remove all blank lines at the end of a file.',
+\   },
+\   'trim_whitespace': {
+\       'function': 'ale#fixers#generic#TrimWhitespace',
+\       'suggested_filetypes': [],
+\       'description': 'Remove all trailing whitespace characters at the end of every line.',
 \   },
 \   'yapf': {
 \       'function': 'ale#fixers#yapf#Fix',
@@ -87,11 +109,69 @@ let s:default_registry = {
 \       'suggested_filetypes': ['c', 'cpp'],
 \       'description': 'Fix C/C++ files with clang-format.',
 \   },
+\   'gofmt': {
+\       'function': 'ale#fixers#gofmt#Fix',
+\       'suggested_filetypes': ['go'],
+\       'description': 'Fix Go files with go fmt.',
+\   },
+\   'goimports': {
+\       'function': 'ale#fixers#goimports#Fix',
+\       'suggested_filetypes': ['go'],
+\       'description': 'Fix Go files imports with goimports.',
+\   },
+\   'tslint': {
+\       'function': 'ale#fixers#tslint#Fix',
+\       'suggested_filetypes': ['typescript'],
+\       'description': 'Fix typescript files with tslint --fix.',
+\   },
+\   'rustfmt': {
+\       'function': 'ale#fixers#rustfmt#Fix',
+\       'suggested_filetypes': ['rust'],
+\       'description': 'Fix Rust files with Rustfmt.',
+\   },
+\   'hackfmt': {
+\       'function': 'ale#fixers#hackfmt#Fix',
+\       'suggested_filetypes': ['php'],
+\       'description': 'Fix Hack files with hackfmt.',
+\   },
+\   'hfmt': {
+\       'function': 'ale#fixers#hfmt#Fix',
+\       'suggested_filetypes': ['haskell'],
+\       'description': 'Fix Haskell files with hfmt.',
+\   },
+\   'brittany': {
+\       'function': 'ale#fixers#brittany#Fix',
+\       'suggested_filetypes': ['haskell'],
+\       'description': 'Fix Haskell files with brittany.',
+\   },
+\   'refmt': {
+\       'function': 'ale#fixers#refmt#Fix',
+\       'suggested_filetypes': ['reason'],
+\       'description': 'Fix ReasonML files with refmt.',
+\   },
+\   'shfmt': {
+\       'function': 'ale#fixers#shfmt#Fix',
+\       'suggested_filetypes': ['sh'],
+\       'description': 'Fix sh files with shfmt.',
+\   },
+\   'google_java_format': {
+\       'function': 'ale#fixers#google_java_format#Fix',
+\       'suggested_filetypes': ['java'],
+\       'description': 'Fix Java files with google-java-format.',
+\   },
 \}
 
 " Reset the function registry to the default entries.
 function! ale#fix#registry#ResetToDefaults() abort
     let s:entries = deepcopy(s:default_registry)
+    let s:aliases = {}
+
+    " Set up aliases for fixers too.
+    for [l:key, l:entry] in items(s:entries)
+        for l:alias in get(l:entry, 'aliases', [])
+            let s:aliases[l:alias] = l:key
+        endfor
+    endfor
 endfunction
 
 " Set up entries now.
@@ -100,10 +180,12 @@ call ale#fix#registry#ResetToDefaults()
 " Remove everything from the registry, useful for tests.
 function! ale#fix#registry#Clear() abort
     let s:entries = {}
+    let s:aliases = {}
 endfunction
 
 " Add a function for fixing problems to the registry.
-function! ale#fix#registry#Add(name, func, filetypes, desc) abort
+" (name, func, filetypes, desc, aliases)
+function! ale#fix#registry#Add(name, func, filetypes, desc, ...) abort
     if type(a:name) != type('')
         throw '''name'' must be a String'
     endif
@@ -126,16 +208,37 @@ function! ale#fix#registry#Add(name, func, filetypes, desc) abort
         throw '''desc'' must be a String'
     endif
 
+    let l:aliases = get(a:000, 0, [])
+
+    if type(l:aliases) != type([])
+    \|| !empty(filter(copy(l:aliases), 'type(v:val) != type('''')'))
+        throw '''aliases'' must be a List of String values'
+    endif
+
     let s:entries[a:name] = {
     \   'function': a:func,
     \   'suggested_filetypes': a:filetypes,
     \   'description': a:desc,
     \}
+
+    " Set up aliases for the fixer.
+    if !empty(l:aliases)
+        let s:entries[a:name].aliases = l:aliases
+
+        for l:alias in l:aliases
+            let s:aliases[l:alias] = a:name
+        endfor
+    endif
 endfunction
 
 " Get a function from the registry by its short name.
 function! ale#fix#registry#GetFunc(name) abort
-    return get(s:entries, a:name, {'function': ''}).function
+    " Use the exact name, or an alias.
+    let l:resolved_name = !has_key(s:entries, a:name)
+    \   ? get(s:aliases, a:name, a:name)
+    \   : a:name
+
+    return get(s:entries, l:resolved_name, {'function': ''}).function
 endfunction
 
 function! s:ShouldSuggestForType(suggested_filetypes, type_list) abort
@@ -146,6 +249,25 @@ function! s:ShouldSuggestForType(suggested_filetypes, type_list) abort
     endfor
 
     return 0
+endfunction
+
+function! s:FormatEntry(key, entry) abort
+    let l:aliases_str = ''
+
+    " Show aliases in :ALEFixSuggest if they are there.
+    if !empty(get(a:entry, 'aliases', []))
+        let l:aliases_str = ', ' . join(
+        \   map(copy(a:entry.aliases), 'string(v:val)'),
+        \   ','
+        \)
+    endif
+
+    return printf(
+    \   '%s%s - %s',
+    \   string(a:key),
+    \   l:aliases_str,
+    \   a:entry.description,
+    \)
 endfunction
 
 " Suggest functions to use from the registry.
@@ -159,7 +281,7 @@ function! ale#fix#registry#Suggest(filetype) abort
         if s:ShouldSuggestForType(l:suggested_filetypes, l:type_list)
             call add(
             \   l:filetype_fixer_list,
-            \   printf('%s - %s', string(l:key), s:entries[l:key].description),
+            \   s:FormatEntry(l:key, s:entries[l:key]),
             \)
         endif
     endfor
@@ -170,7 +292,7 @@ function! ale#fix#registry#Suggest(filetype) abort
         if empty(s:entries[l:key].suggested_filetypes)
             call add(
             \   l:generic_fixer_list,
-            \   printf('%s - %s', string(l:key), s:entries[l:key].description),
+            \   s:FormatEntry(l:key, s:entries[l:key]),
             \)
         endif
     endfor

@@ -5,6 +5,8 @@ import json
 import os
 import re
 import vim
+import shlex
+from os.path import expanduser
 
 from .patch import patch_nvim
 if hasattr(vim, 'from_nvim'):
@@ -38,7 +40,8 @@ def _unicode(text):
 def _read_args(path):
     try:
         with open(path) as f:
-            return [l.strip() for l in f.readlines()]
+            args = shlex.split(f.read(), comments=True, posix=True)
+        return [os.path.expandvars(a) for a in args]
     except Exception:
         return []
 
@@ -72,6 +75,7 @@ class Completor(Base):
     _type_map = {
         b'c': b'cpp',
         b'javascript.jsx': b'javascript',
+        b'typescript.jsx': b'typescript',
         b'python.django': b'python',
     }
 
@@ -106,9 +110,32 @@ class Completor(Base):
         return vim.current.buffer.name
 
     @property
+    def cursor_word(self):
+        """Get the word under cursor.
+
+        :rtype: unicode
+        """
+        try:
+            return to_unicode(vim.Function('expand')('<cword>'),
+                              get_encoding())
+        except vim.error:
+            pass
+
+    @property
+    def cursor_line(self):
+        """Get line under the cursor.
+
+        :rtype: unicode
+        """
+        try:
+            line, _ = vim.current.window.cursor
+            return to_unicode(vim.current.buffer[line - 1], get_encoding())
+        except vim.error:
+            pass
+
+    @property
     def cursor(self):
-        line, _ = vim.current.window.cursor
-        return line, len(self.input_data)
+        return vim.current.window.cursor
 
     @cursor.setter
     def cursor(self, value):
@@ -123,7 +150,11 @@ class Completor(Base):
 
     @staticmethod
     def get_option(key):
-        return vim.vars.get('completor_{}'.format(key))
+        option = vim.vars.get('completor_{}'.format(key))
+        # expand ~ in binary path
+        if option and key.endswith('_binary'):
+            option = expanduser(option)
+        return option
 
     @property
     def disabled(self):
@@ -164,13 +195,20 @@ class Completor(Base):
     def do_complete(self, data):
         ret = []
         filename = get('filename')
-        if filename.match(self.input_data) and not filename.disabled:
+        if not isinstance(self, filename.__class__) and \
+                filename.match(self.input_data) and not filename.disabled:
             ret.extend(filename.parse(self.input_data))
 
         if callable(getattr(self, 'parse', None)):
             ret.extend(self.parse(data))
         else:
             ret.extend(self.on_complete(data))
+
+        common = get('common')
+        if not common.is_common(self):
+            common.ft = self.ft
+            common.input_data = self.input_data
+            ret.extend(common.parse(self.input_data))
         return ret
 
     def on_data(self, action, data):
@@ -197,24 +235,35 @@ class Completor(Base):
             path = os.path.join(cwd, file)
             if os.path.exists(path):
                 return path
-            if os.path.dirname(cwd) == cwd:
+            dirname = os.path.dirname(cwd)
+            if dirname == cwd:
                 break
-            cwd = os.path.split(cwd)[0]
+            cwd = dirname
 
-    def parse_config(self, file):
-        key = "{}-{}".format(self.filetype, file)
-        if key not in self._arg_cache:
-            path = self.find_config_file(file)
-            self._arg_cache[key] = [] if path is None else _read_args(path)
-        return self._arg_cache[key]
+    def parse_config(self, files):
+        if not isinstance(files, (list, tuple)):
+            files = [files]
+        for f in files:
+            key = '{}-{}'.format(self.filetype, f)
+            arg = self._arg_cache.get(key)
+            if arg:
+                return arg
+            if arg is not None:
+                continue
+            path = self.find_config_file(f)
+            arg = [] if path is None else _read_args(path)
+            self._arg_cache[key] = arg
+            if arg:
+                return arg
+        return []
 
     def ident_match(self, pat):
         if not self.input_data:
             return -1
 
-        _, index = self.cursor
+        index = len(self.input_data)
         for i in range(index):
-            text = self.input_data[i:index]
+            text = self.input_data[i:]
             matched = pat.match(text)
             if matched and matched.end() == len(text):
                 return len(to_bytes(self.input_data[:i], get_encoding()))
@@ -231,7 +280,8 @@ class Completor(Base):
     def request(self):
         """Generate daemon complete request arguments
         """
-        line, col = self.cursor
+        line, _ = self.cursor
+        col = len(self.input_data)
         return json.dumps({
             'line': line - 1,
             'col': col,

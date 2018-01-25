@@ -58,7 +58,7 @@ function! ale#highlight#RemoveHighlights() abort
 endfunction
 
 function! ale#highlight#UpdateHighlights() abort
-    let l:item_list = g:ale_enabled
+    let l:item_list = get(b:, 'ale_enabled', 1) && g:ale_enabled
     \   ? get(b:, 'ale_highlight_items', [])
     \   : []
 
@@ -91,6 +91,30 @@ function! ale#highlight#UpdateHighlights() abort
         \   'matchaddpos(l:group, v:val)'
         \)
     endfor
+
+    " If highlights are enabled and signs are not enabled, we should still
+    " offer line highlights by adding a separate set of highlights.
+    if !g:ale_set_signs
+        let l:available_groups = {
+        \   'ALEWarningLine': hlexists('ALEWarningLine'),
+        \   'ALEInfoLine': hlexists('ALEInfoLine'),
+        \   'ALEErrorLine': hlexists('ALEErrorLine'),
+        \}
+
+        for l:item in l:item_list
+            if l:item.type is# 'W'
+                let l:group = 'ALEWarningLine'
+            elseif l:item.type is# 'I'
+                let l:group = 'ALEInfoLine'
+            else
+                let l:group = 'ALEErrorLine'
+            endif
+
+            if l:available_groups[l:group]
+                call matchaddpos(l:group, [l:item.lnum])
+            endif
+        endfor
+    endif
 endfunction
 
 function! ale#highlight#BufferHidden(buffer) abort
@@ -106,7 +130,7 @@ augroup ALEHighlightBufferGroup
 augroup END
 
 function! ale#highlight#SetHighlights(buffer, loclist) abort
-    let l:new_list = g:ale_enabled
+    let l:new_list = getbufvar(a:buffer, 'ale_enabled', 1) && g:ale_enabled
     \   ? filter(copy(a:loclist), 'v:val.bufnr == a:buffer && v:val.col > 0')
     \   : []
 

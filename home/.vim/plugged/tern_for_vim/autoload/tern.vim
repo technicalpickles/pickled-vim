@@ -40,7 +40,7 @@ function! tern#Complete(findstart, complWord)
   else
     let rest = []
     for entry in b:ternLastCompletion
-      if stridx(entry["word"], a:complWord) == 0
+      if entry["word"] =~ '^\V'. escape(a:complWord, '\')
         call add(rest, entry)
       endif
     endfor
@@ -105,6 +105,10 @@ if !exists('g:tern_show_loc_after_rename')
   let g:tern_show_loc_after_rename = 1
 endif
 
+if !exists('g:tern_show_loc_after_refs')
+  let g:tern_show_loc_after_refs = 1
+endif
+
 function! tern#DefaultKeyMap(...)
   let prefix = len(a:000)==1 ? a:1 : "<LocalLeader>"
   execute 'nnoremap <buffer> '.prefix.'tD' ':TernDoc<CR>'
@@ -132,7 +136,7 @@ function! tern#Enable()
     command! -buffer TernDefSplit py3 tern_lookupDefinition("split")
     command! -buffer TernDefTab py3 tern_lookupDefinition("tabe")
     command! -buffer TernRefs py3 tern_refs()
-    command! -buffer TernRename exe 'py3 tern_rename("'.input("new name? ",expand("<cword>")).'")'
+    command! -buffer -nargs=? TernRename exe 'py3 tern_rename("'.(empty('<args>') ? input("new name? ",expand("<cword>")) : '<args>').'")'
   elseif has('python')
     command! -buffer TernDoc py tern_lookupDocumentation()
     command! -buffer TernDocBrowse py tern_lookupDocumentation(browse=True)
@@ -142,7 +146,7 @@ function! tern#Enable()
     command! -buffer TernDefSplit py tern_lookupDefinition("split")
     command! -buffer TernDefTab py tern_lookupDefinition("tabe")
     command! -buffer TernRefs py tern_refs()
-    command! -buffer TernRename exe 'py tern_rename("'.input("new name? ",expand("<cword>")).'")'
+    command! -buffer -nargs=? TernRename exe 'py tern_rename("'.(empty('<args>') ? input("new name? ",expand("<cword>")) : '<args>').'")'
   endif
 
   let b:ternProjectDir = ''
