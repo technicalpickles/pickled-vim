@@ -1,5 +1,11 @@
 " Section: plugins
   call plug#begin('~/.vim/plugged')
+
+" Subsection: plugins unlikely to cause problems
+  Plug 'https://github.com/joshdick/onedark.vim.git'
+  Plug 'https://github.com/w0rp/ale.git'
+
+" Subsection: everything else :D
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
   Plug 'https://github.com/Raimondi/delimitMate.git'
   Plug 'https://github.com/StanAngeloff/php.vim.git'
@@ -17,7 +23,6 @@
   Plug 'https://github.com/jlanzarotta/bufexplorer.git'
   Plug 'https://github.com/jmcantrell/vim-virtualenv.git'
   Plug 'https://github.com/johann-p-koebbe/rspec.vim.git'  " fork with better ultisnips support
-  Plug 'https://github.com/joshdick/onedark.vim.git'
   Plug 'https://github.com/jtratner/vim-flavored-markdown.git'
   Plug 'https://github.com/junegunn/vim-easy-align.git'
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
@@ -45,7 +50,7 @@
   Plug 'https://github.com/tpope/vim-cucumber.git'
   Plug 'https://github.com/tpope/vim-dispatch.git'
   Plug 'https://github.com/tpope/vim-endwise.git'
-  Plug 'https://github.com/tpope/vim-fugitive.git', { 'tag': 'v2.2' }
+  Plug 'https://github.com/tpope/vim-fugitive.git'
   Plug 'https://github.com/tpope/vim-git.git'
   Plug 'https://github.com/tpope/vim-liquid.git'
   Plug 'https://github.com/tpope/vim-markdown.git'
@@ -55,13 +60,13 @@
   Plug 'https://github.com/tpope/vim-rake.git'
   Plug 'https://github.com/tpope/vim-rbenv.git'
   Plug 'https://github.com/tpope/vim-repeat.git'
+  Plug 'https://github.com/tpope/vim-rhubarb.git'
   Plug 'https://github.com/tpope/vim-sensible.git'
   Plug 'https://github.com/tpope/vim-surround.git'
   Plug 'https://github.com/tpope/vim-unimpaired.git'
   Plug 'https://github.com/vim-airline/vim-airline.git'
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
-  Plug 'https://github.com/w0rp/ale.git'
   Plug 'https://github.com/zerowidth/vim-bgtags.git'
 
 " Section: plugins that probably will be deleted
