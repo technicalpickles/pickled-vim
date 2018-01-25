@@ -139,9 +139,9 @@
   set titlestring=VIM:\ %-25.55F\ %a%r%m titlelen=70
 
   " can has foldin plz?
-  set foldenable
-  set foldmethod=syntax
-  set foldlevel=999 " make it really high, so they're not displayed by default
+  "set foldenable
+  "set foldmethod=syntax
+  "set foldlevel=999 " make it really high, so they're not displayed by default
 
   " 'murica
   set spelllang=en_us
