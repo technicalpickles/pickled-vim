@@ -415,4 +415,7 @@
           \ "graphql" : {
           \   "start" : "GRAPHQL",
           \},
+          \ "ruby" : {
+          \   "start" : "SOURCE",
+          \},
     \}
