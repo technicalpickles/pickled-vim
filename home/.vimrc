@@ -70,6 +70,7 @@
   Plug 'https://github.com/zerowidth/vim-bgtags.git'
   Plug 'https://github.com/joker1007/vim-ruby-heredoc-syntax.git'
   Plug 'https://github.com/jparise/vim-graphql.git'
+  Plug 'https://github.com/mxw/vim-jsx.git'
 
 " Section: plugins that probably will be deleted
 " Plug 'https://github.com/majutsushi/tagbar.git'
