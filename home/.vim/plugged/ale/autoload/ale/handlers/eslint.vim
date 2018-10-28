@@ -5,7 +5,7 @@ let s:sep = has('win32') ? '\' : '/'
 
 call ale#Set('javascript_eslint_options', '')
 call ale#Set('javascript_eslint_executable', 'eslint')
-call ale#Set('javascript_eslint_use_global', 0)
+call ale#Set('javascript_eslint_use_global', get(g:, 'ale_use_global_executables', 0))
 call ale#Set('javascript_eslint_suppress_eslintignore', 0)
 call ale#Set('javascript_eslint_suppress_missing_config', 0)
 
@@ -96,6 +96,13 @@ function! ale#handlers#eslint#Handle(buffer, lines) abort
         \   'lnum': 1,
         \   'text': 'eslint configuration error (type :ALEDetail for more information)',
         \   'detail': join(a:lines, "\n"),
+        \}]
+    endif
+
+    if a:lines == ['Could not connect']
+        return [{
+        \   'lnum': 1,
+        \   'text': 'Could not connect to eslint_d. Try updating eslint_d or killing it.',
         \}]
     endif
 

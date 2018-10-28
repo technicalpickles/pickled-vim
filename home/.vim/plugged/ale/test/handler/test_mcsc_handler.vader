@@ -3,10 +3,15 @@ Before:
 
   unlet! g:ale_cs_mcsc_source
 
+  call ale#test#SetDirectory('/testplugin/test/handler')
+  call ale#test#SetFilename('Test.cs')
+
   runtime ale_linters/cs/mcsc.vim
 
 After:
   unlet! g:ale_cs_mcsc_source
+
+  call ale#test#RestoreDirectory()
   call ale#linter#Reset()
 
 Execute(The mcs handler should work with the default of the buffer's directory):
@@ -18,10 +23,10 @@ Execute(The mcs handler should work with the default of the buffer's directory):
   \     'text': '; expected',
   \     'code': 'CS1001',
   \     'type': 'E',
-  \     'filename': ale#path#Simplify(expand('%:p:h') . '/Test.cs'),
+  \     'filename': ale#path#Simplify(g:dir . '/Test.cs'),
   \   },
   \ ],
-  \ ale_linters#cs#mcsc#Handle(347, [
+  \ ale_linters#cs#mcsc#Handle(bufnr(''), [
   \   'Test.cs(12,29): error CS1001: ; expected',
   \   'Compilation failed: 2 error(s), 1 warnings',
   \ ])
@@ -56,7 +61,7 @@ Execute(The mcs handler should handle cannot find symbol errors):
   \     'filename': ale#path#Simplify('/home/foo/project/bar/Test.cs'),
   \   },
   \ ],
-  \ ale_linters#cs#mcsc#Handle(347, [
+  \ ale_linters#cs#mcsc#Handle(bufnr(''), [
   \   'Test.cs(12,29): error CS1001: ; expected',
   \   'Test.cs(101,0): error CS1028: Unexpected processor directive (no #if for this #endif)',
   \   'Test.cs(10,12): warning CS0123: some warning',

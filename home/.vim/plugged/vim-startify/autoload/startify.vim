@@ -43,7 +43,14 @@ endfunction
 
 " Function: #insane_in_the_membrane {{{1
 function! startify#insane_in_the_membrane() abort
+  " Handle vim -y, vim -M.
   if &insertmode
+        \ || (!&modifiable && &buftype != 'terminal' && &filetype != 'startify')
+    return
+  endif
+
+  if !&hidden && &modified
+    call s:warn('Save your changes first.')
     return
   endif
 
@@ -53,6 +60,10 @@ function! startify#insane_in_the_membrane() abort
         return
       endif
     endfor
+  endif
+
+  if line2byte('$') != -1
+    noautocmd enew
   endif
 
   silent! setlocal
@@ -72,15 +83,9 @@ function! startify#insane_in_the_membrane() abort
   endif
 
   " Must be global so that it can be read by syntax/startify.vim.
-  if exists('g:startify_custom_header')
-    if type(g:startify_custom_header) == type([])
-      let g:startify_header = copy(g:startify_custom_header)
-    else
-      let g:startify_header = eval(g:startify_custom_header)
-    endif
-  else
-    let g:startify_header = startify#fortune#cowsay()
-  endif
+  let g:startify_header = exists('g:startify_custom_header')
+        \ ? s:set_custom_section(g:startify_custom_header)
+        \ : startify#fortune#cowsay()
   if !empty(g:startify_header)
     let g:startify_header += ['']  " add blank line
   endif
@@ -103,26 +108,13 @@ function! startify#insane_in_the_membrane() abort
   endif
 
   if empty(v:oldfiles)
-    call s:warn("startify: Can't read viminfo file. Read :help startify-faq-02")
+    call s:warn("Can't read viminfo file. Read :help startify-faq-02")
   endif
 
   let b:startify.section_header_lines = []
-  let s:lists = get(g:, 'startify_list_order', [
-        \ [s:padding_left .'MRU'],            'files',
-        \ [s:padding_left .'MRU '. getcwd()], 'dir',
-        \ [s:padding_left .'Sessions'],       'sessions',
-        \ [s:padding_left .'Bookmarks'],      'bookmarks',
-        \ [s:padding_left .'Commands'],       'commands',
-        \ ])
 
-  for item in s:lists
-    if type(item) == 1
-      call s:show_{item}()
-    else
-      let s:last_message = item
-    endif
-    unlet item
-  endfor
+  let lists = s:get_lists()
+  call s:show_lists(lists)
 
   silent $delete _
 
@@ -138,15 +130,19 @@ function! startify#insane_in_the_membrane() abort
   let b:startify.firstline = 2
   let b:startify.firstline += len(g:startify_header)
   " no special, no local Session.vim, but a section header
-  if !s:show_special && !exists('l:show_session') && type(s:lists[0]) == type([])
-    let b:startify.firstline += len(s:lists[0]) + 1
+  if !s:show_special && !exists('l:show_session') && has_key(lists[0], 'header')
+    let b:startify.firstline += len(lists[0].header) + 1
   endif
 
   let b:startify.lastline = line('$')
 
-  if exists('g:startify_custom_footer')
-    call append('$', g:startify_custom_footer)
+  let footer = exists('g:startify_custom_footer')
+        \ ? s:set_custom_section(g:startify_custom_footer)
+        \ : []
+  if !empty(footer)
+    let footer = [''] + footer
   endif
+  call append('$', footer)
 
   setlocal nomodifiable nomodified
 
@@ -154,8 +150,13 @@ function! startify#insane_in_the_membrane() abort
   call cursor(b:startify.firstline, 5)
   autocmd startify CursorMoved <buffer> call s:set_cursor()
 
-  silent! file Startify
-  set filetype=startify readonly
+  silent! %foldopen!
+  set filetype=startify
+
+  if exists('##DirChanged')
+    autocmd startify DirChanged <buffer> Startify
+  endif
+
   if exists('#User#Startified')
     if v:version > 703 || v:version == 703 && has('patch442')
       doautocmd <nomodeline> User Startified
@@ -364,22 +365,9 @@ endfunction
 
 " Function: #session_delete_buffers {{{1
 function! startify#session_delete_buffers()
-  if !get(g:, 'startify_session_delete_buffers', 1)
-    return
+  if get(g:, 'startify_session_delete_buffers', 1)
+    silent! %bdelete
   endif
-  let n = 1
-  while n <= bufnr('$')
-    if buflisted(n)
-      try
-        silent execute 'bdelete' n
-      catch
-        echohl ErrorMsg
-        echomsg v:exception
-        echohl NONE
-      endtry
-    endif
-    let n += 1
-  endwhile
 endfunction
 
 " Function: #session_list {{{1
@@ -427,6 +415,83 @@ function! startify#open_buffers(...) abort
   wincmd =
 endfunction
 
+" Function: s:get_lists {{{1
+function! s:get_lists() abort
+  if exists('g:startify_lists')
+    return g:startify_lists
+  elseif exists('g:startify_list_order')
+    " Convert old g:startify_list_order format to newer g:startify_lists format.
+    let lists = []
+    for item in g:startify_list_order
+      if type(item) == type([])
+        let header = item
+      else
+        if exists('header')
+          let lists += [{ 'type': item, 'header': header }]
+          unlet header
+        else
+          let lists += [{ 'type': item }]
+        endif
+      endif
+      unlet item
+    endfor
+    return lists
+  else
+    return [
+          \ { 'header': [s:padding_left .'MRU'],            'type': 'files' },
+          \ { 'header': [s:padding_left .'MRU '. getcwd()], 'type': 'dir' },
+          \ { 'header': [s:padding_left .'Sessions'],       'type': 'sessions' },
+          \ { 'header': [s:padding_left .'Bookmarks'],      'type': 'bookmarks' },
+          \ { 'header': [s:padding_left .'Commands'],       'type': 'commands' },
+          \ ]
+  endif
+endfunction
+
+" Function: s:show_lists {{{1
+function! s:show_lists(lists) abort
+  for list in a:lists
+    if !has_key(list, 'type')
+      continue
+    endif
+
+    if type(list.type) == type('')
+      if has_key(list, 'header')
+        let s:last_message = list.header
+      endif
+      call s:show_{list.type}()
+    elseif type(list.type) == type(function('tr'))
+      try
+        let entries = list.type()
+      catch
+        call s:warn(v:exception)
+        continue
+      endtry
+      if empty(entries)
+        unlet! s:last_message
+        continue
+      endif
+
+      if has_key(list, 'header')
+        let s:last_message = list.header
+        call s:print_section_header()
+      endif
+
+      for entry in entries
+        let cmd  = get(entry, 'cmd', 'edit')
+        let path = get(entry, 'path', '')
+        let type = get(entry, 'type', empty(path) ? 'special' : 'file')
+        let index = s:get_index_as_string(b:startify.entry_number)
+        call append('$', s:padding_left .'['. index .']'. repeat(' ', (3 - strlen(index))) . entry.line)
+        call s:register(line('$'), index, type, cmd, path)
+        let b:startify.entry_number += 1
+      endfor
+      call append('$', '')
+    else
+      call s:warn('Wrong format for g:startify_lists: '. string(list))
+    endif
+  endfor
+endfunction
+
 " Function: s:open_buffer {{{1
 function! s:open_buffer(entry)
   if a:entry.type == 'special'
@@ -446,17 +511,26 @@ function! s:open_buffer(entry)
   endif
 endfunction
 
+" Function: s:set_custom_section {{{1
+function! s:set_custom_section(section) abort
+  if type(a:section) == type([])
+    return copy(a:section)
+  elseif type(a:section) == type('')
+    return empty(a:section) ? [] : eval(a:section)
+  endif
+  return []
+endfunction
+
 " Function: s:display_by_path {{{1
 function! s:display_by_path(path_prefix, path_format, use_env) abort
   let oldfiles = call(get(g:, 'startify_enable_unsafe') ? 's:filter_oldfiles_unsafe' : 's:filter_oldfiles',
         \ [a:path_prefix, a:path_format, a:use_env])
 
-  let entry_format = "s:padding_left .'['. index .']'. repeat(' ', (3 - strlen(index)))"
-  if exists('*WebDevIconsGetFileTypeSymbol') && get(g:, 'webdevicons_enable')
-    " support for vim-devicons
-    let entry_format .= ". WebDevIconsGetFileTypeSymbol(entry_path) .' '.  entry_path"
+  let entry_format = "s:padding_left .'['. index .']'. repeat(' ', (3 - strlen(index))) ."
+  if exists('*StartifyEntryFormat')
+    let entry_format .= StartifyEntryFormat()
   else
-    let entry_format .= '. entry_path'
+    let entry_format .= 'entry_path'
   endif
 
   if !empty(oldfiles)
@@ -696,7 +770,7 @@ function! s:is_in_skiplist(arg) abort
         return 1
       endif
     catch
-      call s:warn('startify: Pattern '. string(regexp) .' threw an exception. Read :help g:startify_skiplist')
+      call s:warn('Pattern '. string(regexp) .' threw an exception. Read :help g:startify_skiplist')
     endtry
   endfor
 endfunction
@@ -774,7 +848,7 @@ function! s:set_mark(type, ...) abort
         \ 'T': 'tabnew',
         \ }
 
-  setlocal noreadonly modifiable
+  setlocal modifiable
 
   if entry.marked && index[0] == a:type
     let entry.cmd = 'edit'
@@ -791,7 +865,7 @@ function! s:set_mark(type, ...) abort
   " Reset cursor to fixed column, which is important for s:set_cursor().
   call cursor(line('.'), s:fixed_column)
 
-  setlocal readonly nomodifiable nomodified
+  setlocal nomodifiable nomodified
 endfunction
 
 " Function: s:sort_by_tick {{{1
@@ -892,7 +966,7 @@ function! s:create_last_session_link(spath)
           \ shellescape(s:session_dir .'/__LAST__'))
     call system(cmd)
     if v:shell_error
-      echomsg "startify: Can't create 'last used session' symlink."
+      call s:warn("Can't create 'last used session' symlink.")
     endif
   endif
 endfunction
@@ -949,6 +1023,6 @@ endfunction
 " Function: s:warn {{{1
 function! s:warn(msg) abort
   echohl WarningMsg
-  echomsg a:msg
+  echomsg 'startify: '. a:msg
   echohl NONE
 endfunction

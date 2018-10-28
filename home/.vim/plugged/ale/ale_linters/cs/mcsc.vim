@@ -10,7 +10,7 @@ function! s:GetWorkingDirectory(buffer) abort
         return l:working_directory
     endif
 
-    return fnamemodify(bufname(a:buffer), ':p:h')
+    return expand('#' . a:buffer . ':p:h')
 endfunction
 
 function! ale_linters#cs#mcsc#GetCommand(buffer) abort
@@ -29,16 +29,16 @@ function! ale_linters#cs#mcsc#GetCommand(buffer) abort
     \   : ''
 
     " register temporary module target file with ale
-    let l:out = tempname()
-    call ale#engine#ManageFile(a:buffer, l:out)
+    " register temporary module target file with ALE.
+    let l:out = ale#engine#CreateFile(a:buffer)
 
     " The code is compiled as a module and the output is redirected to a
     " temporary file.
     return ale#path#CdString(s:GetWorkingDirectory(a:buffer))
     \    . 'mcs -unsafe'
-    \    . ' ' . ale#Var(a:buffer, 'cs_mcsc_options')
-    \    . ' ' . l:lib_option
-    \    . ' ' . l:r_option
+    \    . ale#Pad(ale#Var(a:buffer, 'cs_mcsc_options'))
+    \    . ale#Pad(l:lib_option)
+    \    . ale#Pad(l:r_option)
     \    . ' -out:' . l:out
     \    . ' -t:module'
     \    . ' -recurse:' . ale#Escape('*.cs')

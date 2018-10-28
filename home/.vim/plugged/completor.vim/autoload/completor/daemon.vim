@@ -48,12 +48,14 @@ endfunction
 
 if has('nvim')
   " neovim
-  function! s:job_start_daemon(cmd)
-    return jobstart(a:cmd, {
+  function! s:job_start_daemon(cmd, options)
+    let conf = {
           \   'on_stdout': function('s:nvim_daemon_handler'),
           \   'on_stderr': function('s:nvim_daemon_handler'),
           \   'on_exit': function('s:nvim_daemon_handler'),
-          \ })
+          \ }
+    call extend(conf, a:options)
+    return jobstart(a:cmd, conf)
   endfunction
 
   function! s:daemon.write(data)
@@ -65,12 +67,14 @@ if has('nvim')
   endfunction
 else
   " vim8
-  function! s:job_start_daemon(cmd)
-    return job_start(a:cmd, {
+  function! s:job_start_daemon(cmd, options)
+    let conf = {
           \   'out_cb': {c,m->s:vim_daemon_handler(m)},
           \   'err_io': 'out',
-          \   'mode': 'nl'
-          \ })
+          \   'mode': 'nl',
+          \ }
+    call extend(conf, a:options)
+    return job_start(a:cmd, conf)
   endfunction
 
   function! s:daemon.write(data)
@@ -83,11 +87,11 @@ else
 endif
 
 
-function! s:daemon.respawn(cmd, name)
-  if self.status(a:name) == 'run'
+function! s:daemon.respawn(cmd, name, options)
+  if self.status(a:name) ==# 'run'
     call completor#compat#job_stop(self.job)
   endif
-  let self.job = s:job_start_daemon(a:cmd)
+  let self.job = s:job_start_daemon(a:cmd, a:options)
   let self.type = a:name
   let self.cmd = a:cmd
   let self.requested = v:false
@@ -119,16 +123,16 @@ function s:daemon.kill()
 endfunction
 
 
-function! completor#daemon#process(action, cmd, name)
+function! completor#daemon#process(action, cmd, name, options)
   let s:daemon.msgs = []
 
   " Daemon not running
-  if s:daemon.status(a:name) != 'run'
-    call s:daemon.respawn(a:cmd, a:name)
+  if s:daemon.status(a:name) !=# 'run'
+    call s:daemon.respawn(a:cmd, a:name, a:options)
   endif
 
-  if s:daemon.status(a:name) != 'run'
-    return
+  if s:daemon.status(a:name) !=# 'run'
+    return v:false
   endif
 
   " Already requested
@@ -136,23 +140,24 @@ function! completor#daemon#process(action, cmd, name)
     if localtime() - s:daemon.t > 5
       call s:daemon.kill()
     endif
-    return
+    return v:false
   endif
 
   let req = completor#utils#prepare_request(a:action)
   if empty(req)
-    return
+    return v:false
   endif
 
   call s:daemon.write(req)
 
   let s:daemon.requested = v:true
   let s:daemon.t = localtime()
+  return v:true
 endfunction
 
 
 function! s:check_status()
-  if s:daemon.status(s:daemon.type) != 'run'
+  if s:daemon.status(s:daemon.type) !=# 'run'
     echo 'Daemon killed'
   endif
 endfunction

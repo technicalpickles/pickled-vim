@@ -1,6 +1,6 @@
 " sensible.vim - Defaults everyone can agree on
 " Maintainer:   Tim Pope <http://tpo.pe/>
-" Version:      1.1
+" Version:      1.2
 
 if exists('g:loaded_sensible') || &compatible
   finish
@@ -64,7 +64,7 @@ if has('path_extra')
 endif
 
 if &shell =~# 'fish$' && (v:version < 704 || v:version == 704 && !has('patch276'))
-  set shell=/bin/bash
+  set shell=/usr/bin/env\ bash
 endif
 
 set autoread

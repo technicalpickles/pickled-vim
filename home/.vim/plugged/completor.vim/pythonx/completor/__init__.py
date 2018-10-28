@@ -4,16 +4,19 @@ import importlib
 import json
 import os
 import re
-import vim
 import shlex
+import threading
+import logging
 from os.path import expanduser
 
-from .patch import patch_nvim
-if hasattr(vim, 'from_nvim'):
-    patch_nvim(vim)
+from ._vim import vim_obj as vim
+from .compat import integer_types, to_bytes, to_unicode
+from ._log import config_logging
 
-from .compat import integer_types, to_bytes, to_unicode  # noqa
-from ._log import config_logging  # noqa
+# Cache for command arguments.
+_arg_cache = {}
+
+_ctx = threading.local()
 
 
 class LogFilter(object):
@@ -22,6 +25,7 @@ class LogFilter(object):
 
 
 config_logging('completor.LogFilter')
+logger = logging.getLogger('completor')
 
 
 def get_encoding():
@@ -47,11 +51,22 @@ def _read_args(path):
 
 
 class Meta(type):
-    def __init__(cls, name, bases, attrs):
-        if name not in ('Completor', 'Base'):
-            Completor._registry[to_unicode(cls.filetype, 'utf-8')] = cls()
+    # Completor registry.
+    registry = {}
+    # Type alias collector.
+    type_map = {
+        b'c': 'cpp',
+        b'javascript.jsx': 'javascript',
+        b'python.django': 'python',
+        b'typescript.tsx': 'typescript',
+        b'typescript.jsx': 'typescript',
+    }
 
-        return super(Meta, cls).__init__(name, bases, attrs)
+    def __new__(mcls, name, bases, attrs):
+        cls = type.__new__(mcls, name, bases, attrs)
+        if name not in ('Completor', 'Base'):
+            mcls.registry[to_unicode(cls.filetype, 'utf-8')] = cls()
+        return cls
 
 
 Base = Meta('Base', (object,), {})
@@ -63,8 +78,6 @@ class Unusable(object):
 
 
 class Completor(Base):
-    _registry = {}
-
     filetype = Unusable()
 
     daemon = False
@@ -72,14 +85,8 @@ class Completor(Base):
     trigger = None
     ident = re.compile(r'\w+', re.U)
 
-    _type_map = {
-        b'c': b'cpp',
-        b'javascript.jsx': b'javascript',
-        b'typescript.jsx': b'typescript',
-        b'python.django': b'python',
-    }
-
-    _arg_cache = {}
+    # Extra data come from vim.
+    meta = None
 
     def __init__(self):
         self.input_data = ''
@@ -141,13 +148,6 @@ class Completor(Base):
     def cursor(self, value):
         vim.current.window.cursor = value
 
-    # use cached property
-    @property
-    def filetype_map(self):
-        m = self.get_option('filetype_map') or {}
-        self._type_map.update(m)
-        return self._type_map
-
     @staticmethod
     def get_option(key):
         option = vim.vars.get('completor_{}'.format(key))
@@ -158,12 +158,16 @@ class Completor(Base):
 
     @property
     def disabled(self):
-        types = self.get_option('disable_{}'.format(self.filetype))
-        if isinstance(types, integer_types):
-            return bool(types)
-        if isinstance(types, (list, vim.List)):
-            return to_bytes(self.ft) in types
-        return False
+        enable_types = self.get_option('enable_{}'.format(self.filetype))
+        if isinstance(enable_types, (list, vim.List)):
+            return to_bytes(self.ft) not in enable_types
+        else:
+            disable_types = self.get_option('disable_{}'.format(self.filetype))
+            if isinstance(disable_types, integer_types):
+                return bool(disable_types)
+            if isinstance(disable_types, (list, vim.List)):
+                return to_bytes(self.ft) in disable_types
+            return False
 
     # input_data: unicode
     def match(self, input_data):
@@ -194,11 +198,6 @@ class Completor(Base):
 
     def do_complete(self, data):
         ret = []
-        filename = get('filename')
-        if not isinstance(self, filename.__class__) and \
-                filename.match(self.input_data) and not filename.disabled:
-            ret.extend(filename.parse(self.input_data))
-
         if callable(getattr(self, 'parse', None)):
             ret.extend(self.parse(data))
         else:
@@ -206,9 +205,12 @@ class Completor(Base):
 
         common = get('common')
         if not common.is_common(self):
-            common.ft = self.ft
-            common.input_data = self.input_data
-            ret.extend(common.parse(self.input_data))
+            if not ret:
+                set_current_completer(common)
+            if not ret or self.ident == common.ident:
+                common.ft = self.ft
+                common.input_data = self.input_data
+                ret.extend(common.parse(self.input_data))
         return ret
 
     def on_data(self, action, data):
@@ -245,14 +247,14 @@ class Completor(Base):
             files = [files]
         for f in files:
             key = '{}-{}'.format(self.filetype, f)
-            arg = self._arg_cache.get(key)
+            arg = _arg_cache.get(key)
             if arg:
                 return arg
             if arg is not None:
                 continue
             path = self.find_config_file(f)
             arg = [] if path is None else _read_args(path)
-            self._arg_cache[key] = arg
+            _arg_cache[key] = arg
             if arg:
                 return arg
         return []
@@ -317,12 +319,19 @@ class Completor(Base):
         return vim.Function('completor#utils#in_comment_or_string')()
 
 
-_completor = Completor()
+def _resolve_ft(ft):
+    """
+    :param ft: file type (bytes)
+    """
+    m = Completor.get_option('filetype_map') or {}
+    return to_unicode(m.get(ft, Meta.type_map.get(ft, ft)), 'utf-8')
 
 
 # ft: unicode
 def _load(ft):
-    if ft not in _completor._registry:
+    if not ft:
+        return
+    if ft not in Meta.registry:
         try:
             importlib.import_module("completers.{}".format(ft))
         except ImportError:
@@ -330,7 +339,7 @@ def _load(ft):
                 importlib.import_module("completor_{}".format(ft))
             except ImportError:
                 return
-    return _completor._registry.get(ft)
+    return Meta.registry.get(ft)
 
 
 def load(ft, input_data=b''):
@@ -340,7 +349,7 @@ def load(ft, input_data=b''):
     :param input_data: input data (bytes)
     """
     input_data = _unicode(input_data)
-    ft = to_unicode(_completor.filetype_map.get(ft, ft), 'utf-8')
+    ft = _resolve_ft(ft)
     c = _load(ft)
     if c:
         c.input_data = input_data
@@ -353,12 +362,19 @@ def load_completer(ft, input_data):
     input_data = _unicode(input_data)
     if not input_data.strip():
         return
-    ft = to_unicode(_completor.filetype_map.get(ft, ft), 'utf-8')
+    ft = _resolve_ft(ft)
 
-    if 'common' not in _completor._registry:
+    if 'common' not in Meta.registry:
         import completers.common  # noqa
 
-    if not ft:
+    neoinclude = get('neoinclude')
+    filename = get('filename')
+    if neoinclude.has_neoinclude() and neoinclude.match(input_data) \
+    and not neoinclude.disabled:
+        c = neoinclude
+    elif filename.match(input_data) and not filename.disabled:
+        c = filename
+    elif not ft:
         c = get('common')
     else:
         c = None
@@ -377,10 +393,22 @@ def load_completer(ft, input_data):
 
 # filetype: str, ft: bytes, input_data: bytes
 def get(filetype, ft=None, input_data=None):
-    completer = _completor._registry.get(filetype)
+    completer = Meta.registry.get(filetype)
     if completer:
         if ft is not None:
             completer.ft = _unicode(ft)
         if input_data is not None:
             completer.input_data = _unicode(input_data)
     return completer
+
+
+def set_current_completer(comp):
+    _ctx.current_completer = comp
+
+
+# Set current completer to None
+set_current_completer(None)
+
+
+def get_current_completer():
+    return _ctx.current_completer

@@ -1,6 +1,34 @@
 let s:status = {'pos': [], 'nr': -1, 'input': '', 'ft': ''}
 let s:action = ''
 let s:completions = []
+let s:cot = ''
+let s:freezed_status = {'pos': [], 'nr': -1, 'ft': ''}
+
+let s:DOC_POSITION = {
+      \ 'bottom': 'rightbelow',
+      \ 'top': 'topleft',
+      \ }
+
+
+function! s:freezed_status.reset()
+  let self.pos = []
+  let self.nr = -1
+  let self.ft = ''
+endfunction
+
+
+function! s:freezed_status.set(status)
+  let self.pos = a:status.pos
+  let self.nr = a:status.nr
+  let self.ft = a:status.ft
+endfunction
+
+
+function! s:freezed_status.consistent()
+  return self.pos == getcurpos() &&
+        \ self.nr == bufnr('') &&
+        \ self.ft == &ft
+endfunction
 
 
 function! s:status.update()
@@ -14,28 +42,48 @@ function! s:status.update()
 endfunction
 
 
-function! s:status.consistent()
-  return self.pos == getcurpos() && self.nr == bufnr('') && self.ft == &ft
-endfunction
-
-
 function! s:reset()
   let s:completions = []
+  call s:freezed_status.reset()
   if exists('s:job') && completor#compat#job_status(s:job) ==# 'run'
     call completor#compat#job_stop(s:job)
   endif
 endfunction
 
 
-function! s:trigger_complete(msg)
-  if !s:status.consistent()
-    let s:completions = []
-  else
-    let s:completions = completor#utils#on_data('complete', a:msg)
+function! completor#action#_on_complete_done()
+  if pumvisible() == 0
+    try
+      pclose
+    catch
+    endtry
   endif
+endfunction
+
+
+function! completor#action#_on_insert_enter()
+  let s:cot = &cot
+  let &cot = get(g:, 'completor_complete_options', &cot)
+endfunction
+
+
+function! completor#action#_on_insert_leave()
+  let &cot = s:cot
+  let s:cot = ''
+endfunction
+
+
+function! s:trigger_complete(msg)
+  let s:completions = completor#utils#on_data('complete', a:msg)
   if empty(s:completions) | return | endif
-  setlocal completefunc=completor#action#completefunc
-  call feedkeys("\<Plug>CompletorTrigger")
+  let startcol = completor#action#completefunc(1, '')
+  let matches = completor#action#completefunc(0, '')
+  if startcol >= 0
+    try
+      call complete(startcol + 1, matches.words)
+    catch /E785\|E685/
+    endtry
+  endif
 endfunction
 
 
@@ -58,6 +106,17 @@ function! s:jump(items)
     return
   endif
 
+  " Split window if the target is not the current file.
+  if item.filename != fnamemodify(expand('%'), ':p')
+    if g:completor_def_split ==? 'split'
+      split
+    elseif g:completor_def_split ==? 'vsplit'
+      vsplit
+    elseif g:completor_def_split ==? 'tab'
+      tab split
+    endif
+  endif
+
   call writefile(content, tmp)
   let tags = &tags
   let wildignore = &wildignore
@@ -65,7 +124,11 @@ function! s:jump(items)
   try
     set wildignore=
     let &tags = tmp
-    exe action . ' ' . name
+    try
+      exe action . ' ' . escape(name, '"')
+    catch /E426/
+      return
+    endtry
     redraw
   finally
     let &tags = tags
@@ -121,16 +184,17 @@ endfunction
 
 function! s:open_doc_window()
   let n = bufnr('__doc__')
+  let direction = get(s:DOC_POSITION, g:completor_doc_position, s:DOC_POSITION.bottom)
   if n > 0
     let i = index(tabpagebuflist(tabpagenr()), n)
     if i >= 0
       " Just jump to the doc window
       silent execute (i + 1).'wincmd w'
     else
-      silent execute 'sbuffer '.n
+      silent execute direction.' sbuffer '.n
     endif
   else
-    split __doc__
+    silent execute direction.' split __doc__'
   endif
 endfunction
 
@@ -156,6 +220,12 @@ endfunction
 
 
 function! completor#action#callback(msg)
+  if !s:freezed_status.consistent()
+    let s:completions = []
+    return
+  endif
+  call s:freezed_status.reset()
+
   if s:action ==# 'complete'
     call s:trigger_complete(a:msg)
   elseif s:action ==# 'definition'
@@ -164,6 +234,8 @@ function! completor#action#callback(msg)
     call s:call_signatures(a:msg)
   elseif s:action ==# 'doc'
     call s:show_doc(a:msg)
+  elseif s:action ==# 'format'
+    silent edit!
   endif
 endfunction
 
@@ -187,17 +259,38 @@ function! completor#action#completefunc(findstart, base)
 endfunction
 
 
-function! completor#action#do(action, info)
-  if empty(a:info) || !s:status.consistent() | return | endif
+" :param info: must contain keys: 'cmd', 'ftype', 'is_sync', 'is_daemon'
+function! completor#action#do(action, info, status)
+  if empty(a:info)
+    return
+  endif
+
   call s:reset()
   let s:action = a:action
+  let options = get(a:info, 'options', {})
+  let input_content = get(a:info, 'input_content', '')
+
   if a:info.is_sync
+    call s:freezed_status.set(a:status)
     call completor#action#callback(s:status.input)
   elseif !empty(a:info.cmd)
     if a:info.is_daemon
-      call completor#daemon#process(a:action, a:info.cmd, a:info.ftype)
+      if completor#daemon#process(a:action, a:info.cmd, a:info.ftype, options)
+        call s:freezed_status.set(a:status)
+      else
+        call s:freezed_status.reset()
+      endif
     else
-      let s:job = completor#compat#job_start_oneshot(a:info.cmd)
+      let sending_content = !empty(input_content)
+      let s:job = completor#compat#job_start_oneshot(a:info.cmd, options, sending_content)
+      if completor#compat#job_status(s:job) ==# 'run'
+        call s:freezed_status.set(a:status)
+      else
+        call s:freezed_status.reset()
+      endif
+      if sending_content
+        call completor#compat#job_send(s:job, input_content)
+      endif
     endif
   endif
 endfunction

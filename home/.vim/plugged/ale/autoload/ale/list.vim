@@ -1,6 +1,19 @@
 " Author: Bjorn Neergaard <bjorn@neersighted.com>, modified by Yann fery <yann@fery.me>
 " Description: Manages the loclist and quickfix lists
 
+" This flag dictates if ale open the configured loclist
+let g:ale_open_list = get(g:, 'ale_open_list', 0)
+" This flag dictates if ale keeps open loclist even if there is no error in loclist
+let g:ale_keep_list_window_open = get(g:, 'ale_keep_list_window_open', 0)
+" This flag dictates that quickfix windows should be opened vertically
+let g:ale_list_vertical = get(g:, 'ale_list_vertical', 0)
+" The window size to set for the quickfix and loclist windows
+let g:ale_list_window_size = get(g:, 'ale_list_window_size', 10)
+" A string format for the loclist messages.
+let g:ale_loclist_msg_format = get(g:, 'ale_loclist_msg_format',
+\   get(g:, 'ale_echo_msg_format', '%code: %%s')
+\)
+
 if !exists('s:timer_args')
     let s:timer_args = {}
 endif
@@ -12,6 +25,7 @@ function! ale#list#IsQuickfixOpen() abort
             return 1
         endif
     endfor
+
     return 0
 endfunction
 
@@ -97,12 +111,19 @@ function! s:SetListsImpl(timer_id, buffer, loclist) abort
         let l:reset_visual_selection = l:mode is? 'v' || l:mode is# "\<c-v>"
         let l:reset_character_selection = l:mode is? 's' || l:mode is# "\<c-s>"
 
+        " open windows vertically instead of default horizontally
+        let l:open_type = ''
+
+        if ale#Var(a:buffer, 'list_vertical') == 1
+            let l:open_type = 'vert '
+        endif
+
         if g:ale_set_quickfix
             if !ale#list#IsQuickfixOpen()
-                silent! execute 'copen ' . str2nr(ale#Var(a:buffer, 'list_window_size'))
+                silent! execute l:open_type . 'copen ' . str2nr(ale#Var(a:buffer, 'list_window_size'))
             endif
         elseif g:ale_set_loclist
-            silent! execute 'lopen ' . str2nr(ale#Var(a:buffer, 'list_window_size'))
+            silent! execute l:open_type . 'lopen ' . str2nr(ale#Var(a:buffer, 'list_window_size'))
         endif
 
         " If focus changed, restore it (jump to the last window).

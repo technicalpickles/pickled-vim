@@ -4,13 +4,38 @@ import os
 import re
 import logging
 import glob
+import itertools
 from completor import Completor
 
 from .utils import test_subseq, LIMIT
 
 
 logger = logging.getLogger('completor')
-PAT = re.compile('(\w+:(//?[^\s]*)?)|(</[^\s>]*>?)')
+PAT = re.compile('(\w{2,}:(//?[^\s]*)?)|(</[^\s>]*>?)|(//)')
+START_NO_DIRNAME = re.compile("^(\.{0,2}/|~/|[a-zA-Z]:/|\$)")
+
+
+def gen_entry(pat, dirname, basename):
+    prefix = len(dirname)
+    if os.path.dirname(dirname) != dirname:
+        prefix += 1
+    for fname in glob.iglob(pat):
+        entry = fname[prefix:]
+        score = test_subseq(basename, entry)
+        if score is None:
+            continue
+
+        abbr = ''
+        if os.path.isdir(os.path.join(dirname, entry)):
+            abbr = ''.join([entry, os.sep])
+        if entry.startswith('.'):
+            score += 100000
+        entry = {
+            'word': entry,
+            'abbr': abbr,
+            'menu': '[F]',
+        }
+        yield entry, score
 
 
 def find(current_dir, input_data):
@@ -25,28 +50,13 @@ def find(current_dir, input_data):
     if not os.path.isabs(dirname):
         dirname = os.path.join(current_dir, dirname)
 
-    dir_spec = os.path.join(dirname, '*')
-    dir_len = len(dir_spec) - 1
-    entries = []
-    for fname in glob.iglob(dir_spec):
-        entry = fname[dir_len:]
-        score = test_subseq(basename, entry)
-        if score is None:
-            continue
+    def _pat(p):
+        return os.path.join(dirname, p)
 
-        abbr = ''
-        if os.path.isdir(os.path.join(dirname, entry)):
-            abbr = ''.join([entry, os.sep])
-        if entry.startswith('.'):
-            score += 1000
-        entry = {
-            'word': entry,
-            'abbr': abbr,
-            'menu': '[F]',
-        }
-        entries.append((entry, score))
-        if len(entries) >= LIMIT:
-            break
+    hidden = gen_entry(_pat('.*'), dirname, basename)
+    chain = gen_entry(_pat('*'), dirname, basename), hidden
+
+    entries = list(itertools.islice(itertools.chain(*chain), LIMIT))
     entries.sort(key=lambda x: x[1])
     return entries
 
@@ -62,13 +72,19 @@ class Filename(Completor):
         \.{0,2}/|~|
 
         # '$var/'
-        \$[A-Za-z0-9{}_]+/
+        \$[A-Za-z0-9{}_]+/|
+
+        # 'c:/'
+        (?<![A-Za-z])[A-Za-z]:/|
+
+        # 'dirname/'
+        [@a-zA-Z0-9(){}+_\x80-\xff-\[\]]+/
         )+
 
         # Tail part
         (?:
         # any alphanumeric, symbol or space literal
-        [/a-zA-Z0-9(){}$ +_~.'"\x80-\xff-\[\]]|
+        [/@a-zA-Z0-9(){}$ +_~.'"\x80-\xff-\[\]]|
 
         # skip any special symbols
         [^\x20-\x7E]|
@@ -77,7 +93,8 @@ class Filename(Completor):
         \\.
         )*$""", re.U | re.X)
 
-    ident = r"""[a-zA-Z0-9(){}$ +_~.'"\x80-\xff-\[\]]*"""
+    # Ingore whitespace.
+    ident = r"""[@a-zA-Z0-9(){}$+_~.'"\x80-\xff-\[\]]*"""
 
     def parse(self, base):
         """
@@ -97,8 +114,15 @@ class Filename(Completor):
         if not match:
             logger.info('no matches')
             return []
+
+        if match.group()[-1] == ' ':
+            return []
+
         try:
-            items = find(self.current_directory, match.group())
+            if START_NO_DIRNAME.search(match.group()):
+                items = find(self.current_directory, match.group())
+            else:
+                items = find(self.current_directory, './' + match.group())
         except Exception as e:
             logger.exception(e)
             return []

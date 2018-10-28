@@ -1,5 +1,64 @@
 scriptencoding utf-8
 
+" Function: s:get_random_offset {{{1
+function! s:get_random_offset(max) abort
+  return str2nr(matchstr(reltimestr(reltime()), '\.\zs\d\+')[1:]) % a:max
+endfunction
+
+" Function: s:draw_box {{{1
+function! s:draw_box(lines) abort
+  let longest_line = max(map(copy(a:lines), 'strwidth(v:val)'))
+  let top_bottom_without_corners = repeat(s:char_top_bottom, longest_line + 2)
+  let top = s:char_top_left . top_bottom_without_corners . s:char_top_right
+  let bottom = s:char_bottom_left . top_bottom_without_corners . s:char_bottom_right
+  let lines = [top]
+  for l in a:lines
+    let offset = longest_line - strwidth(l)
+    let lines += [s:char_sides . ' '. l . repeat(' ', offset) .' ' . s:char_sides]
+  endfor
+  let lines += [bottom]
+  return lines
+endfunction
+
+" Function: #quote {{{1
+function! startify#fortune#quote() abort
+  return s:quotes[s:get_random_offset(len(s:quotes))]
+endfunction
+
+" Function: #boxed {{{1
+function! startify#fortune#boxed(...) abort
+  let wrapped_quote = []
+  let quote = a:0 && type(a:1) == type([]) ? a:1 : startify#fortune#quote()
+  for line in quote
+    let wrapped_quote += split(line, '\%50c.\{-}\zs\s', 1)
+  endfor
+  let wrapped_quote = s:draw_box(wrapped_quote)
+  return wrapped_quote
+endfunction
+
+" Function: #cowsay {{{1
+function! startify#fortune#cowsay(...) abort
+  if a:0
+    let quote = a:0 && type(a:1) == type([]) ? a:1 : startify#fortune#quote()
+    let s:char_top_bottom   = get(a:000, 1, s:char_top_bottom)
+    let s:char_sides        = get(a:000, 2, s:char_sides)
+    let s:char_top_left     = get(a:000, 3, s:char_top_left)
+    let s:char_top_right    = get(a:000, 4, s:char_top_right)
+    let s:char_bottom_right = get(a:000, 5, s:char_bottom_right)
+    let s:char_bottom_left  = get(a:000, 6, s:char_bottom_left)
+  else
+    let quote = startify#fortune#quote()
+  endif
+  let boxed_quote = startify#fortune#boxed(quote)
+  let boxed_quote += s:cow
+  return map(boxed_quote, '"   ". v:val')
+endfunction
+
+" Function: #predefined_quotes {{{1
+function! startify#fortune#predefined_quotes() abort
+  return s:predefined_quotes
+endfunction
+
 " Variables {{{1
 let s:cow = [
       \ '       o',
@@ -19,9 +78,7 @@ let s:char_top_right    = ['*', '╮'][s:unicode]
 let s:char_bottom_right = ['*', '╯'][s:unicode]
 let s:char_bottom_left  = ['*', '╰'][s:unicode]
 
-let s:quotes = exists('g:startify_custom_header_quotes')
-      \ ? g:startify_custom_header_quotes
-      \ : [
+let s:predefined_quotes = [
       \ ["Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.", '', '- Brian Kernighan'],
       \ ["If you don't finish then you're just busy, not productive."],
       \ ['Adapting old programs to fit new machines usually means adapting new machines to behave like old ones.', '', '- Alan Perlis'],
@@ -36,7 +93,7 @@ let s:quotes = exists('g:startify_custom_header_quotes')
       \ ['I think a lot of new programmers like to use advanced data structures and advanced language features as a way of demonstrating their ability. I call it the lion-tamer syndrome. Such demonstrations are impressive, but unless they actually translate into real wins for the project, avoid them.', '', '- Glyn Williams'],
       \ ['I would rather die of passion than of boredom.', '', '- Vincent Van Gogh'],
       \ ['If a system is to serve the creative spirit, it must be entirely comprehensible to a single individual.'],
-      \ ["The computing scientist's main challenge is not to get confused by the complexities of his own making.", '', '- E. W. Dijkstra'],
+      \ ["The computing scientist's main challenge is not to get confused by the complexities of his own making.", '', '- Edsger W. Dijkstra'],
       \ ["Progress in a fixed context is almost always a form of optimization. Creative acts generally don't stay in the context that they are in.", '', '- Alan Kay'],
       \ ['The essence of XML is this: the problem it solves is not hard, and it does not solve the problem well.', '', '- Phil Wadler'],
       \ ['A good programmer is someone who always looks both ways before crossing a one-way street.', '', '- Doug Linder'],
@@ -49,7 +106,7 @@ let s:quotes = exists('g:startify_custom_header_quotes')
       \ ["If you don't make mistakes, you're not working on hard enough problems.", '', '- Frank Wilczek'],
       \ ["If you don't start with a spec, every piece of code you write is a patch.", '', '- Leslie Lamport'],
       \ ['Caches are bugs waiting to happen.', '', '- Rob Pike'],
-      \ ['Abstraction is not about vagueness, it is about being precise at a new semantic level.', '', '- Dijkstra'],
+      \ ['Abstraction is not about vagueness, it is about being precise at a new semantic level.', '', '- Edsger W. Dijkstra'],
       \ ["dd is horrible on purpose. It's a joke about OS/360 JCL. But today it's an internationally standardized joke. I guess that says it all.", '', '- Rob Pike'],
       \ ['All loops are infinite ones for faulty RAM modules.'],
       \ ['All idioms must be learned. Good idioms only need to be learned once.', '', '- Alan Cooper'],
@@ -129,56 +186,54 @@ let s:quotes = exists('g:startify_custom_header_quotes')
       \ ['Use saboteurs to test your testing.', '', 'Introduce bugs on purpose in a separate copy of the source to verify that testing will catch them.'],
       \ ['Find bugs once.', '', 'Once a human tester finds a bug, it should be the last time a human tester finds that bug. Automatic tests should check for it from then on.'],
       \ ['Sign your work.', '', 'Craftsmen of an earlier age were proud to sign their work. You should be, too.'],
+      \ ['Think twice, code once.'],
+      \ ['No matter how far down the wrong road you have gone, turn back now.'],
+      \ ['Why do we never have time to do it right, but always have time to do it over?'],
+      \ ['Weeks of programming can save you hours of planning.'],
+      \ ['To iterate is human, to recurse divine.', '', '- L. Peter Deutsch'],
+      \ ['Computers are useless. They can only give you answers.', '', '- Pablo Picasso'],
+      \ ['The question of whether computers can think is like the question of whether submarines can swim.', '', '- Edsger W. Dijkstra'],
+      \ ["It's ridiculous to live 100 years and only be able to remember 30 million bytes. You know, less than a compact disc. The human condition is really becoming more obsolete every minute.", '', '- Marvin Minsky'],
+      \ ["The city's central computer told you? R2D2, you know better than to trust a strange computer!", '', '- C3PO'],
+      \ ['Most software today is very much like an Egyptian pyramid with millions of bricks piled on top of each other, with no structural integrity, but just done by brute force and thousands of slaves.', '', '- Alan Kay'],
+      \ ["I've finally learned what \"upward compatible\" means. It means we get to keep all our old mistakes.", '', '- Dennie van Tassel'],
+      \ ["There are two major products that come out of Berkeley: LSD and UNIX. We don't believe this to be a coincidence.", '', '- Jeremy S. Anderson'],
+      \ ["The bulk of all patents are crap. Spending time reading them is stupid. It's up to the patent owner to do so, and to enforce them.", '', '- Linus Torvalds'],
+      \ ['Controlling complexity is the essence of computer programming.', '', '- Brian Kernighan'],
+      \ ['Complexity kills. It sucks the life out of developers, it makes products difficult to plan, build and test, it introduces security challenges, and it causes end-user and administrator frustration.', '', '- Ray Ozzie'],
+      \ ['The function of good software is to make the complex appear to be simple.', '', '- Grady Booch'],
+      \ ["There's an old story about the person who wished his computer were as easy to use as his telephone. That wish has come true, since I no longer know how to use my telephone.", '', '- Bjarne Stroustrup'],
+      \ ['There are only two industries that refer to their customers as "users".', '', '- Edward Tufte'],
+      \ ['Most of you are familiar with the virtues of a programmer. There are three, of course: laziness, impatience, and hubris.', '', '- Larry Wall'],
+      \ ['Computer science education cannot make anybody an expert programmer any more than studying brushes and pigment can make somebody an expert painter.', '', '- Eric S. Raymond'],
+      \ ['Optimism is an occupational hazard of programming; feedback is the treatment.', '', '- Kent Beck'],
+      \ ['First, solve the problem. Then, write the code.', '', '- John Johnson'],
+      \ ['Measuring programming progress by lines of code is like measuring aircraft building progress by weight.', '', '- Bill Gates'],
+      \ ["Don't worry if it doesn't work right. If everything did, you'd be out of a job.", '', "- Mosher's Law of Software Engineering"],
+      \ ['A LISP programmer knows the value of everything, but the cost of nothing.', '', '- Alan J. Perlis'],
+      \ ['All problems in computer science can be solved with another level of indirection.', '', '- David Wheeler'],
+      \ ['Functions delay binding; data structures induce binding. Moral: Structure data late in the programming process.', '', '- Alan J. Perlis'],
+      \ ['Easy things should be easy and hard things should be possible.', '', '- Larry Wall'],
+      \ ['Nothing is more permanent than a temporary solution.'],
+      \ ["If you can't explain something to a six-year-old, you really don't understand it yourself.", '', '- Albert Einstein'],
+      \ ['All programming is an exercise in caching.', '', '- Terje Mathisen'],
+      \ ['Software is hard.', '', '- Donald Knuth'],
+      \ ['They did not know it was impossible, so they did it!', '', '- Mark Twain'],
+      \ ['The object-oriented model makes it easy to build up programs by accretion. What this often means, in practice, is that it provides a structured way to write spaghetti code.', '', '- Paul Graham'],
+      \ ['Question: How does a large software project get to be one year late?', 'Answer: One day at a time!'],
+      \ ['The first 90% of the code accounts for the first 90% of the development time. The remaining 10% of the code accounts for the other 90% of the development time.', '', '- Tom Cargill'],
+      \ ["In software, we rarely have meaningful requirements. Even if we do, the only measure of success that matters is whether our solution solves the customer's shifting idea of what their problem is.", '', '- Jeff Atwood'],
+      \ ['If debugging is the process of removing bugs, then programming must be the process of putting them in.', '', '- Edsger W. Dijkstra'],
+      \ ['640K ought to be enough for anybody.', '', '- Bill Gates, 1981'],
+      \ ['To understand recursion, one must first understand recursion.', '', '- Stephen Hawking'],
+      \ ['Developing tolerance for imperfection is the key factor in turning chronic starters into consistent finishers.', '', '- Jon Acuff'],
+      \ ['Every great developer you know got there by solving problems they were unqualified to solve until they actually did it.', '', '- Patrick McKenzie'],
+      \ ["The average user doesn't give a damn what happens, as long as (1) it works and (2) it's fast.", '', '- Daniel J. Bernstein'],
+      \ ['Walking on water and developing software from a specification are easy if both are frozen.', '', '- Edward V. Berard'],
+      \ ['Be curious. Read widely. Try new things. I think a lot of what people call intelligence boils down to curiosity.', '', '- Aaron Swartz'],
+      \ ['What one programmer can do in one month, two programmers can do in two months.', '', '- Frederick P. Brooks'],
       \ ]
 
-" Function: s:get_random_offset {{{1
-function! s:get_random_offset(max) abort
-  return str2nr(matchstr(reltimestr(reltime()), '\.\zs\d\+')[1:]) % a:max
-endfunction
-
-" Function: s:draw_box {{{1
-function! s:draw_box(lines) abort
-  let longest_line = max(map(copy(a:lines), 'strwidth(v:val)'))
-  let top_bottom_without_corners = repeat(s:char_top_bottom, longest_line + 2)
-  let top = s:char_top_left . top_bottom_without_corners . s:char_top_right
-  let bottom = s:char_bottom_left . top_bottom_without_corners . s:char_bottom_right
-  let lines = [top]
-  for l in a:lines
-    let offset = longest_line - strwidth(l)
-    let lines += [s:char_sides . ' '. l . repeat(' ', offset) .' ' . s:char_sides]
-  endfor
-  let lines += [bottom]
-  return lines
-endfunction
-
-" Function: #quote {{{1
-function! startify#fortune#quote() abort
-  return s:quotes[s:get_random_offset(len(s:quotes))]
-endfunction
-
-" Function: #boxed {{{1
-function! startify#fortune#boxed(...) abort
-  let wrapped_quote = []
-  let Quote = a:0 && type(a:1) == type([]) ? a:1 : startify#fortune#quote()
-  let quote = type(Quote) == type(function('tr')) ? Quote() : Quote
-  for line in quote
-    let wrapped_quote += split(line, '\%50c.\{-}\zs\s', 1)
-  endfor
-  let wrapped_quote = s:draw_box(wrapped_quote)
-  return wrapped_quote
-endfunction
-
-" Function: #cowsay {{{1
-function! startify#fortune#cowsay(...) abort
-  if a:0
-    let s:char_top_bottom   = get(a:000, 0, s:char_top_bottom)
-    let s:char_sides        = get(a:000, 1, s:char_sides)
-    let s:char_top_left     = get(a:000, 2, s:char_top_left)
-    let s:char_top_right    = get(a:000, 3, s:char_top_right)
-    let s:char_bottom_right = get(a:000, 4, s:char_bottom_right)
-    let s:char_bottom_left  = get(a:000, 5, s:char_bottom_left)
-  endif
-  let boxed_quote = startify#fortune#boxed()
-  let boxed_quote += s:cow
-  return map(boxed_quote, '"   ". v:val')
-endfunction
+let s:quotes = exists('g:startify_custom_header_quotes')
+      \ ? g:startify_custom_header_quotes
+      \ : startify#fortune#predefined_quotes()

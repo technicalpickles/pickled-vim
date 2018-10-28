@@ -1,7 +1,14 @@
 " Initialization {{{1
 
+if exists('g:loaded_grepper')
+  finish
+endif
+let g:loaded_grepper = 1
+
 " Escaping test line:
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
+
+highlight default link GrepperPrompt Question
 
 "
 " Default values that get used for missing values in g:grepper.
@@ -25,9 +32,9 @@ let s:defaults = {
       \ 'dir':           'cwd',
       \ 'next_tool':     '<tab>',
       \ 'repo':          ['.git', '.hg', '.svn'],
-      \ 'tools':         ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
+      \ 'tools':         ['ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
       \ 'git':           { 'grepprg':    'git grep -nI',
-      \                    'grepformat': '%f:%l:%m',
+      \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
       \ 'ag':            { 'grepprg':    'ag --vimgrep',
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
@@ -42,6 +49,9 @@ let s:defaults = {
       \                    'grepformat': '%f:%l:%c:%m',
       \                    'escape':     '\+*?^$%#()[]' },
       \ 'ack':           { 'grepprg':    'ack --noheading --column',
+      \                    'grepformat': '%f:%l:%c:%m',
+      \                    'escape':     '\^$.*+?()[]{}|' },
+      \ 'ack-grep':      { 'grepprg':    'ack-grep --noheading --column',
       \                    'grepformat': '%f:%l:%c:%m',
       \                    'escape':     '\^$.*+?()[]{}|' },
       \ 'grep':          { 'grepprg':    'grep -RIn $* .',
@@ -104,35 +114,26 @@ let g:grepper = exists('g:grepper')
       \ ? s:merge_configs(g:grepper, s:defaults)
       \ : deepcopy(s:defaults)
 
-for tool in g:grepper.tools
-  if !has_key(g:grepper, tool)
-        \ || !has_key(g:grepper[tool], 'grepprg')
-        \ || !executable(expand(matchstr(g:grepper[tool].grepprg, '^[^ ]*')))
-    call remove(g:grepper.tools, index(g:grepper.tools, tool))
+for s:tool in g:grepper.tools
+  if !has_key(g:grepper, s:tool)
+        \ || !has_key(g:grepper[s:tool], 'grepprg')
+        \ || !executable(expand(matchstr(g:grepper[s:tool].grepprg, '^[^ ]*')))
+    call remove(g:grepper.tools, index(g:grepper.tools, s:tool))
   endif
 endfor
 
 "
-" Special case: ag (-vimgrep isn't available in versions < 0.25)
-"
-if index(g:grepper.tools, 'ag') >= 0
-      \ && !exists('g:grepper.ag.grepprg')
-      \ && split(system('ag --version'))[2] =~ '^\v\d+\.%([01]|2[0-4])'
-  let g:grepper.ag.grepprg = 'ag --column --nogroup'
-endif
-
-"
 " Special case: ack (different distros use different names for ack)
+" Prefer ack-grep since its presence likely means ack is a different tool.
 "
-let ack     = index(g:grepper.tools, 'ack')
-let ackgrep = index(g:grepper.tools, 'ack-grep')
-if (ack >= 0) && (ackgrep >= 0)
-  call remove(g:grepper.tools, ackgrep)
+let s:ack     = index(g:grepper.tools, 'ack')
+let s:ackgrep = index(g:grepper.tools, 'ack-grep')
+if (s:ack >= 0) && (s:ackgrep >= 0)
+  call remove(g:grepper.tools, s:ack)
 endif
 
 let s:cmdline = ''
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
-let s:magic   = { 'next': '$$$next###', 'cr': '$$$cr###' }
 
 " Job handlers {{{1
 " s:on_stdout_nvim() {{{2
@@ -142,36 +143,32 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
   endif
 
   let orig_dir = s:chdir_push(self.work_dir)
+  let lcandidates = []
 
   try
-    if empty(a:data[-1])
+    if len(a:data) > 1 || empty(a:data[-1])
       " Second-last item is the last complete line in a:data.
-      noautocmd execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
-      let self.stdoutbuf = []
-    else
-      if empty(self.stdoutbuf)
-        " Last item in a:data is an incomplete line. Put into buffer.
-        let self.stdoutbuf = [remove(a:data, -1)]
-        noautocmd execute self.addexpr 'a:data'
-      else
-        " Last item in a:data is an incomplete line. Append to buffer.
-        let self.stdoutbuf = self.stdoutbuf[:-2]
-              \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
-              \ + a:data[1:]
-      endif
+      let acc_line = self.stdoutbuf . a:data[0]
+      let lcandidates = (empty(acc_line) ? [] : [acc_line]) + a:data[1:-2]
+      let self.stdoutbuf = ''
     endif
-    if self.flags.stop > 0
-      let nmatches = len(self.flags.quickfix ? getqflist() : getloclist(0))
-      if nmatches >= self.flags.stop || len(self.stdoutbuf) > self.flags.stop
-        " Add the remaining data
-        let n_rem_lines = self.flags.stop - nmatches - 1
-        if n_rem_lines > 0
-          noautocmd execute self.addexpr 'self.stdoutbuf[:n_rem_lines]'
-        endif
+    " Last item in a:data is an incomplete line (or empty), append to buffer
+    let self.stdoutbuf .= a:data[-1]
 
-        call jobstop(s:id)
-        unlet s:id
+    if self.flags.stop > 0 && (self.num_matches + len(lcandidates) >= self.flags.stop)
+      " Add the remaining data
+      let n_rem_lines = self.flags.stop - self.num_matches
+      if n_rem_lines > 0
+        noautocmd execute self.addexpr 'lcandidates[:n_rem_lines-1]'
+        let self.num_matches = self.flags.stop
       endif
+
+      call jobstop(s:id)
+      unlet s:id
+      return
+    else
+      noautocmd execute self.addexpr 'lcandidates'
+      let self.num_matches += len(lcandidates)
     endif
   finally
     call s:chdir_pop(orig_dir)
@@ -188,8 +185,8 @@ function! s:on_stdout_vim(_job_id, data) dict abort
 
   try
     noautocmd execute self.addexpr 'a:data'
-    if self.flags.stop > 0
-          \ && len(self.flags.quickfix ? getqflist() : getloclist(0)) >= self.flags.stop
+    let self.num_matches += 1
+    if self.flags.stop > 0 && self.num_matches >= self.flags.stop
       call job_stop(s:id)
       unlet s:id
     endif
@@ -445,6 +442,12 @@ function! s:get_config() abort
   endif
   return flags
 endfunction
+
+" s:set_prompt_op() {{{2
+function! s:set_prompt_op(op) abort
+  let s:prompt_op = a:op
+  return getcmdline()
+endfunction
 " }}}1
 
 " s:parse_flags() {{{1
@@ -539,9 +542,7 @@ function! s:process_flags(flags)
   endif
 
   if a:flags.buffer
-    let [shellslash, &shellslash] = [&shellslash, 1]
     let a:flags.buflist = [fnamemodify(bufname(''), ':p')]
-    let &shellslash = shellslash
     if !filereadable(a:flags.buflist[0])
       call s:error('This buffer is not backed by a file!')
       return 1
@@ -549,10 +550,8 @@ function! s:process_flags(flags)
   endif
 
   if a:flags.buffers
-    let [shellslash, &shellslash] = [&shellslash, 1]
     let a:flags.buflist = filter(map(filter(range(1, bufnr('$')),
           \ 'bufloaded(v:val)'), 'fnamemodify(bufname(v:val), ":p")'), 'filereadable(v:val)')
-    let &shellslash = shellslash
     if empty(a:flags.buflist)
       call s:error('No buffer is backed by a file!')
       return 1
@@ -565,17 +564,16 @@ function! s:process_flags(flags)
 
   if a:flags.prompt
     call s:prompt(a:flags)
-    " Empty query string indicates that prompt was canceled
-    if empty(a:flags.query)
+    if s:prompt_op == 'cancelled'
       return
     endif
-    " Remove marker indicating that prompt was accepted
-    let a:flags.query = substitute(a:flags.query, '\V\C'.s:magic.cr .'\$', '', '')
     if empty(a:flags.query)
       let a:flags.query = s:escape_cword(a:flags, expand('<cword>'))
     elseif a:flags.prompt_quote == 1
       let a:flags.query = shellescape(a:flags.query)
     endif
+  else
+    call histadd('input', a:flags.query)
   endif
 
   if a:flags.side
@@ -586,8 +584,6 @@ function! s:process_flags(flags)
   if a:flags.highlight
     call s:highlight_query(a:flags)
   endif
-
-  call histadd('input', a:flags.query)
 
   return 0
 endfunction
@@ -618,8 +614,8 @@ function! s:prompt(flags)
         \ : s:get_grepprg(a:flags)
 
   let mapping = maparg(g:grepper.next_tool, 'c', '', 1)
-  execute 'cnoremap' g:grepper.next_tool s:magic.next .'<cr>'
-  execute 'cnoremap <cr> <end>'. s:magic.cr .'<cr>'
+  execute 'cnoremap' g:grepper.next_tool "\<c-\>e\<sid>set_prompt_op('next_tool')<cr><cr>"
+  cnoremap <cr> <end><c-\>e<sid>set_prompt_op('cr')<cr><cr>
 
   " Set low timeout for key codes, so <esc> would cancel prompt faster
   let ttimeoutsave = &ttimeout
@@ -635,7 +631,16 @@ function! s:prompt(flags)
     let a:flags.query = a:flags.query
   endif
 
-  echohl Question
+  " s:prompt_op indicates which key ended the prompt's input() and is needed to
+  " distinguish different actions. The next_tool mapping sets it to 'next_tool',
+  " and <cr> to 'cr'. It defaults to 'cancelled', which means that the prompt
+  " was cancelled by either <esc> or <c-c>.
+  "   'cancelled':  don't start searching
+  "   'next_tool':  don't start searching, use query as input for the next tool
+  "   'cr':         start searching
+  let s:prompt_op = 'cancelled'
+
+  echohl GrepperPrompt
   call inputsave()
 
   try
@@ -655,13 +660,7 @@ function! s:prompt(flags)
     call inputrestore()
   endtry
 
-  if !empty(a:flags.query)
-    " Always delete entered line from the history because it contains magic
-    " sequence. Real query will be added to the history later.
-    call histdel('input', -1)
-  endif
-
-  if a:flags.query =~# s:magic.next
+  if s:prompt_op == 'next_tool'
     call s:next_tool(a:flags)
     if a:flags.cword
       let a:flags.query = s:escape_cword(a:flags, a:flags.query_orig)
@@ -671,9 +670,9 @@ function! s:prompt(flags)
         let a:flags.query = (is_findstr ? '' : '-- '). s:escape_query(a:flags, a:flags.query_orig)
       else
         if a:flags.prompt_quote >= 2
-          let a:flags.query = a:flags.query[1:-len(s:magic.next)-2]
+          let a:flags.query = a:flags.query[1:-2]
         else
-          let a:flags.query = a:flags.query[:-len(s:magic.next)-1]
+          let a:flags.query = a:flags.query[:-1]
         endif
       endif
     endif
@@ -686,9 +685,17 @@ function! s:build_cmdline(flags) abort
   let grepprg = s:get_grepprg(a:flags)
 
   if has_key(a:flags, 'buflist')
-    let [shellslash, &shellslash] = [&shellslash, 1]
-    call map(a:flags.buflist, 'shellescape(fnamemodify(v:val, ":."))')
-    let &shellslash = shellslash
+    if has('win32')
+      " cmd.exe does not use single quotes for quoting. Using 'noshellslash'
+      " forces path separators to be backslashes and makes shellescape() using
+      " double quotes. Beforehand escape all backslashes, otherwise \t in
+      " 'dir\test' would be considered a tab etc.
+      let [shellslash, &shellslash] = [&shellslash, 0]
+      call map(a:flags.buflist, 'shellescape(escape(fnamemodify(v:val, ":."), "\\"))')
+      let &shellslash = shellslash
+    else
+      call map(a:flags.buflist, 'shellescape(fnamemodify(v:val, ":."))')
+    endif
   endif
 
   if stridx(grepprg, '$.') >= 0
@@ -719,14 +726,8 @@ function! s:run(flags)
   let s:cmdline = s:build_cmdline(a:flags)
 
   " 'cmd' and 'options' are only used for async execution.
-  if has('win32') && &shell =~# 'powershell'
-    " Windows powershell has better quote handling.
-    let cmd = s:cmdline
-  elseif has('win32') && &shell =~# 'cmd'
-    " cmd.exe handles single quotes as part of the query. To avoid this
-    " behaviour, we run the query via powershell.exe from within cmd.exe:
-    " https://stackoverflow.com/questions/94382/vim-with-powershell
-    let cmd = 'powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned '. s:cmdline
+  if has('win32')
+    let cmd = 'cmd.exe /c '. s:cmdline
   else
     let cmd = ['sh', '-c', s:cmdline]
   endif
@@ -738,7 +739,8 @@ function! s:run(flags)
         \ 'addexpr':   a:flags.quickfix ? 'caddexpr' : 'laddexpr',
         \ 'window':    winnr(),
         \ 'tabpage':   tabpagenr(),
-        \ 'stdoutbuf': [],
+        \ 'stdoutbuf': '',
+        \ 'num_matches': 0,
         \ }
 
   call s:store_errorformat(a:flags)
@@ -799,11 +801,14 @@ function! s:finish_up(flags)
   call s:restore_errorformat()
 
   try
-    let title = has('nvim') ? cmdline : {'title': cmdline}
+    " TODO: Remove condition if nvim 0.2.0+ enters Debian stable.
+    let attrs = has('nvim') && !has('nvim-0.2.0')
+          \ ? cmdline
+          \ : {'title': cmdline, 'context': {'query': @/}}
     if qf
-      call setqflist(list, a:flags.append ? 'a' : 'r', title)
+      call setqflist(list, a:flags.append ? 'a' : 'r', attrs)
     else
-      call setloclist(0, list, a:flags.append ? 'a' : 'r', title)
+      call setloclist(0, list, a:flags.append ? 'a' : 'r', attrs)
     endif
   catch /E118/
   endtry
@@ -847,7 +852,13 @@ endfunction
 " -highlight {{{1
 " s:highlight_query() {{{2
 function! s:highlight_query(flags)
-  let query = has_key(a:flags, 'query_orig') ? a:flags.query_orig : a:flags.query
+  if has_key(a:flags, 'query_orig')
+    let query = a:flags.query_orig
+  else
+    " Remove any flags at the beginning, e.g. when using '-uu' with rg, but
+    " keep plain '-'.
+    let query = substitute(a:flags.query, '\v-\w+\s+', '', 'g')
+  endif
 
   " Change Vim's '\'' to ' so it can be understood by /.
   let vim_query = substitute(query, "'\\\\''", "'", 'g')
@@ -1079,10 +1090,11 @@ endif
 " Commands {{{1
 command! -nargs=* -complete=customlist,grepper#complete Grepper call <sid>parse_flags(<q-args>)
 
-for tool in g:grepper.tools
-  let utool = toupper(tool[0]) . tool[1:]
-  execute 'command! -nargs=+ -complete=file Grepper'. utool
-        \ 'Grepper -noprompt -tool' tool '-query <args>'
+for s:tool in g:grepper.tools
+  let s:utool = substitute(toupper(s:tool[0]) . s:tool[1:], '-\(.\)',
+        \ '\=toupper(submatch(1))', 'g')
+  execute 'command! -nargs=+ -complete=file Grepper'. s:utool
+        \ 'Grepper -noprompt -tool' s:tool '-query <args>'
 endfor
 
 " vim: tw=80 et sts=2 sw=2 fdm=marker

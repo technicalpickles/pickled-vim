@@ -3,14 +3,26 @@
 
 call ale#Set('python_pycodestyle_executable', 'pycodestyle')
 call ale#Set('python_pycodestyle_options', '')
-call ale#Set('python_pycodestyle_use_global', 0)
+call ale#Set('python_pycodestyle_use_global', get(g:, 'ale_use_global_executables', 0))
+call ale#Set('python_pycodestyle_auto_pipenv', 0)
 
 function! ale_linters#python#pycodestyle#GetExecutable(buffer) abort
+    if (ale#Var(a:buffer, 'python_auto_pipenv') || ale#Var(a:buffer, 'python_pycodestyle_auto_pipenv'))
+    \ && ale#python#PipenvPresent(a:buffer)
+        return 'pipenv'
+    endif
+
     return ale#python#FindExecutable(a:buffer, 'python_pycodestyle', ['pycodestyle'])
 endfunction
 
 function! ale_linters#python#pycodestyle#GetCommand(buffer) abort
-    return ale#Escape(ale_linters#python#pycodestyle#GetExecutable(a:buffer))
+    let l:executable = ale_linters#python#pycodestyle#GetExecutable(a:buffer)
+
+    let l:exec_args = l:executable =~? 'pipenv$'
+    \   ? ' run pycodestyle'
+    \   : ''
+
+    return ale#Escape(l:executable) . l:exec_args
     \   . ' '
     \   . ale#Var(a:buffer, 'python_pycodestyle_options')
     \   . ' -'
@@ -44,8 +56,8 @@ function! ale_linters#python#pycodestyle#Handle(buffer, lines) abort
         \   'code': l:match[4],
         \}
 
-        " E999 is not a style error, it's a syntax error.
-        if l:match[4] is# 'E999'
+        " E999 and E112 are syntax errors.
+        if l:match[4] is# 'E999' || l:match[4] is# 'E112'
             unlet l:item.sub_type
         endif
 

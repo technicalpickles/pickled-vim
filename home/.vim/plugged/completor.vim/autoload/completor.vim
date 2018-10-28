@@ -29,7 +29,7 @@ function! s:skip()
   if exists('g:completor_whitelist') && type(g:completor_whitelist) == v:t_list
     let skip = skip || index(g:completor_whitelist, &ft) == -1
   endif
-  return skip || !s:char_inserted
+  return skip || !s:char_inserted || get(b:, 'completor_disabled', v:false)
 endfunction
 
 
@@ -52,53 +52,57 @@ function! s:on_insert_char_pre()
 endfunction
 
 
+function! s:on_complete_done()
+  if pumvisible() == 0
+    try
+      pclose
+    catch
+    endtry
+  endif
+endfunction
+
+
 function! s:set_events()
   augroup completor
     autocmd!
     autocmd TextChangedI * call s:on_text_change()
     autocmd InsertCharPre * call s:on_insert_char_pre()
+    autocmd InsertEnter * call completor#action#_on_insert_enter()
+    autocmd InsertLeave * call completor#action#_on_insert_leave()
     if get(g:, 'completor_auto_close_doc', 1)
-      autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+      autocmd! CompleteDone * call completor#action#_on_complete_done()
     endif
   augroup END
-  if get(g:, 'completor_set_options', 1)
-    set completeopt-=longest
-    set completeopt+=menuone
-    set completeopt-=menu
-    if &completeopt !~# 'noinsert\|noselect'
-      set completeopt+=noselect
-    endif
-  endif
 endfunction
 
 
-function! completor#disable()
+function! completor#disable_autocomplete()
   autocmd! completor
 endfunction
 
 
-function! completor#enable()
+function! completor#enable_autocomplete()
   if &diff
     return
   endif
-  noremap  <silent> <Plug>CompletorTrigger <nop>
-  inoremap <silent> <Plug>CompletorTrigger <c-x><c-u>
   call s:set_events()
 endfunction
 
 
-function! completor#do(action)
+function! completor#do(action) range
   call s:import_python()
   call completor#action#update_status()
 
   let status = completor#action#get_status()
 
+  let meta = {'range': [a:firstline, a:lastline]}
+
   if a:action ==# 'complete'
     let info = completor#utils#get_completer(status.ft, status.input)
   else
-    let info = completor#utils#load(status.ft, a:action, status.input)
+    let info = completor#utils#load(status.ft, a:action, status.input, meta)
   endif
-  call completor#action#do(a:action, info)
+  call completor#action#do(a:action, info, status)
   return ''
 endfunction
 

@@ -60,6 +60,9 @@ class Vim(object):
     def Dictionary(self, **kwargs):
         return kwargs
 
+    def command(self, cmd):
+        pass
+
 
 class UltiSnips(object):
     def _snips(self, base, other):
@@ -67,6 +70,7 @@ class UltiSnips(object):
             return []
 
         return [mock.Mock(trigger='urt', description='mock snips')]
+
 
 sys.path.append('./pythonx')
 sys.modules['vim'] = Vim()
