@@ -23,6 +23,8 @@
   Plug 'https://github.com/jlanzarotta/bufexplorer.git'
   Plug 'https://github.com/jmcantrell/vim-virtualenv.git'
   Plug 'https://github.com/johann-p-koebbe/rspec.vim.git'  " fork with better ultisnips support
+  Plug 'https://github.com/joker1007/vim-ruby-heredoc-syntax.git'
+  Plug 'https://github.com/jparise/vim-graphql.git'
   Plug 'https://github.com/jtratner/vim-flavored-markdown.git'
   Plug 'https://github.com/junegunn/vim-easy-align.git'
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
@@ -31,11 +33,13 @@
   Plug 'https://github.com/mhinz/vim-grepper.git'
   Plug 'https://github.com/mhinz/vim-startify.git'
   Plug 'https://github.com/moll/vim-node.git'
+  Plug 'https://github.com/mxw/vim-jsx.git'
   Plug 'https://github.com/nanotech/jellybeans.vim.git'
   Plug 'https://github.com/niftylettuce/vim-jinja.git'
   Plug 'https://github.com/oscarh/vimerl.git'
   Plug 'https://github.com/othree/html5.vim.git'
   Plug 'https://github.com/pangloss/vim-javascript.git'
+  Plug 'https://github.com/rhysd/vim-crystal.git'
   Plug 'https://github.com/rodjek/vim-puppet.git'
   Plug 'https://github.com/scrooloose/nerdcommenter.git'
   Plug 'https://github.com/scrooloose/nerdtree.git'
@@ -65,12 +69,10 @@
   Plug 'https://github.com/tpope/vim-surround.git'
   Plug 'https://github.com/tpope/vim-unimpaired.git'
   Plug 'https://github.com/vim-airline/vim-airline.git'
+  Plug 'https://github.com/vim-airline/vim-airline-themes.git'
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/zerowidth/vim-bgtags.git'
-  Plug 'https://github.com/joker1007/vim-ruby-heredoc-syntax.git'
-  Plug 'https://github.com/jparise/vim-graphql.git'
-  Plug 'https://github.com/mxw/vim-jsx.git'
 
 " Section: plugins that probably will be deleted
 " Plug 'https://github.com/majutsushi/tagbar.git'
@@ -156,7 +158,7 @@
     autocmd!
 
     " Section: ruby
-      autocmd FileType ruby,eruby,yaml set shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+      autocmd FileType ruby,eruby,yaml,crystal set shiftwidth=2 softtabstop=2 tabstop=2 expandtab
       autocmd BufRead,BufNewFile *.Brewfile set ft=ruby
       autocmd BufRead,BufNewFile Capfile set ft=ruby
       autocmd BufRead,BufNewFile Gemfile set ft=ruby
