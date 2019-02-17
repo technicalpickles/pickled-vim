@@ -150,6 +150,7 @@
 
   " 'murica
   set spelllang=en_us
+  set complete+=kspell
 
   "let g:browser = 'open '
 
@@ -167,6 +168,11 @@
       autocmd BufRead,BufNewFile *.god set ft=ruby
       autocmd BufRead,BufNewFile *.ru set ft=ruby
       autocmd BufRead,BufNewFile .caprc set ft=ruby
+
+    " Section: spelling
+      autocmd FileType gitcommit setlocal spell
+      autocmd BufRead,BufNewFile *.md setlocal spell
+      autocmd BufRead,BufNewFile *.txt setlocal spell
 
     " Section: other stuff
 
