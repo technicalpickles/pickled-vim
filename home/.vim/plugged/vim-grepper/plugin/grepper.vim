@@ -10,6 +10,15 @@ let g:loaded_grepper = 1
 
 highlight default link GrepperPrompt Question
 
+function! s:set_git_command() abort
+  let m = matchlist(system('git --version'), '\v \zs(\d+)\.(\d+)')
+  if empty(m) || (m[1] == 2 && m[2] < 19)
+    return 'git grep -nI'
+  else
+    return 'git grep -nI --column'
+  endif
+endfunction
+
 "
 " Default values that get used for missing values in g:grepper.
 "
@@ -30,16 +39,18 @@ let s:defaults = {
       \ 'side_cmd':      'vnew',
       \ 'stop':          5000,
       \ 'dir':           'cwd',
-      \ 'next_tool':     '<tab>',
+      \ 'prompt_mapping_tool': '<tab>',
+      \ 'prompt_mapping_dir':  '<c-d>',
+      \ 'prompt_mapping_side': '<c-s>',
       \ 'repo':          ['.git', '.hg', '.svn'],
-      \ 'tools':         ['ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
-      \ 'git':           { 'grepprg':    'git grep -nI',
+      \ 'tools':         ['git', 'ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift'],
+      \ 'git':           { 'grepprg':    s:set_git_command(),
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
       \ 'ag':            { 'grepprg':    'ag --vimgrep',
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*+?()[]{}|' },
-      \ 'rg':            { 'grepprg':    'rg -H --no-heading --vimgrep',
+      \ 'rg':            { 'grepprg':    'rg -H --no-heading --vimgrep' . (has('win32') ? ' $* .' : ''),
       \                    'grepformat': '%f:%l:%c:%m',
       \                    'escape':     '\^$.*+?()[]{}|' },
       \ 'pt':            { 'grepprg':    'pt --nogroup',
@@ -359,6 +370,24 @@ function! s:unescape_query(flags, query)
   return q
 endfunction
 
+" s:requote_query() {{{2
+function! s:requote_query(flags) abort
+  if a:flags.cword
+    let a:flags.query = s:escape_cword(a:flags, a:flags.query_orig)
+  else
+    let is_findstr = s:get_current_tool_name(a:flags) == 'findstr'
+    if has_key(a:flags, 'query_orig')
+      let a:flags.query = (is_findstr ? '' : '-- '). s:escape_query(a:flags, a:flags.query_orig)
+    else
+      if a:flags.prompt_quote >= 2
+        let a:flags.query = a:flags.query[1:-2]
+      else
+        let a:flags.query = a:flags.query[:-1]
+      endif
+    endif
+  endif
+endfunction
+
 " s:escape_cword() {{{2
 function! s:escape_cword(flags, cword)
   let tool = s:get_current_tool(a:flags)
@@ -440,6 +469,10 @@ function! s:get_config() abort
   if exists('b:grepper')
     let flags = s:merge_configs(b:grepper, g:grepper)
   endif
+  if !empty(flags.tools) && flags.tools[0] == 'git'
+        \ && empty(finddir('.git', '.;'))
+    call remove(flags.tools, 0)
+  endif
   return flags
 endfunction
 
@@ -502,7 +535,6 @@ function! s:parse_flags(args) abort
         " ..thus you get nicer file completion.
       else
         let flags.query = args
-        let flags.prompt = 0
       endif
       break
     elseif flag =~? '^-tool$'
@@ -590,6 +622,8 @@ endfunction
 
 " s:start() {{{1
 function! s:start(flags) abort
+  let s:prompt_op = ''
+
   if empty(g:grepper.tools)
     call s:error('No grep tool found!')
     return
@@ -613,9 +647,25 @@ function! s:prompt(flags)
         \ ? s:get_current_tool_name(a:flags)
         \ : s:get_grepprg(a:flags)
 
-  let mapping = maparg(g:grepper.next_tool, 'c', '', 1)
-  execute 'cnoremap' g:grepper.next_tool "\<c-\>e\<sid>set_prompt_op('next_tool')<cr><cr>"
+  if s:prompt_op == 'flag_dir'
+    let changed_mode = '[-dir '. a:flags.dir .'] '
+    let prompt_text = changed_mode . prompt_text
+  elseif s:prompt_op == 'flag_side'
+    let changed_mode = '['. (a:flags.side ? '-side' : '-noside') .'] '
+    let prompt_text = changed_mode . prompt_text
+  endif
+
+  " Store original mappings
+  let mapping_cr   = maparg('<cr>', 'c', '', 1)
+  let mapping_tool = maparg(get(g:grepper, 'next_tool', g:grepper.prompt_mapping_tool), 'c', '', 1)
+  let mapping_dir  = maparg(g:grepper.prompt_mapping_dir,  'c', '', 1)
+  let mapping_side = maparg(g:grepper.prompt_mapping_side, 'c', '', 1)
+
+  " Set plugin-specific mappings
   cnoremap <cr> <end><c-\>e<sid>set_prompt_op('cr')<cr><cr>
+  execute 'cnoremap' g:grepper.prompt_mapping_tool "\<c-\>e\<sid>set_prompt_op('flag_tool')<cr><cr>"
+  execute 'cnoremap' g:grepper.prompt_mapping_dir  "\<c-\>e\<sid>set_prompt_op('flag_dir')<cr><cr>"
+  execute 'cnoremap' g:grepper.prompt_mapping_side "\<c-\>e\<sid>set_prompt_op('flag_side')<cr><cr>"
 
   " Set low timeout for key codes, so <esc> would cancel prompt faster
   let ttimeoutsave = &ttimeout
@@ -632,11 +682,12 @@ function! s:prompt(flags)
   endif
 
   " s:prompt_op indicates which key ended the prompt's input() and is needed to
-  " distinguish different actions. The next_tool mapping sets it to 'next_tool',
-  " and <cr> to 'cr'. It defaults to 'cancelled', which means that the prompt
-  " was cancelled by either <esc> or <c-c>.
+  " distinguish different actions. It defaults to 'cancelled', which means that
+  " the prompt was cancelled by either <esc> or <c-c>.
   "   'cancelled':  don't start searching
-  "   'next_tool':  don't start searching, use query as input for the next tool
+  "   'flag_tool':  don't start searching; toggle -tool flag
+  "   'flag_dir':   don't start searching; toggle -dir flag
+  "   'flag_side':  don't start searching; toggle -side flag
   "   'cr':         start searching
   let s:prompt_op = 'cancelled'
 
@@ -648,9 +699,16 @@ function! s:prompt(flags)
           \ 'customlist,grepper#complete_files')
   finally
     redraw!
-    execute 'cunmap' g:grepper.next_tool
+
+    " Restore mappings
     cunmap <cr>
-    call s:restore_mapping(mapping)
+    execute 'cunmap' g:grepper.prompt_mapping_tool
+    execute 'cunmap' g:grepper.prompt_mapping_dir
+    execute 'cunmap' g:grepper.prompt_mapping_side
+    call s:restore_mapping(mapping_cr)
+    call s:restore_mapping(mapping_tool)
+    call s:restore_mapping(mapping_dir)
+    call s:restore_mapping(mapping_side)
 
     " Restore original timeout settings for key codes
     let &ttimeout = ttimeoutsave
@@ -660,22 +718,19 @@ function! s:prompt(flags)
     call inputrestore()
   endtry
 
-  if s:prompt_op == 'next_tool'
-    call s:next_tool(a:flags)
-    if a:flags.cword
-      let a:flags.query = s:escape_cword(a:flags, a:flags.query_orig)
-    else
-      let is_findstr = s:get_current_tool_name(a:flags) == 'findstr'
-      if has_key(a:flags, 'query_orig')
-        let a:flags.query = (is_findstr ? '' : '-- '). s:escape_query(a:flags, a:flags.query_orig)
-      else
-        if a:flags.prompt_quote >= 2
-          let a:flags.query = a:flags.query[1:-2]
-        else
-          let a:flags.query = a:flags.query[:-1]
-        endif
-      endif
+  if s:prompt_op != 'cr' && s:prompt_op != 'cancelled'
+    if s:prompt_op == 'flag_tool'
+      call s:next_tool(a:flags)
+    elseif s:prompt_op == 'flag_dir'
+      let states = ['cwd', 'file', 'filecwd', 'repo']
+      let pattern = printf('v:val =~# "^%s.*"', a:flags.dir)
+      let current_index = index(map(copy(states), pattern), 1)
+      let a:flags.dir = states[(current_index + 1) % len(states)]
+    elseif s:prompt_op == 'flag_side'
+      let a:flags.side = !a:flags.side
     endif
+
+    call s:requote_query(a:flags)
     return s:prompt(a:flags)
   endif
 endfunction

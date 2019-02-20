@@ -48,7 +48,7 @@ Execute (PreProcess should throw when executable is not a string):
   \ 'executable': 123,
   \ 'command': 'echo',
   \})
-  AssertEqual '`executable` must be a string if defined', g:vader_exception
+  AssertEqual '`executable` must be a String or Function if defined', g:vader_exception
 
 Execute (PreProcess should throw when executable_callback is not a callback):
   AssertThrows call ale#linter#PreProcess('testft', {
@@ -58,6 +58,14 @@ Execute (PreProcess should throw when executable_callback is not a callback):
   \ 'command': 'echo',
   \})
   AssertEqual '`executable_callback` must be a callback if defined', g:vader_exception
+
+Execute (PreProcess should allow executable to be a callback):
+  call ale#linter#PreProcess('testft', {
+  \ 'name': 'foo',
+  \ 'callback': 'SomeFunction',
+  \ 'executable': function('type'),
+  \ 'command': 'echo',
+  \})
 
 Execute (PreProcess should throw when there is no command):
   AssertThrows call ale#linter#PreProcess('testft', {
@@ -501,6 +509,31 @@ Execute(PreProcess should throw when initialization_options_callback is not a ca
   \})
   AssertEqual '`initialization_options_callback` must be a callback if defined', g:vader_exception
 
+Execute(PreProcess should complain about using lsp_config and lsp_config_callback together):
+  let g:linter = {
+  \ 'name': 'x',
+  \ 'lsp': 'socket',
+  \ 'address_callback': 'X',
+  \ 'language': 'x',
+  \ 'project_root_callback': 'x',
+  \ 'lsp_config': 'x',
+  \ 'lsp_config_callback': 'x',
+  \}
+
+  AssertThrows call ale#linter#PreProcess('testft', g:linter)
+  AssertEqual 'Only one of `lsp_config` or `lsp_config_callback` should be set', g:vader_exception
+
+Execute(PreProcess should throw when lsp_config_callback is not a callback):
+  AssertThrows call ale#linter#PreProcess('testft', {
+  \ 'name': 'foo',
+  \ 'lsp': 'socket',
+  \ 'address_callback': 'X',
+  \ 'language': 'x',
+  \ 'project_root_callback': 'x',
+  \ 'lsp_config_callback': {},
+  \})
+  AssertEqual '`lsp_config_callback` must be a callback if defined', g:vader_exception
+
 Execute(PreProcess should accept LSP configuration options via lsp_config):
   let g:ale_lsp_configuration = {
   \ 'foo': 'bar'
@@ -517,7 +550,6 @@ Execute(PreProcess should accept LSP configuration options via lsp_config):
 
   AssertEqual {'foo': 'bar'}, ale#linter#PreProcess('testft', g:linter).lsp_config
 
-
 Execute(PreProcess should throw when lsp_config is not a Dictionary):
   AssertThrows call ale#linter#PreProcess('testft', {
   \ 'name': 'foo',
@@ -528,4 +560,3 @@ Execute(PreProcess should throw when lsp_config is not a Dictionary):
   \ 'lsp_config': 'x',
   \})
   AssertEqual '`lsp_config` must be a Dictionary', g:vader_exception
-

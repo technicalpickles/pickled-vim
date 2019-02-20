@@ -16,6 +16,7 @@ let s:default_ale_linter_aliases = {
 \   'systemverilog': 'verilog',
 \   'verilog_systemverilog': ['verilog_systemverilog', 'verilog'],
 \   'vimwiki': 'markdown',
+\   'vue': ['vue', 'javascript'],
 \   'zsh': 'sh',
 \}
 
@@ -31,6 +32,7 @@ let s:default_ale_linter_aliases = {
 " NOTE: Update the g:ale_linters documentation when modifying this.
 let s:default_ale_linters = {
 \   'csh': ['shell'],
+\   'elixir': ['credo', 'dialyxir', 'dogma', 'elixir-ls'],
 \   'go': ['gofmt', 'golint', 'go vet'],
 \   'hack': ['hack'],
 \   'help': [],
@@ -40,6 +42,7 @@ let s:default_ale_linters = {
 \   'rust': ['cargo'],
 \   'spec': [],
 \   'text': [],
+\   'vue': ['eslint', 'vls'],
 \   'zsh': ['shell'],
 \}
 
@@ -77,7 +80,6 @@ function! ale#linter#PreProcess(filetype, linter) abort
     endif
 
     let l:obj = {
-    \   'add_newline': get(a:linter, 'add_newline', 0),
     \   'name': get(a:linter, 'name'),
     \   'lsp': get(a:linter, 'lsp', ''),
     \}
@@ -118,7 +120,8 @@ function! ale#linter#PreProcess(filetype, linter) abort
         let l:obj.executable = a:linter.executable
 
         if type(l:obj.executable) isnot v:t_string
-            throw '`executable` must be a string if defined'
+        \&& type(l:obj.executable) isnot v:t_func
+            throw '`executable` must be a String or Function if defined'
         endif
     else
         throw 'Either `executable` or `executable_callback` must be defined'
@@ -257,7 +260,17 @@ function! ale#linter#PreProcess(filetype, linter) abort
             let l:obj.initialization_options = a:linter.initialization_options
         endif
 
-        if has_key(a:linter, 'lsp_config')
+        if has_key(a:linter, 'lsp_config_callback')
+            if has_key(a:linter, 'lsp_config')
+                throw 'Only one of `lsp_config` or `lsp_config_callback` should be set'
+            endif
+
+            let l:obj.lsp_config_callback = a:linter.lsp_config_callback
+
+            if !s:IsCallback(l:obj.lsp_config_callback)
+                throw '`lsp_config_callback` must be a callback if defined'
+            endif
+        elseif has_key(a:linter, 'lsp_config')
             if type(a:linter.lsp_config) isnot v:t_dict
                 throw '`lsp_config` must be a Dictionary'
             endif
@@ -464,9 +477,13 @@ endfunction
 
 " Given a buffer and linter, get the executable String for the linter.
 function! ale#linter#GetExecutable(buffer, linter) abort
-    return has_key(a:linter, 'executable_callback')
-    \   ? ale#util#GetFunction(a:linter.executable_callback)(a:buffer)
+    let l:Executable = has_key(a:linter, 'executable_callback')
+    \   ? function(a:linter.executable_callback)
     \   : a:linter.executable
+
+    return type(l:Executable) is v:t_func
+    \   ? l:Executable(a:buffer)
+    \   : l:Executable
 endfunction
 
 " Given a buffer and linter, get the command String for the linter.

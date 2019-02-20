@@ -11,12 +11,12 @@
                                                              \/__/
   by Marco Hinz~
 >
-  If you use any of my plugins, please star them on github. It's a great way
+  If you use any of my plugins, please star them on GitHub. It's a great way
   of getting feedback and gives me the kick to put more time into their
   development.
 
-  If you encounter any bugs or have feature requests, just open an issue
-  report on Github.
+  If you encounter any bugs or have feature requests, just open an issue on
+  GitHub.
 
   Thank you for flying mhi^ airlines. Get the Vim on!
 <
@@ -57,7 +57,8 @@ Startify basically provides two things:
    can even double-click anywhere on the line now.
 
    In addition, 'e' creates an empty buffer, 'i' creates an empty buffer and
-   jumps into insert mode, 'q' quits.
+   jumps into insert mode, 'q' quits either the buffer or, if there is no
+   other listed buffer left, Vim itself.
 
    Moreover, you can open several files at one go. Navigate to an entry and
    hit either 'b' (open in same window), 's' (open in split), 'v' (open in
@@ -133,7 +134,11 @@ default values.
 <
 The directory to save/load sessions to/from.
 
-The default for Windows systems is '$HOME\vimfiles\session'.
+Defaults:~
+
+  Nvim:          `$XDG_DATA_HOME/nvim/session` (`:echo stdpath('data')`)
+  Vim (Unix):    `$HOME/.vim/session`
+  Vim (Windows): `$HOME/vimfiles/session`
 
 ------------------------------------------------------------------------------
                                                          *g:startify_list_order*
@@ -151,12 +156,17 @@ This option is DEPRECATED in favor of |g:startify_lists|.
           \ { 'type': 'commands',  'header': ['   Commands']       },
           \ ]
 <
-Startify displays lists. Each list consists of a type and an optional header.
+Startify displays lists. Each list consists of a `type` and optionally a `header`
+and custom `indices`.
 
 The 'type' is either a string of a built-in type or a |Funcref|.
 
 The 'header' is a list of strings, whereas each string will be put on its own
 line in the header.
+
+The 'indices' is a list of strings, which act as indices for the current list.
+Opposed to the global |g:startify_custom_indices|, this is limited to the
+current list.
 
 Built-in types:~
 
@@ -690,10 +700,26 @@ $PWD and $OLDPWD are ignored.
 ==============================================================================
 AUTOCMD                                                       *startify-autocmd*
 
-When the Startify buffer is fully set up, it emits an User event. You can hook
-into that to customize Startify even further:
+In certain situations Startify emits events which can be hooked into via
+|autocmd|s. Those can be used for further customization.
+
+StartifyReady~
+
+  When the Startify buffer is ready.
+
+StartifyBufferOpened~
+
+  For each buffer that got opened by Startify. When you open multiple files at
+  once (see |startify-usage|), this event fires multiple times as well.
+
+StartifyAllBuffersOpened~
+
+  No matter how many buffers you open, this event fires only once after the
+  last buffer was opened.
+
+Example:
 >
-    autocmd User Startified let &l:stl = ' This statusline rocks!'
+    autocmd User StartifyReady let &l:stl = ' This statusline rocks!'
 <
 Or use it to disable single mappings: |startify-faq-16|.
 
@@ -720,10 +746,12 @@ Use `:SSave!` or `:SDelete!` to always overwrite or delete an existing session.
 
                                                                *startify-:SLoad*
 >
-    :SLoad [session]
+    :SLoad[!] [session]
 <
-Load a session. If you don't specify a session name, it will either prompt you
-for one (Windows) or load the last used session (Unix).
+Load a session. If you don't specify a session name, it will prompt you for
+one.
+
+If the `!` is given, it tries to source the last used session (only Unix).
 
 Providing only a part of the session name works too, if you complete the
 argument with either <c-d> or <tab> afterwards.
@@ -854,6 +882,7 @@ FAQ                                                               *startify-faq*
     |startify-faq-15|  Startify is cluttered with help files!
     |startify-faq-16|  How to disable single mappings?
     |startify-faq-17|  Run Startify for each new tab!
+    |startify-faq-18|  Files from remote file system slow down startup!
 
 ------------------------------------------------------------------------------
                                                                *startify-faq-01*
@@ -1075,13 +1104,28 @@ Run Startify for each new tab!~
     if has('nvim')
       autocmd TabNewEntered * Startify
     else
-      autocmd VimEnter * let t:startify_new_tab = 1
-      autocmd BufEnter *
-            \ if !exists('t:startify_new_tab') && empty(expand('%')) |
+      autocmd BufWinEnter *
+            \ if !exists('t:startify_new_tab')
+            \     && empty(expand('%'))
+            \     && empty(&l:buftype)
+            \     && &l:modifiable |
             \   let t:startify_new_tab = 1 |
             \   Startify |
             \ endif
     endif
+<
+------------------------------------------------------------------------------
+                                                               *startify-faq-18*
+Files from remote file system slow down startup!~
+
+I/O actions like resolving symbolic links or checking if a file is readable
+can be very slow on some remote file systems (Samba, NFS, FUSE, etc.) Even
+more so when done for many files.
+
+In that case it is often better to add the mount point of the remote file
+system to |g:startify_skiplist|:
+>
+    let g:startify_skiplist = ['^/mnt/nfs']
 <
 ==============================================================================
 EXAMPLE                                                       *startify-example*
