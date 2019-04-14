@@ -73,6 +73,7 @@
   Plug 'https://github.com/vim-scripts/IndentAnything.git'
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/zerowidth/vim-bgtags.git'
+  Plug 'https://github.com/chrisbra/matchit.git' " fix for https://github.com/macvim-dev/macvim/issues/845
 
 " Section: plugins that probably will be deleted
 " Plug 'https://github.com/majutsushi/tagbar.git'
