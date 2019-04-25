@@ -74,6 +74,12 @@
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/zerowidth/vim-bgtags.git'
   Plug 'https://github.com/chrisbra/matchit.git' " fix for https://github.com/macvim-dev/macvim/issues/845
+  Plug 'https://github.com/cocopon/iceberg.vim.git'
+  Plug 'https://github.com/dracula/vim.git', { 'as': 'dracula' }
+  Plug 'https://github.com/morhetz/gruvbox.git'
+  Plug 'https://github.com/ayu-theme/ayu-vim.git'
+  Plug 'https://github.com/Yggdroot/indentLine.git'
+  Plug 'https://github.com/atelierbram/vim-colors_atelier-schemes.git'
 
 " Section: plugins that probably will be deleted
 " Plug 'https://github.com/majutsushi/tagbar.git'
@@ -89,7 +95,14 @@
   " I like pretty colors
   " Note: Use !silent to avoid error at startup before vim-plug first
   " installed
-  silent! colorscheme onedark
+
+  set termguicolors     " enable true colors support
+  "let ayucolor="light"  " for light version of theme
+  "let ayucolor="mirage" " for mirage version of theme
+  let ayucolor="dark"   " for dark version of theme
+  silent! colorscheme ayu
+  "silent! colorscheme iceberg
+  "silent! colorscheme onedark
   "silent! colorscheme atom-dark
   "silent! colorscheme jellybeans
   "silent! colorscheme ir_black
@@ -463,3 +476,9 @@
           \   "start" : "SOURCE",
           \},
     \}
+
+" Section: IdentLine
+" let g:indentLine_char = ''
+" let g:indentLine_first_char = ''
+" let g:indentLine_showFirstIndentLevel = 1
+" let g:indentLine_setColors = 0
