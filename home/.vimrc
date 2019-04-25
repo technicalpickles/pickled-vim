@@ -437,7 +437,7 @@
   " enter to select
   "inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
-" Section bgtags
+" Section: bgtags
   " Disable tag binary search, assume tag files are unsorted. This is likely true
   " given that autotag is rewriting tags files, and the tags command I'm using
   " also doesn't generate a sorted file. This will save a binary search (fast as
