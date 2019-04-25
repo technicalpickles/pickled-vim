@@ -253,6 +253,10 @@
   " http://vimcasts.org/episodes/spell-checking/
   nmap <silent> <leader>s :set spell!<CR>
 
+  " Be less picky about spell check
+  syn match UrlNoSpell '\w\+:\/\/[^[:space:]]\+' contains=@NoSpell
+  syn match AcronymNoSpell '\<\(\u\|\d\)\{3,}s\?\>' contains=@NoSpell
+
   map <C-c>n :cnext<CR>
   map <C-c>p :cprevious<CR>
 
