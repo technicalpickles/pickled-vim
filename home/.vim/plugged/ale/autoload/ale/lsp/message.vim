@@ -5,7 +5,7 @@
 " [is_notification, method_name, params?]
 "
 " All functions which accept line and column arguments expect them to be 1-based
-" (the same format as being returned by getcurpos() and friends), those then
+" (the same format as being returned by getpos() and friends), those then
 " will be converted to 0-based as specified by LSP.
 let g:ale_lsp_next_version_id = 1
 
@@ -159,7 +159,7 @@ function! ale#lsp#message#Hover(buffer, line, column) abort
 endfunction
 
 function! ale#lsp#message#DidChangeConfiguration(buffer, config) abort
-    return [0, 'workspace/didChangeConfiguration', {
+    return [1, 'workspace/didChangeConfiguration', {
     \   'settings': a:config,
     \}]
 endfunction

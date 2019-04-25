@@ -27,6 +27,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['python'],
 \       'description': 'Fix PEP8 issues with black.',
 \   },
+\   'fecs': {
+\       'function': 'ale#fixers#fecs#Fix',
+\       'suggested_filetypes': ['javascript', 'css', 'html'],
+\       'description': 'Apply fecs format to a file.',
+\   },
 \   'tidy': {
 \       'function': 'ale#fixers#tidy#Fix',
 \       'suggested_filetypes': ['html'],
@@ -142,8 +147,8 @@ let s:default_registry = {
 \   },
 \   'clang-format': {
 \       'function': 'ale#fixers#clangformat#Fix',
-\       'suggested_filetypes': ['c', 'cpp'],
-\       'description': 'Fix C/C++ files with clang-format.',
+\       'suggested_filetypes': ['c', 'cpp', 'cuda'],
+\       'description': 'Fix C/C++ and cuda files with clang-format.',
 \   },
 \   'cmakeformat': {
 \       'function': 'ale#fixers#cmakeformat#Fix',
@@ -279,6 +284,16 @@ let s:default_registry = {
 \       'function': 'ale#fixers#ktlint#Fix',
 \       'suggested_filetypes': ['kt'],
 \       'description': 'Fix Kotlin files with ktlint.',
+\   },
+\   'styler': {
+\       'function': 'ale#fixers#styler#Fix',
+\       'suggested_filetypes': ['r'],
+\       'description': 'Fix R files with styler.',
+\   },
+\   'latexindent': {
+\       'function': 'ale#fixers#latexindent#Fix',
+\       'suggested_filetypes': ['tex'],
+\       'description' : 'Indent code within environments, commands, after headings and within special code blocks.',
 \   },
 \}
 

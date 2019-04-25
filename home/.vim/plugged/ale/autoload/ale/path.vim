@@ -197,14 +197,20 @@ function! ale#path#ToURI(path) abort
 endfunction
 
 function! ale#path#FromURI(uri) abort
-    let l:i = len('file://')
-    let l:encoded_path = a:uri[: l:i - 1] is# 'file://' ? a:uri[l:i :] : a:uri
+    if a:uri[:6] is? 'file://'
+        let l:encoded_path = a:uri[7:]
+    elseif a:uri[:4] is? 'file:'
+        let l:encoded_path = a:uri[5:]
+    else
+        let l:encoded_path = a:uri
+    endif
 
     let l:path = ale#uri#Decode(l:encoded_path)
 
     " If the path is like /C:/foo/bar, it should be C:\foo\bar instead.
-    if l:path =~# '^/[a-zA-Z]:'
+    if has('win32') && l:path =~# '^/[a-zA-Z][:|]'
         let l:path = substitute(l:path[1:], '/', '\\', 'g')
+        let l:path = l:path[0] . ':' . l:path[2:]
     endif
 
     return l:path
