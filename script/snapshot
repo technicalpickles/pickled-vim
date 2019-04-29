@@ -1,0 +1,3 @@
+#!/bin/bash
+# install vim plugins
+vim +PlugSnapshot home/.vim/plugged-snapshot.vim +qall
