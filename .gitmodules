@@ -1,12 +1,6 @@
-[submodule "vendor/vim-space"]
-	path = vendor/vim-space
-	url = git://github.com/tpope/vim-space.git
 [submodule "vendor/vim-pathogen"]
 	path = vendor/vim-pathogen
 	url = git://github.com/tpope/vim-pathogen.git
-[submodule ".vim/bundle/puppet"]
-	path = .vim/bundle/puppet
-	url = git://github.com/rodjek/vim-puppet.git
 [submodule "vendor/vim-plug"]
 	path = vendor/vim-plug
 	url = https://github.com/junegunn/vim-plug.git
