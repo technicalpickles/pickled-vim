@@ -21,6 +21,7 @@
   Plug 'https://github.com/rhysd/vim-crystal.git'
   Plug 'https://github.com/rodjek/vim-puppet.git'
   Plug 'https://github.com/jparise/vim-graphql.git'
+  Plug 'https://github.com/rhysd/vim-syntax-codeowners.git'
 
 " Subsection: everything else :D
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
