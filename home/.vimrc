@@ -198,13 +198,13 @@
     autocmd FileType python set shiftwidth=4 softtabstop=4 expandtab
     autocmd FileType javascript,html,htmldjango,css set shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType vim set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+    autocmd FileType markdown set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType cucumber set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType puppet set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType bash set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd FileType sh set tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
     autocmd BufRead,BufNewFile *etc/nginx/* set ft=nginx
-    autocmd BufEnter *.haml setlocal cursorcolumn
   augroup END
 
   " Turn on language specific omnifuncs
