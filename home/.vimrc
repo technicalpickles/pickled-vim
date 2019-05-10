@@ -4,27 +4,38 @@
 " Subsection: plugins unlikely to cause problems
   Plug 'https://github.com/joshdick/onedark.vim.git'
   Plug 'https://github.com/w0rp/ale.git'
+  Plug 'https://github.com/dracula/vim.git', { 'as': 'dracula' }
+  Plug 'https://github.com/morhetz/gruvbox.git'
+  Plug 'https://github.com/ayu-theme/ayu-vim.git'
+  Plug 'https://github.com/atelierbram/vim-colors_atelier-schemes.git'
+  Plug 'https://github.com/gosukiwi/vim-atom-dark.git'
+  Plug 'https://github.com/cocopon/iceberg.vim.git'
+
+" Subsection: plugins for syntax
+  Plug 'https://github.com/asciidoc/vim-asciidoc.git'
+  Plug 'https://github.com/gcorne/vim-sass-lint.git'
+  Plug 'https://github.com/groenewege/vim-less.git'
+  Plug 'https://github.com/StanAngeloff/php.vim.git'
+  Plug 'https://github.com/othree/html5.vim.git'
+  Plug 'https://github.com/pangloss/vim-javascript.git'
+  Plug 'https://github.com/rhysd/vim-crystal.git'
+  Plug 'https://github.com/rodjek/vim-puppet.git'
+  Plug 'https://github.com/jparise/vim-graphql.git'
 
 " Subsection: everything else :D
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
   Plug 'https://github.com/Raimondi/delimitMate.git'
-  Plug 'https://github.com/StanAngeloff/php.vim.git'
   Plug 'https://github.com/airblade/vim-gitgutter.git'
-  Plug 'https://github.com/asciidoc/vim-asciidoc.git'
   Plug 'https://github.com/digitaltoad/vim-pug.git'
   Plug 'https://github.com/editorconfig/editorconfig-vim.git'
   Plug 'https://github.com/farmergreg/vim-lastplace.git'
-  Plug 'https://github.com/gcorne/vim-sass-lint.git'
   Plug 'https://github.com/godlygeek/tabular.git'
-  Plug 'https://github.com/gosukiwi/vim-atom-dark.git'
-  Plug 'https://github.com/groenewege/vim-less.git'
   Plug 'https://github.com/hail2u/vim-css3-syntax.git'
   Plug 'https://github.com/ivalkeen/vim-ctrlp-tjump.git'
   Plug 'https://github.com/jlanzarotta/bufexplorer.git'
   Plug 'https://github.com/jmcantrell/vim-virtualenv.git'
   Plug 'https://github.com/johann-p-koebbe/rspec.vim.git'  " fork with better ultisnips support
   Plug 'https://github.com/joker1007/vim-ruby-heredoc-syntax.git'
-  Plug 'https://github.com/jparise/vim-graphql.git'
   Plug 'https://github.com/jtratner/vim-flavored-markdown.git'
   Plug 'https://github.com/junegunn/vim-easy-align.git'
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
@@ -37,10 +48,6 @@
   Plug 'https://github.com/nanotech/jellybeans.vim.git'
   Plug 'https://github.com/niftylettuce/vim-jinja.git'
   Plug 'https://github.com/oscarh/vimerl.git'
-  Plug 'https://github.com/othree/html5.vim.git'
-  Plug 'https://github.com/pangloss/vim-javascript.git'
-  Plug 'https://github.com/rhysd/vim-crystal.git'
-  Plug 'https://github.com/rodjek/vim-puppet.git'
   Plug 'https://github.com/scrooloose/nerdcommenter.git'
   Plug 'https://github.com/scrooloose/nerdtree.git'
   Plug 'https://github.com/sickill/vim-pasta.git'
@@ -58,6 +65,7 @@
   Plug 'https://github.com/tpope/vim-git.git'
   Plug 'https://github.com/tpope/vim-liquid.git'
   Plug 'https://github.com/tpope/vim-markdown.git'
+  "Plug 'https://github.com/plasticboy/vim-markdown.git'
   Plug 'https://github.com/tpope/vim-projectionist.git'
   Plug 'https://github.com/tpope/vim-ragtag.git'
   Plug 'https://github.com/tpope/vim-rails.git'
@@ -74,12 +82,8 @@
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/zerowidth/vim-bgtags.git'
   Plug 'https://github.com/chrisbra/matchit.git' " fix for https://github.com/macvim-dev/macvim/issues/845
-  Plug 'https://github.com/cocopon/iceberg.vim.git'
-  Plug 'https://github.com/dracula/vim.git', { 'as': 'dracula' }
-  Plug 'https://github.com/morhetz/gruvbox.git'
-  Plug 'https://github.com/ayu-theme/ayu-vim.git'
-  Plug 'https://github.com/Yggdroot/indentLine.git'
-  Plug 'https://github.com/atelierbram/vim-colors_atelier-schemes.git'
+  "Plug 'https://github.com/Yggdroot/indentLine.git'
+  Plug 'https://github.com/RRethy/vim-illuminate.git'
 
 " Section: plugins that probably will be deleted
 " Plug 'https://github.com/majutsushi/tagbar.git'
@@ -482,3 +486,6 @@
 " let g:indentLine_first_char = ''
 " let g:indentLine_showFirstIndentLevel = 1
 " let g:indentLine_setColors = 0
+
+" Section: vim-markdown
+  let g:vim_markdown_new_list_item_indent = 2
