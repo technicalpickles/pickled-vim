@@ -83,7 +83,7 @@
   Plug 'https://github.com/vim-scripts/dbext.vim.git'
   Plug 'https://github.com/zerowidth/vim-bgtags.git'
   Plug 'https://github.com/chrisbra/matchit.git' " fix for https://github.com/macvim-dev/macvim/issues/845
-  "Plug 'https://github.com/Yggdroot/indentLine.git'
+  Plug 'https://github.com/Yggdroot/indentLine.git'
   Plug 'https://github.com/RRethy/vim-illuminate.git'
 
 " Section: plugins that probably will be deleted
@@ -481,12 +481,6 @@
           \   "start" : "SOURCE",
           \},
     \}
-
-" Section: IdentLine
-" let g:indentLine_char = ''
-" let g:indentLine_first_char = ''
-" let g:indentLine_showFirstIndentLevel = 1
-" let g:indentLine_setColors = 0
 
 " Section: vim-markdown
   let g:vim_markdown_new_list_item_indent = 2

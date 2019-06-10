@@ -1,6 +1,13 @@
 " And pretty fonts
   set macligatures
-  set guifont=Fira\ Code:h14
+  set guifont=FuraCode\ Nerd\ Font:h14
+
+
+" Section: IdentLine
+  let g:indentLine_char = '┊'
+  let g:indentLine_first_char = '┊'
+  let g:indentLine_showFirstIndentLevel = 1
+  let g:indentLine_setColors = 0
 
 
 " No toolbar
