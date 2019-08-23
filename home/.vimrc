@@ -2,26 +2,27 @@
   call plug#begin('~/.vim/plugged')
 
 " Subsection: plugins unlikely to cause problems
-  Plug 'https://github.com/joshdick/onedark.vim.git'
-  Plug 'https://github.com/w0rp/ale.git'
-  Plug 'https://github.com/dracula/vim.git', { 'as': 'dracula' }
-  Plug 'https://github.com/morhetz/gruvbox.git'
-  Plug 'https://github.com/ayu-theme/ayu-vim.git'
   Plug 'https://github.com/atelierbram/vim-colors_atelier-schemes.git'
-  Plug 'https://github.com/gosukiwi/vim-atom-dark.git'
+  Plug 'https://github.com/ayu-theme/ayu-vim.git'
   Plug 'https://github.com/cocopon/iceberg.vim.git'
+  Plug 'https://github.com/dracula/vim.git', { 'as': 'dracula' }
+  Plug 'https://github.com/gosukiwi/vim-atom-dark.git'
+  Plug 'https://github.com/joshdick/onedark.vim.git'
+  Plug 'https://github.com/morhetz/gruvbox.git'
+  Plug 'https://github.com/w0rp/ale.git'
 
 " Subsection: plugins for syntax
+  Plug 'https://github.com/StanAngeloff/php.vim.git'
   Plug 'https://github.com/asciidoc/vim-asciidoc.git'
   Plug 'https://github.com/gcorne/vim-sass-lint.git'
   Plug 'https://github.com/groenewege/vim-less.git'
-  Plug 'https://github.com/StanAngeloff/php.vim.git'
+  Plug 'https://github.com/hail2u/vim-css3-syntax.git'
+  Plug 'https://github.com/jparise/vim-graphql.git'
   Plug 'https://github.com/othree/html5.vim.git'
   Plug 'https://github.com/pangloss/vim-javascript.git'
   Plug 'https://github.com/rhysd/vim-crystal.git'
-  Plug 'https://github.com/rodjek/vim-puppet.git'
-  Plug 'https://github.com/jparise/vim-graphql.git'
   Plug 'https://github.com/rhysd/vim-syntax-codeowners.git'
+  Plug 'https://github.com/rodjek/vim-puppet.git'
 
 " Subsection: everything else :D
   Plug 'https://github.com/LucHermitte/lh-vim-lib.git'
@@ -31,7 +32,6 @@
   Plug 'https://github.com/editorconfig/editorconfig-vim.git'
   Plug 'https://github.com/farmergreg/vim-lastplace.git'
   Plug 'https://github.com/godlygeek/tabular.git'
-  Plug 'https://github.com/hail2u/vim-css3-syntax.git'
   Plug 'https://github.com/ivalkeen/vim-ctrlp-tjump.git'
   Plug 'https://github.com/jlanzarotta/bufexplorer.git'
   Plug 'https://github.com/jmcantrell/vim-virtualenv.git'
