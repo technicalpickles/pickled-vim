@@ -85,6 +85,8 @@
   Plug 'https://github.com/chrisbra/matchit.git' " fix for https://github.com/macvim-dev/macvim/issues/845
   Plug 'https://github.com/Yggdroot/indentLine.git'
   Plug 'https://github.com/RRethy/vim-illuminate.git'
+  Plug 'https://github.com/jgdavey/vim-blockle.git'
+  Plug 'https://github.com/reedes/vim-pencil.git'
 
 " Section: plugins that probably will be deleted
 " Plug 'https://github.com/majutsushi/tagbar.git'
@@ -484,3 +486,14 @@
 
 " Section: vim-markdown
   let g:vim_markdown_new_list_item_indent = 2
+
+" Section: note taking
+
+  nmap <leader>p :TogglePencil<CR>
+
+  " Special configuration for devonthink notes
+  augroup devonthink
+     autocmd!
+     " don't bother with spellcheck in my devonthink archive by default
+     autocmd BufRead,BufNewFile **/DEVONthink\ Pro\ 2/*.dtBase2/**/*.md setlocal nospell
+  augroup END
