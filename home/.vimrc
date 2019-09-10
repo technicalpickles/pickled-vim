@@ -93,7 +93,6 @@
 " Plug 'https://github.com/majutsushi/tagbar.git'
 " Plug 'https://github.com/SirVer/ultisnips.git'
 
- 
   call plug#end()
 
 " Section: configuration
@@ -359,6 +358,8 @@
     let g:ale_linters.ruby = ['mri', 'rubocop']
     let g:ale_fixers.ruby = ['rubocop']
   endif
+
+  let g:ale_fix_on_save = 1
 
   " Set per-path options
   " - .env files aren't usually real shell files, so ignore those
