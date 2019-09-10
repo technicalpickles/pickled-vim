@@ -307,6 +307,18 @@
   let g:airline_powerline_fonts = 1
   let g:airline_skip_empty_sections = 1
 
+  " whitespace checks.  default: ['indent', 'trailing', 'mixed-indent-file', 'conflicts']
+  "
+  " I find the trailing lines kinda annoying. it's just noise when you are
+  " touching files you don't have complete control off the style of. For times
+  " that the project cares more, could plausibly use ale's
+  " remote_trailing_lines whitespace fixer
+  let g:airline#extensions#whitespace#checks = [ 'indent', 'mixed-indent-file', 'conflicts' ]
+
+  " By default, it will display something like 'utf-8[unix]', however, you can
+  " skip displaying it, if the output matches a configured string.
+  let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
+
 " Section vim-easy-align plugin
   " Start interactive EasyAlign in visual mode (e.g. vipga)
   xmap ga <Plug>(EasyAlign)
@@ -337,9 +349,14 @@
   \  'eruby': ['erubylint']
   \}
 
+  let g:ale_fixers = {
+  \   '*': ['remove_trailing_lines', 'trim_whitespace'],
+  \}
+
   " use rubocop if there's a config for it
   if filereadable(".rubocop.yml")
     let g:ale_linters.ruby = ['mri', 'rubocop']
+    let g:ale_fixers.ruby = ['rubocop']
   endif
 
   " Set per-path options
