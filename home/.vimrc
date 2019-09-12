@@ -307,6 +307,9 @@
   let g:airline_powerline_fonts = 1
   let g:airline_skip_empty_sections = 1
 
+  " don't show words. if I need to know how many, I can check myself
+  let g:airline#extensions#wordcount#enabled = 0
+
   " whitespace checks.  default: ['indent', 'trailing', 'mixed-indent-file', 'conflicts']
   "
   " I find the trailing lines kinda annoying. it's just noise when you are
