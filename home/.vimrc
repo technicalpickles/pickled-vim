@@ -132,6 +132,10 @@
   "sm:    flashes matching brackets or parentheses
   set showmatch
 
+  " use all lowercase to search case insensitive. using any uppercase letters
+  " will be case-sensitive
+  set smartcase
+
   " Change <Leader>
   let mapleader = ","
 
