@@ -441,7 +441,12 @@
   set secure
 
 " Section: startify
-  let g:startify_list_order = ['dir', 'bookmarks', 'sessions', 'commands']
+  let g:startify_lists = [
+        \ { 'type': 'dir',       'header': ['   MRU '. getcwd()] },
+        \ { 'type': 'sessions',  'header': ['   Sessions']       },
+        \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
+        \ { 'type': 'commands',  'header': ['   Commands']       },
+        \ ]
   " don't change into directory, to keep at project root
   let g:startify_change_to_dir = 0
 
