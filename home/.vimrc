@@ -535,6 +535,17 @@
 " Section: vim-markdown
   let g:vim_markdown_new_list_item_indent = 2
 
+" Section: vista
+  let g:vista_fzf_preview = ['right:50%']
+
+  let g:vista#renderer#icons = {
+  \   "chapter": "\uf405",
+  \  }
+
+" Section: illuminate
+  hi illuminatedWord cterm=standout gui=standout
+  let g:Illuminate_ftblacklist = ['nerdtree']
+
 " Section: note taking
 
   nmap <leader>p :TogglePencil<CR>
