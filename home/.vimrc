@@ -438,6 +438,21 @@
   " Align line-wise comment delimiters flush left instead of following code indentation
   let g:NERDDefaultAlign = 'left'
 
+  "
+  " See https://github.com/preservim/nerdcommenter/pull/393 for wider convo
+  " about nerdcommenter and filetypes
+  let g:NERDCustomDelimiters = {
+      \ 'javascript.jsx': { 'left': '//', 'leftAlt': '{/*', 'rightAlt': '*/}' },
+  \}
+
+" Section: delimitMate
+  let delimitMate_expand_cr = 1
+  let delimitMate_expand_space = 1
+  " let delimitMate_balance_matchpairs = 1
+  let delimitMate_expand_inside_quotes = 1
+  let delimitMate_jump_expansion = 1
+
+
 " Section: vim-javascript
   " Enable jsdoc syntax
   let g:javascript_plugin_jsdoc = 1
