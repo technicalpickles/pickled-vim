@@ -556,3 +556,11 @@
      " don't bother with spellcheck in my devonthink archive by default
      autocmd BufRead,BufNewFile **/DEVONthink\ Pro\ 2/*.dtBase2/**/*.md setlocal nospell
   augroup END
+
+" Section: sonic-pi
+
+
+let g:sonicpi_command = 'sonic-pi-tool'
+let g:sonicpi_send = 'eval-stdin'
+let g:sonicpi_stop = 'stop'
+let g:vim_redraw = 1
