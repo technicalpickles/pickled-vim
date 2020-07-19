@@ -280,6 +280,9 @@
   " http://vimcasts.org/episodes/spell-checking/
   nmap <silent> <leader>s :set spell!<CR>
 
+  " format file and return to where I was before
+  nnoremap <Leader>= mmgg=G`mzz
+
   " Be less picky about spell check
   syn match UrlNoSpell '\w\+:\/\/[^[:space:]]\+' contains=@NoSpell
   syn match AcronymNoSpell '\<\(\u\|\d\)\{3,}s\?\>' contains=@NoSpell
