@@ -42,7 +42,6 @@
   Plug 'https://github.com/junegunn/vim-easy-align.git'
   Plug 'https://github.com/kchmck/vim-coffee-script.git'
   Plug 'https://github.com/kien/ctrlp.vim.git'
-  Plug 'https://github.com/maralla/completor.vim.git'
   Plug 'https://github.com/mhinz/vim-grepper.git'
   Plug 'https://github.com/mhinz/vim-startify.git'
   Plug 'https://github.com/moll/vim-node.git'
@@ -58,7 +57,7 @@
   Plug 'https://github.com/technicalpickles/vim-nodenv.git'
   Plug 'https://github.com/technicalpickles/vim-ruby-minitest.git' " fork with different filetype
   Plug 'https://github.com/technicalpickles/vim-snippets.git'
-  Plug 'https://github.com/ternjs/tern_for_vim.git'
+  " Plug 'https://github.com/ternjs/tern_for_vim.git'
   Plug 'https://github.com/tpope/vim-bundler.git'
   Plug 'https://github.com/tpope/vim-cucumber.git'
   Plug 'https://github.com/tpope/vim-dispatch.git'
@@ -88,6 +87,10 @@
   Plug 'https://github.com/RRethy/vim-illuminate.git'
   Plug 'https://github.com/jgdavey/vim-blockle.git'
   Plug 'https://github.com/reedes/vim-pencil.git'
+  Plug 'liuchengxu/vista.vim'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'https://github.com/drewtempelmeyer/palenight.vim.git'
+  Plug 'https://github.com/dermusikman/sonicpi.vim.git'
 
 " Section: plugins that probably will be deleted
 " Plug 'https://github.com/majutsushi/tagbar.git'
@@ -454,39 +457,35 @@
     set viminfo='100,n$HOME/.vim/files/info/viminfo
   endif
 
-  " Section: completor
-  " From: https://github.com/maralla/completor.vim#use-tab-to-trigger-completion-disable-auto-trigger
-  " Use TAB to complete when typing words, else inserts TABs as usual.  Uses
-  " dictionary, source files, and completor to find matching words to complete.
 
-  " Note: usual completion is on <C-n> but more trouble to press all the time.
-  " Never type the same word twice and maybe learn a new spellings!
-  " Use the Linux dictionary when spelling is in doubt.
-  function! Tab_Or_Complete() abort
-    " If completor is already open the `tab` cycles through suggested completions.
-    if pumvisible()
-      return "\<C-N>"
-    " If completor is not open and we are in the middle of typing a word then
-    " `tab` opens completor menu.
-    elseif col('.')>1 && strpart( getline('.'), col('.')-2, 3 ) =~ '^\w'
-      return "\<C-R>=completor#do('complete')\<CR>"
-    else
-      " If we aren't typing a word and we press `tab` simply do the normal `tab`
-      " action.
-      return "\<Tab>"
-    endif
+  " Section: coc
+  " use <tab> for trigger completion and navigate to the next complete item
+  function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~ '\s'
   endfunction
 
-  " Use `tab` key to select completions.  Default is arrow keys.
-  inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+  " Use `tab` key to trigger coc, as well as select the next completion
+  inoremap <silent><expr> <Tab>
+        \ pumvisible() ? "\<C-n>" :
+        \ <SID>check_back_space() ? "\<Tab>" :
+        \ coc#refresh()
+  " Use shift-tab to select previous completion
   inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-  " Use tab to trigger auto completion.  Default suggests completions as you type.
-  "let g:completor_auto_trigger = 0
-  "inoremap <expr> <Tab> Tab_Or_Complete()
+  " use <c-space>for trigger completion
+  " inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
 
   " enter to select
-  "inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
+  " inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+  "
+  " GoTo code navigation.
+  nmap <silent> gd <Plug>(coc-definition)
+  nmap <silent> gy <Plug>(coc-type-definition)
+  nmap <silent> gi <Plug>(coc-implementation)
+  nmap <silent> gr <Plug>(coc-references)
+
 
 " Section: bgtags
   " Disable tag binary search, assume tag files are unsorted. This is likely true

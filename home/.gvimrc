@@ -35,7 +35,7 @@ if has('gui_macvim') || has('gui_vimr') || exists("neovim_dot_app")
 
   " bind command-option-l to toggle line numbers
     nmap <silent> <D-M-l> :set invnumber<CR>
-   
+
   " open tabs with command-<tab number>
     map <silent> <D-1> :tabn 1<CR>
     map <silent> <D-2> :tabn 2<CR>

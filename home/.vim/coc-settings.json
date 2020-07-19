@@ -1,0 +1,5 @@
+{
+  "suggest.autoTrigger": "trigger",
+  "suggest.noselect": false,
+  "tsserver.npm": "/Users/technicalpickles/.nodenv/shims/npm"
+}
